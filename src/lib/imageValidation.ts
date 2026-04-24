@@ -86,9 +86,13 @@ const EXT_BY_TYPE: Record<NonNullable<DetectedImageType>, string> = {
   svg: "svg",
 };
 
-export type ImageValidationResult =
-  | { ok: true; type: NonNullable<DetectedImageType>; mime: string; ext: string }
-  | { ok: false; error: string };
+export type ImageValidationResult = {
+  ok: boolean;
+  type?: NonNullable<DetectedImageType>;
+  mime?: string;
+  ext?: string;
+  error?: string;
+};
 
 export type ValidateImageOptions = {
   /** Allowed detected types. Defaults to all supported formats. */
