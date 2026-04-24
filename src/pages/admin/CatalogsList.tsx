@@ -224,66 +224,82 @@ export default function CatalogsList() {
             </Button>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {catalogs.map((c) => (
-              <div
+              <article
                 key={c.id}
-                className="group flex flex-col rounded-2xl border bg-card p-6 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
+                className="group flex flex-col rounded-2xl border bg-card p-2 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-gold shadow-gold">
-                    <FolderOpen className="h-5 w-5 text-primary-foreground" />
+                {/* Hero */}
+                <section className="rounded-t-xl bg-accent p-6">
+                  <header className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-bold text-foreground/80">
+                      {c.product_count}{" "}
+                      {c.product_count === 1 ? "produto" : "produtos"}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                        onClick={() => openEdit(c)}
+                        aria-label="Editar"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-foreground/70 hover:bg-destructive/10 hover:text-destructive"
+                            aria-label="Excluir"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Excluir catálogo?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Todos os produtos dentro deste catálogo também serão
+                              removidos. Esta ação não pode ser desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(c)}>
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </header>
+                  <h3 className="mt-8 mb-2 pr-6 text-2xl font-semibold leading-tight tracking-tight line-clamp-2">
+                    {c.name}
+                  </h3>
+                </section>
+
+                {/* Footer */}
+                <footer className="flex flex-col items-start gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
+                      <FolderOpen className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    <p className="text-sm font-bold leading-tight line-clamp-2">
+                      {c.description?.trim() ? c.description : "Catálogo de produtos"}
+                    </p>
                   </div>
-                  <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => openEdit(c)}
-                      aria-label="Editar"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" aria-label="Excluir">
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Excluir catálogo?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Todos os produtos dentro deste catálogo também serão
-                            removidos. Esta ação não pode ser desfeita.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(c)}>
-                            Excluir
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </div>
-                <h3 className="mt-4 text-lg font-bold tracking-tight">{c.name}</h3>
-                {c.description && (
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                    {c.description}
-                  </p>
-                )}
-                <p className="mt-3 text-xs text-muted-foreground">
-                  {c.product_count} {c.product_count === 1 ? "produto" : "produtos"}
-                </p>
-                <Link
-                  to={`/admin/catalogs/${c.id}`}
-                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-colors hover:text-primary-deep"
-                >
-                  Gerenciar produtos
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </div>
+                  <Link
+                    to={`/admin/catalogs/${c.id}`}
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/85 sm:w-auto"
+                  >
+                    Abrir
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </footer>
+              </article>
             ))}
           </div>
         )}
