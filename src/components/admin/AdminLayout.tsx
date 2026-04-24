@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, LogOut, Sparkles, ExternalLink } from "lucide-react";
+import { LayoutGrid, LogOut, Sparkles, ExternalLink, Settings as SettingsIcon } from "lucide-react";
 
 export default function AdminLayout() {
   const { user, signOut } = useAuth();
@@ -37,6 +37,19 @@ export default function AdminLayout() {
             >
               <LayoutGrid className="h-4 w-4" />
               Catálogos
+            </NavLink>
+            <NavLink
+              to="/admin/settings"
+              className={({ isActive }) =>
+                `flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`
+              }
+            >
+              <SettingsIcon className="h-4 w-4" />
+              Configurações
             </NavLink>
           </nav>
 

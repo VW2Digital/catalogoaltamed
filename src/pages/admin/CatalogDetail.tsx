@@ -18,6 +18,7 @@ import {
 import ProductFormDialog, { ProductRow } from "@/components/admin/ProductFormDialog";
 import { ProductCard } from "@/components/ProductCard";
 import { groupByCategory } from "@/lib/groupByCategory";
+import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 
 type Catalog = {
   id: string;
@@ -33,6 +34,7 @@ export default function CatalogDetail() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ProductRow | null>(null);
+  const { number: whatsappNumber } = useWhatsAppNumber();
 
   async function load() {
     if (!id) return;
@@ -149,6 +151,7 @@ export default function CatalogDetail() {
                   {group.items.map((p) => (
                     <div key={p.id} className="relative">
                       <ProductCard
+                        whatsappNumber={whatsappNumber}
                         product={{
                           code: p.code,
                           name: p.name,
