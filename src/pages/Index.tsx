@@ -104,8 +104,8 @@ const Index = () => {
                       {c.name}
                     </h3>
                   </section>
-                  <footer className="flex flex-col items-start gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
+                  <footer className="flex flex-row items-center justify-between gap-2 p-3">
+                    <div className="flex min-w-0 flex-1 items-center gap-2.5">
                       {c.icon_url ? (
                         <div className="m-0 flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent p-0">
                           <img
@@ -119,11 +119,11 @@ const Index = () => {
                           <FolderOpen className="h-5 w-5 text-primary-foreground" />
                         </div>
                       )}
-                      <p className="text-sm font-bold leading-tight line-clamp-2">
+                      <p className="min-w-0 truncate text-sm font-bold leading-tight">
                         {c.name}
                       </p>
                     </div>
-                    <span className="inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-colors group-hover:bg-primary/90 sm:w-auto">
+                    <span className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors group-hover:bg-primary/90">
                       Ver catálogo
                       <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                     </span>
