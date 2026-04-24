@@ -66,6 +66,11 @@ const makeIcon = (variant: Variant) => {
   return Component;
 };
 
+const SuccessIcon = makeIcon("success");
+const ErrorIcon = makeIcon("error");
+const InfoVariantIcon = makeIcon("info");
+const WarningIcon = makeIcon("warning");
+
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
 
