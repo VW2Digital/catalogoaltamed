@@ -374,7 +374,7 @@ export default function CatalogsList() {
               >
                 {/* Hero */}
                 <section
-                  className="relative flex min-h-[180px] flex-1 flex-col overflow-hidden rounded-xl bg-accent p-6 sm:min-h-[240px] lg:min-h-[280px]"
+                  className="relative flex min-h-[180px] flex-1 flex-col justify-between gap-4 overflow-hidden rounded-xl bg-accent p-6 sm:min-h-[240px] lg:min-h-[280px]"
                   style={
                     c.cover_url
                       ? {
@@ -385,9 +385,9 @@ export default function CatalogsList() {
                       : undefined
                   }
                 >
-                  <header className="flex items-center justify-between gap-3">
+                  <header className="flex shrink-0 items-start justify-between gap-3">
                     <span
-                      className={`text-sm font-bold ${
+                      className={`inline-flex items-center text-sm font-bold leading-none ${
                         c.cover_url ? "text-white/90" : "text-foreground/80"
                       }`}
                     >
@@ -446,7 +446,7 @@ export default function CatalogsList() {
                     </div>
                   </header>
                   <h3
-                    className={`mt-auto mb-2 pr-6 text-xl font-semibold leading-snug tracking-tight line-clamp-3 [text-wrap:balance] sm:text-2xl ${
+                    className={`m-0 pr-6 text-xl font-semibold leading-snug tracking-tight line-clamp-3 [text-wrap:balance] sm:text-2xl ${
                       c.cover_url ? "text-white drop-shadow-sm" : ""
                     }`}
                   >
