@@ -128,11 +128,20 @@ export default function BrandingSettings() {
       if (mainUpload.error) throw mainUpload.error;
       if (thumbUpload.error) throw thumbUpload.error;
 
-      const mainUrl = supabase.storage.from("branding").getPublicUrl(mainPath).data.publicUrl;
+      // Append a cache-busting query string. Even though each upload uses a
+      // unique filename, this guarantees CDNs, browsers and any external
+      // consumers (favicon, social previews) refetch the new logo immediately
+      // — including the case where the same URL is reused after manual edits.
+      const bust = (url: string) => `${url}?v=${stamp}`;
+      const mainUrl = bust(
+        supabase.storage.from("branding").getPublicUrl(mainPath).data.publicUrl
+      );
       const thumbUrl =
         detected === "svg"
           ? mainUrl
-          : supabase.storage.from("branding").getPublicUrl(thumbPath).data.publicUrl;
+          : bust(
+              supabase.storage.from("branding").getPublicUrl(thumbPath).data.publicUrl
+            );
 
       await Promise.all([
         persist("logo_url", mainUrl),
