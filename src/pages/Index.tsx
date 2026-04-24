@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
-import { ArrowRight, FolderOpen, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, FolderOpen, Loader2 } from "lucide-react";
 
 type CatalogSummary = {
   id: string;
@@ -39,10 +39,7 @@ const Index = () => {
       <PublicHeader />
       <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <section className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
-            <Sparkles className="h-3 w-3" /> Catálogos premium
-          </span>
-          <h1 className="mt-4 text-balance text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl">
             Conheça nossos catálogos
           </h1>
           <p className="mt-4 text-balance text-muted-foreground">
