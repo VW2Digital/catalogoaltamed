@@ -9,6 +9,8 @@ type CatalogSummary = {
   name: string;
   slug: string;
   description: string | null;
+  cover_url: string | null;
+  icon_url: string | null;
   product_count: number;
 };
 
@@ -72,22 +74,51 @@ const Index = () => {
                   to={`/c/${c.slug}`}
                   className="group flex flex-col rounded-2xl border bg-card p-2 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
                 >
-                  <section className="rounded-t-xl bg-accent p-6">
+                  <section
+                    className="relative overflow-hidden rounded-xl bg-accent p-6"
+                    style={
+                      c.cover_url
+                        ? {
+                            backgroundImage: `linear-gradient(180deg, hsl(0 0% 0% / 0.15) 0%, hsl(0 0% 0% / 0.55) 100%), url(${c.cover_url})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                          }
+                        : undefined
+                    }
+                  >
                     <header className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-bold text-foreground/80">
+                      <span
+                        className={`text-sm font-bold ${
+                          c.cover_url ? "text-white/90" : "text-foreground/80"
+                        }`}
+                      >
                         {c.product_count}{" "}
                         {c.product_count === 1 ? "produto" : "produtos"}
                       </span>
                     </header>
-                    <h3 className="mt-8 mb-2 pr-6 text-2xl font-semibold leading-tight tracking-tight line-clamp-2">
+                    <h3
+                      className={`mt-8 mb-2 pr-6 text-2xl font-semibold leading-tight tracking-tight line-clamp-2 ${
+                        c.cover_url ? "text-white drop-shadow-sm" : ""
+                      }`}
+                    >
                       {c.name}
                     </h3>
                   </section>
                   <footer className="flex flex-col items-start gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
-                        <FolderOpen className="h-4 w-4 text-primary-foreground" />
-                      </div>
+                      {c.icon_url ? (
+                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-gold shadow-gold">
+                          <img
+                            src={c.icon_url}
+                            alt=""
+                            className="h-5 w-5 object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
+                          <FolderOpen className="h-4 w-4 text-primary-foreground" />
+                        </div>
+                      )}
                       <p className="text-sm font-bold leading-tight line-clamp-2">
                         {c.description?.trim() ? c.description : "Catálogo de produtos"}
                       </p>
