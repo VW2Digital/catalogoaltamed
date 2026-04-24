@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Loader2, Save, Upload, Trash2, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { SettingsPageHeader } from "@/components/admin/SettingsPageHeader";
+import { validateImageFile } from "@/lib/imageValidation";
 import {
   validateStoreName,
   validateStoreDescription,
@@ -53,21 +54,26 @@ export default function BrandingSettings() {
   }
 
   async function handleUpload(file: File) {
-    if (!file.type.startsWith("image/")) {
-      toast.error("Selecione um arquivo de imagem");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("A imagem deve ter no máximo 5MB");
+    const validation = await validateImageFile(file, {
+      allowed: ["png", "jpeg", "webp", "svg"],
+      maxBytes: 5 * 1024 * 1024,
+    });
+    if (!validation.ok) {
+      toast.error(validation.error ?? "Imagem inválida");
       return;
     }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "png";
-      const path = `logo-${Date.now()}.${ext}`;
+      // Use extension + content-type derived from the actual binary signature
+      // so a spoofed filename can't poison the storage object metadata.
+      const path = `logo-${Date.now()}.${validation.ext}`;
       const { error: uploadError } = await supabase.storage
         .from("branding")
-        .upload(path, file, { cacheControl: "3600", upsert: false });
+        .upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: validation.mime,
+        });
       if (uploadError) throw uploadError;
 
       const { data: pub } = supabase.storage.from("branding").getPublicUrl(path);
