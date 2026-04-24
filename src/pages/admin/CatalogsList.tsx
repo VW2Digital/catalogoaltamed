@@ -231,7 +231,7 @@ export default function CatalogsList() {
                 className="group flex flex-col rounded-2xl border bg-card p-2 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
               >
                 {/* Hero */}
-                <section className="rounded-t-xl bg-gold-light/60 p-6">
+                <section className="rounded-t-xl bg-accent p-6">
                   <header className="flex items-center justify-between gap-3">
                     <span className="text-sm font-bold text-foreground/80">
                       {c.product_count}{" "}
