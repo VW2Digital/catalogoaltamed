@@ -1,5 +1,5 @@
-import { formatBRL } from "@/lib/format";
-import { ImageOff } from "lucide-react";
+import { ImageOff, MessageCircle } from "lucide-react";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 export type ProductCardData = {
   code: string;
@@ -14,9 +14,11 @@ export type ProductCardData = {
 type Props = {
   product: ProductCardData;
   className?: string;
+  whatsappNumber?: string;
 };
 
-export function ProductCard({ product }: Props) {
+export function ProductCard({ product, whatsappNumber }: Props) {
+  const waLink = buildWhatsAppLink(whatsappNumber ?? "", product.name);
   return (
     <article className="group relative flex flex-col rounded-2xl bg-card p-5 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover">
       <p className="text-xs font-medium text-muted-foreground">
@@ -45,15 +47,28 @@ export function ProductCard({ product }: Props) {
         )}
       </div>
 
-      <div className="price-pill mt-5 flex items-center justify-between rounded-full px-5 py-3 text-sm font-semibold">
-        <span className="truncate">{product.brand || "—"}</span>
-        <span className="flex items-baseline gap-1.5">
-          <span className="text-xs uppercase opacity-80">{product.unit}</span>
-          <span className="text-lg font-bold tracking-tight">
-            {formatBRL(product.price)}
+      {waLink ? (
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="price-pill mt-5 flex items-center justify-between rounded-full px-5 py-3 text-sm font-semibold transition-transform hover:scale-[1.02]"
+        >
+          <span className="truncate">{product.brand || "—"}</span>
+          <span className="flex items-center gap-1.5">
+            <MessageCircle className="h-4 w-4" />
+            <span className="font-bold tracking-tight">Consultar Preço</span>
           </span>
-        </span>
-      </div>
+        </a>
+      ) : (
+        <div
+          className="price-pill mt-5 flex items-center justify-between rounded-full px-5 py-3 text-sm font-semibold opacity-80"
+          title="Configure o número de WhatsApp no admin"
+        >
+          <span className="truncate">{product.brand || "—"}</span>
+          <span className="font-bold tracking-tight">Consultar Preço</span>
+        </div>
+      )}
     </article>
   );
 }
