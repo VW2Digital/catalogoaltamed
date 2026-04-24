@@ -70,27 +70,33 @@ const Index = () => {
                 <Link
                   key={c.id}
                   to={`/c/${c.slug}`}
-                  className="group flex flex-col rounded-2xl border bg-card p-6 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
+                  className="group flex flex-col rounded-2xl border bg-card p-2 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-gold shadow-gold">
-                    <FolderOpen className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <h3 className="mt-4 text-xl font-bold tracking-tight">
-                    {c.name}
-                  </h3>
-                  {c.description && (
-                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                      {c.description}
-                    </p>
-                  )}
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {c.product_count}{" "}
-                    {c.product_count === 1 ? "produto" : "produtos"}
-                  </p>
-                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-                    Ver catálogo
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </span>
+                  <section className="rounded-t-xl bg-accent p-6">
+                    <header className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-bold text-foreground/80">
+                        {c.product_count}{" "}
+                        {c.product_count === 1 ? "produto" : "produtos"}
+                      </span>
+                    </header>
+                    <h3 className="mt-8 mb-2 pr-6 text-2xl font-semibold leading-tight tracking-tight line-clamp-2">
+                      {c.name}
+                    </h3>
+                  </section>
+                  <footer className="flex flex-col items-start gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
+                        <FolderOpen className="h-4 w-4 text-primary-foreground" />
+                      </div>
+                      <p className="text-sm font-bold leading-tight line-clamp-2">
+                        {c.description?.trim() ? c.description : "Catálogo de produtos"}
+                      </p>
+                    </div>
+                    <span className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors group-hover:bg-foreground/85 sm:w-auto">
+                      Ver catálogo
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </footer>
                 </Link>
               ))}
             </div>
