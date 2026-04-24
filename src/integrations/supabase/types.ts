@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      brands: {
+        Row: {
+          catalog_id: string
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          catalog_id: string
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          catalog_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brands_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "catalogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       catalogs: {
         Row: {
           created_at: string
