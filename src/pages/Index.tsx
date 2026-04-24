@@ -75,7 +75,7 @@ const Index = () => {
                   className="group flex h-full flex-col rounded-2xl border bg-card p-2 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
                 >
                   <section
-                    className="relative flex min-h-[180px] flex-1 flex-col justify-between gap-4 overflow-hidden rounded-xl bg-accent p-6 sm:min-h-[240px] lg:min-h-[280px]"
+                    className="relative flex min-h-[180px] flex-1 flex-col overflow-hidden rounded-xl bg-accent p-6 sm:min-h-[240px] lg:min-h-[280px]"
                     style={
                       c.cover_url
                         ? {
