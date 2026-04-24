@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useBranding } from "@/hooks/useBranding";
+import { useBranding, LOGO_IMG_CLASS, LOGO_IMG_CLASS_COMPACT } from "@/hooks/useBranding";
 import {
   LayoutGrid,
   LogOut,
@@ -137,7 +137,7 @@ function AdminSidebar({
             <img
               src={logoThumbUrl}
               alt={storeName || "Logo"}
-              className={`shrink-0 object-contain ${collapsed ? "h-8 w-8" : "h-10 w-auto max-w-[140px]"}`}
+              className={`shrink-0 ${collapsed ? LOGO_IMG_CLASS_COMPACT : LOGO_IMG_CLASS}`}
               loading="lazy"
               decoding="async"
             />
