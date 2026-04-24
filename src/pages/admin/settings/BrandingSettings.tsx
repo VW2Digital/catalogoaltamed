@@ -212,11 +212,13 @@ export default function BrandingSettings() {
             <Label>Logo da loja</Label>
             <div className="flex items-center gap-4">
               <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl border bg-muted/40">
-                {values.logo_url ? (
+                {values.logo_thumb_url || values.logo_url ? (
                   <img
-                    src={values.logo_url}
+                    src={values.logo_thumb_url || values.logo_url}
                     alt="Logo da loja"
                     className="h-full w-full object-contain"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <ImageIcon className="h-8 w-8 text-muted-foreground" />
