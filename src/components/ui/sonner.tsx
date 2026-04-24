@@ -48,20 +48,22 @@ const VARIANT_COLORS: Record<Variant, { title: string; icon: string; iconBg: str
   warning: { title: "#b45309", icon: "#b45309", iconBg: "#f59e0b4a", wave: "#f59e0b3a" },
 };
 
-const renderIcon = (variant: Variant) => {
+const makeIcon = (variant: Variant) => {
   const c = VARIANT_COLORS[variant];
   const Icon = variant === "success" ? CheckIcon : variant === "error" ? XIcon : variant === "warning" ? WarnIcon : InfoIcon;
-  return (
+  const Component = () => (
     <>
       <WaveBg fill={c.wave} />
       <span
-        className="relative z-10 ml-2 flex h-[35px] w-[35px] flex-shrink-0 items-center justify-center rounded-full"
+        className="relative z-10 flex h-[35px] w-[35px] flex-shrink-0 items-center justify-center rounded-full"
         style={{ backgroundColor: c.iconBg }}
       >
         <Icon color={c.icon} />
       </span>
     </>
   );
+  Component.displayName = `ToastIcon(${variant})`;
+  return Component;
 };
 
 const Toaster = ({ ...props }: ToasterProps) => {
@@ -72,10 +74,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       icons={{
-        success: renderIcon("success"),
-        error: renderIcon("error"),
-        info: renderIcon("info"),
-        warning: renderIcon("warning"),
+        success: <SuccessIcon />,
+        error: <ErrorIcon />,
+        info: <InfoVariantIcon />,
+        warning: <WarningIcon />,
       }}
       toastOptions={{
         classNames: {
