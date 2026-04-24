@@ -213,7 +213,7 @@ export default function CatalogDetail() {
         onOpenChange={setOpen}
         catalogId={catalog.id}
         product={editing}
-        onSaved={load}
+        onSaved={() => load({ showLoader: false })}
       />
     </section>
   );
