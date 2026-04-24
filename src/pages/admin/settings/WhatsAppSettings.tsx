@@ -37,8 +37,9 @@ export default function WhatsAppSettings() {
     e.preventDefault();
     const result = validateWhatsApp(number);
     if (!result.ok) {
-      setError(result.error);
-      toast.error(result.error);
+      const msg = result.error ?? "Número inválido";
+      setError(msg);
+      toast.error(msg);
       return;
     }
     setSaving(true);
