@@ -96,13 +96,6 @@ const Index = () => {
                         {c.product_count === 1 ? "produto" : "produtos"}
                       </span>
                     </header>
-                    <h3
-                      className={`m-0 pr-6 text-xl font-semibold leading-snug tracking-tight line-clamp-3 [text-wrap:balance] sm:text-2xl ${
-                        c.cover_url ? "text-white drop-shadow-sm" : ""
-                      }`}
-                    >
-                      {c.name}
-                    </h3>
                   </section>
                   <footer className="flex flex-row items-center justify-between gap-2 p-3">
                     <div className="flex min-w-0 flex-1 items-center gap-2.5">
