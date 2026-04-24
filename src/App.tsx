@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ThemeSettingsProvider } from "@/hooks/useThemeSettings";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
 import Index from "./pages/Index.tsx";
@@ -18,6 +19,8 @@ import SettingsIndex from "./pages/admin/settings/SettingsIndex.tsx";
 import WhatsAppSettings from "./pages/admin/settings/WhatsAppSettings.tsx";
 import CategoriesSettings from "./pages/admin/settings/CategoriesSettings.tsx";
 import BrandingSettings from "./pages/admin/settings/BrandingSettings.tsx";
+import ThemeSettings from "./pages/admin/settings/ThemeSettings.tsx";
+import FontsSettings from "./pages/admin/settings/FontsSettings.tsx";
 import ComingSoon from "./pages/admin/settings/ComingSoon.tsx";
 
 const queryClient = new QueryClient();
@@ -29,6 +32,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <ThemeSettingsProvider>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -54,21 +58,11 @@ const App = () => (
                 />
                 <Route
                   path="theme"
-                  element={
-                    <ComingSoon
-                      title="Cores do Tema"
-                      description="Cor primária e identidade visual."
-                    />
-                  }
+                  element={<ThemeSettings />}
                 />
                 <Route
                   path="fonts"
-                  element={
-                    <ComingSoon
-                      title="Fontes"
-                      description="Fonte dos títulos e do corpo do texto."
-                    />
-                  }
+                  element={<FontsSettings />}
                 />
                 <Route
                   path="css"
@@ -84,6 +78,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ThemeSettingsProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
