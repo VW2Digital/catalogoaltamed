@@ -113,17 +113,17 @@ export default function BrandingSettings() {
     const desc = validateStoreDescription(values.store_description);
     const url = validateUrl(values.logo_url);
     const next: Partial<Record<Key, string>> = {};
-    if (!name.ok) next.store_name = name.error;
-    if (!desc.ok) next.store_description = desc.error;
-    if (!url.ok) next.logo_url = url.error;
+    if (!name.ok && name.error) next.store_name = name.error;
+    if (!desc.ok && desc.error) next.store_description = desc.error;
+    if (!url.ok && url.error) next.logo_url = url.error;
     setErrors(next);
     if (Object.keys(next).length > 0) return { ok: false };
     return {
       ok: true,
       normalized: {
-        store_name: name.ok ? name.value : "",
-        store_description: desc.ok ? desc.value : "",
-        logo_url: url.ok ? url.value : "",
+        store_name: name.value,
+        store_description: desc.value,
+        logo_url: url.value,
       },
     };
   }
