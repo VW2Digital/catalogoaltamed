@@ -17,6 +17,7 @@ import SettingsLayout from "./pages/admin/settings/SettingsLayout.tsx";
 import SettingsIndex from "./pages/admin/settings/SettingsIndex.tsx";
 import WhatsAppSettings from "./pages/admin/settings/WhatsAppSettings.tsx";
 import CategoriesSettings from "./pages/admin/settings/CategoriesSettings.tsx";
+import BrandingSettings from "./pages/admin/settings/BrandingSettings.tsx";
 import ComingSoon from "./pages/admin/settings/ComingSoon.tsx";
 
 const queryClient = new QueryClient();
@@ -49,12 +50,7 @@ const App = () => (
                 <Route path="categories" element={<CategoriesSettings />} />
                 <Route
                   path="branding"
-                  element={
-                    <ComingSoon
-                      title="Logo & Identidade"
-                      description="Logo, nome da loja e SEO."
-                    />
-                  }
+                  element={<BrandingSettings />}
                 />
                 <Route
                   path="theme"
