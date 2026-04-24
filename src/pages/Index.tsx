@@ -111,7 +111,7 @@ const Index = () => {
                           <FolderOpen className="h-5 w-5 text-primary-foreground" />
                         </div>
                       )}
-                      <p className="min-w-0 truncate text-sm font-bold leading-tight">
+                      <p className="min-w-0 text-sm font-bold leading-tight [text-wrap:balance] break-words">
                         {c.name}
                       </p>
                     </div>
