@@ -374,7 +374,7 @@ export default function CatalogsList() {
               >
                 {/* Hero */}
                 <section
-                  className="relative flex min-h-[180px] flex-1 flex-col justify-between gap-4 overflow-hidden rounded-xl bg-accent p-6 sm:min-h-[240px] lg:min-h-[280px]"
+                  className="relative flex min-h-[180px] flex-1 flex-col overflow-hidden rounded-xl bg-accent p-6 sm:min-h-[240px] lg:min-h-[280px]"
                   style={
                     c.cover_url
                       ? {
