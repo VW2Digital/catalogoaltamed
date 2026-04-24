@@ -53,21 +53,21 @@ export function ProductCard({ product, whatsappNumber }: Props) {
           href={waLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="price-pill mt-5 flex items-center justify-between rounded-full px-5 py-3 text-sm font-semibold transition-transform hover:scale-[1.02]"
+          className="price-pill mt-5 flex items-center justify-between gap-2 rounded-full px-4 py-2.5 text-xs font-semibold transition-transform hover:scale-[1.02]"
         >
-          <span className="truncate">{product.brand || "—"}</span>
-          <span className="flex items-center gap-1.5">
-            <WhatsAppIcon className="h-4 w-4" />
-            <span className="font-bold tracking-tight">Consultar Preço</span>
+          <span className="min-w-0 truncate">{product.brand || "—"}</span>
+          <span className="flex shrink-0 items-center gap-1">
+            <WhatsAppIcon className="h-3.5 w-3.5" />
+            <span className="font-bold tracking-tight">Consultar</span>
           </span>
         </a>
       ) : (
         <div
-          className="price-pill mt-5 flex items-center justify-between rounded-full px-5 py-3 text-sm font-semibold opacity-80"
+          className="price-pill mt-5 flex items-center justify-between gap-2 rounded-full px-4 py-2.5 text-xs font-semibold opacity-80"
           title="Configure o número de WhatsApp no admin"
         >
-          <span className="truncate">{product.brand || "—"}</span>
-          <span className="font-bold tracking-tight">Consultar Preço</span>
+          <span className="min-w-0 truncate">{product.brand || "—"}</span>
+          <span className="shrink-0 font-bold tracking-tight">Consultar</span>
         </div>
       )}
     </article>
