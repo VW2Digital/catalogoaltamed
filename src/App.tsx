@@ -18,6 +18,7 @@ import SettingsLayout from "./pages/admin/settings/SettingsLayout.tsx";
 import SettingsIndex from "./pages/admin/settings/SettingsIndex.tsx";
 import WhatsAppSettings from "./pages/admin/settings/WhatsAppSettings.tsx";
 import CategoriesSettings from "./pages/admin/settings/CategoriesSettings.tsx";
+import BrandsSettings from "./pages/admin/settings/BrandsSettings.tsx";
 import BrandingSettings from "./pages/admin/settings/BrandingSettings.tsx";
 import ThemeSettings from "./pages/admin/settings/ThemeSettings.tsx";
 import FontsSettings from "./pages/admin/settings/FontsSettings.tsx";
@@ -52,6 +53,7 @@ const App = () => (
                 <Route index element={<SettingsIndex />} />
                 <Route path="whatsapp" element={<WhatsAppSettings />} />
                 <Route path="categories" element={<CategoriesSettings />} />
+                <Route path="brands" element={<BrandsSettings />} />
                 <Route
                   path="branding"
                   element={<BrandingSettings />}
