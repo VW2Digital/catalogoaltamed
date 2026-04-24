@@ -1,5 +1,6 @@
-import { ImageOff, MessageCircle } from "lucide-react";
+import { ImageOff } from "lucide-react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 
 export type ProductCardData = {
   code: string;
@@ -56,7 +57,7 @@ export function ProductCard({ product, whatsappNumber }: Props) {
         >
           <span className="truncate">{product.brand || "—"}</span>
           <span className="flex items-center gap-1.5">
-            <MessageCircle className="h-4 w-4" />
+            <WhatsAppIcon className="h-4 w-4" />
             <span className="font-bold tracking-tight">Consultar Preço</span>
           </span>
         </a>
