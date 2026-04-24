@@ -52,6 +52,7 @@ type Props = {
 };
 
 type CategoryOption = { id: string; name: string };
+type BrandOption = { id: string; name: string };
 
 export default function ProductFormDialog({
   open,
@@ -71,6 +72,7 @@ export default function ProductFormDialog({
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [brands, setBrands] = useState<BrandOption[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -87,13 +89,22 @@ export default function ProductFormDialog({
   useEffect(() => {
     if (!open) return;
     (async () => {
-      const { data } = await supabase
-        .from("categories")
-        .select("id,name")
-        .eq("catalog_id", catalogId)
-        .order("sort_order", { ascending: true })
-        .order("name", { ascending: true });
-      setCategories((data as CategoryOption[]) ?? []);
+      const [{ data: cats }, { data: brs }] = await Promise.all([
+        supabase
+          .from("categories")
+          .select("id,name")
+          .eq("catalog_id", catalogId)
+          .order("sort_order", { ascending: true })
+          .order("name", { ascending: true }),
+        supabase
+          .from("brands")
+          .select("id,name")
+          .eq("catalog_id", catalogId)
+          .order("sort_order", { ascending: true })
+          .order("name", { ascending: true }),
+      ]);
+      setCategories((cats as CategoryOption[]) ?? []);
+      setBrands((brs as BrandOption[]) ?? []);
     })();
   }, [open, catalogId]);
 
@@ -285,12 +296,29 @@ export default function ProductFormDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="brand">Marca</Label>
-                <Input
-                  id="brand"
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                  placeholder="Rennova"
-                />
+                <Select
+                  value={brand || "__none__"}
+                  onValueChange={(v) => setBrand(v === "__none__" ? "" : v)}
+                >
+                  <SelectTrigger id="brand">
+                    <SelectValue placeholder="Sem marca" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Sem marca</SelectItem>
+                    {brands.map((b) => (
+                      <SelectItem key={b.id} value={b.name}>
+                        {b.name}
+                      </SelectItem>
+                    ))}
+                    {brand &&
+                      !brands.some((b) => b.name === brand) && (
+                        <SelectItem value={brand}>{brand}</SelectItem>
+                      )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Crie novas marcas em Configurações &gt; Marcas.
+                </p>
               </div>
             </div>
 
