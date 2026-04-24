@@ -12,8 +12,12 @@ import Auth from "./pages/Auth.tsx";
 import PublicCatalog from "./pages/PublicCatalog.tsx";
 import CatalogsList from "./pages/admin/CatalogsList.tsx";
 import CatalogDetail from "./pages/admin/CatalogDetail.tsx";
-import Settings from "./pages/admin/Settings.tsx";
 import Reports from "./pages/admin/Reports.tsx";
+import SettingsLayout from "./pages/admin/settings/SettingsLayout.tsx";
+import SettingsIndex from "./pages/admin/settings/SettingsIndex.tsx";
+import WhatsAppSettings from "./pages/admin/settings/WhatsAppSettings.tsx";
+import CategoriesSettings from "./pages/admin/settings/CategoriesSettings.tsx";
+import ComingSoon from "./pages/admin/settings/ComingSoon.tsx";
 
 const queryClient = new QueryClient();
 
@@ -39,7 +43,47 @@ const App = () => (
               <Route index element={<CatalogsList />} />
               <Route path="catalogs/:id" element={<CatalogDetail />} />
               <Route path="reports" element={<Reports />} />
-              <Route path="settings" element={<Settings />} />
+              <Route path="settings" element={<SettingsLayout />}>
+                <Route index element={<SettingsIndex />} />
+                <Route path="whatsapp" element={<WhatsAppSettings />} />
+                <Route path="categories" element={<CategoriesSettings />} />
+                <Route
+                  path="branding"
+                  element={
+                    <ComingSoon
+                      title="Logo & Identidade"
+                      description="Logo, nome da loja e SEO."
+                    />
+                  }
+                />
+                <Route
+                  path="theme"
+                  element={
+                    <ComingSoon
+                      title="Cores do Tema"
+                      description="Cor primária e identidade visual."
+                    />
+                  }
+                />
+                <Route
+                  path="fonts"
+                  element={
+                    <ComingSoon
+                      title="Fontes"
+                      description="Fonte dos títulos e do corpo do texto."
+                    />
+                  }
+                />
+                <Route
+                  path="css"
+                  element={
+                    <ComingSoon
+                      title="CSS Customizado"
+                      description="Estilos personalizados para a loja."
+                    />
+                  }
+                />
+              </Route>
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
