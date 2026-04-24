@@ -165,6 +165,7 @@ export default function BrandingSettings() {
         store_name: name.value,
         store_description: desc.value,
         logo_url: url.value,
+        logo_thumb_url: values.logo_thumb_url,
       },
     };
   }
