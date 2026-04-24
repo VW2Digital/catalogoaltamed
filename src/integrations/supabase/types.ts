@@ -94,6 +94,27 @@ export type Database = {
           },
         ]
       }
+      settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
