@@ -134,21 +134,19 @@ function AdminSidebar({
           className="flex items-center gap-3 px-2 py-2"
         >
           {logoThumbUrl ? (
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-card">
-              <img
-                src={logoThumbUrl}
-                alt={storeName || "Logo"}
-                className="h-full w-full object-contain"
-                loading="lazy"
-                decoding="async"
-              />
-            </span>
+            <img
+              src={logoThumbUrl}
+              alt={storeName || "Logo"}
+              className={`shrink-0 object-contain ${collapsed ? "h-8 w-8" : "h-10 w-auto max-w-[140px]"}`}
+              loading="lazy"
+              decoding="async"
+            />
           ) : (
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
               <Layers className="h-5 w-5 text-primary-foreground" />
             </span>
           )}
-          {!collapsed && (
+          {!collapsed && !logoThumbUrl && (
             <div className="flex min-w-0 flex-col leading-tight">
               <span className="truncate text-sm font-bold tracking-tight">
                 {storeName || "Catálogos"}
