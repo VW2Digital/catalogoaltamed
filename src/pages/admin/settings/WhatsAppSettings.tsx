@@ -42,11 +42,11 @@ export default function WhatsAppSettings() {
       return;
     }
     setSaving(true);
-    const { error } = await supabase
+    const { error: dbError } = await supabase
       .from("settings")
       .upsert({ key: "whatsapp_number", value: result.value }, { onConflict: "key" });
     setSaving(false);
-    if (error) toast.error(error.message);
+    if (dbError) toast.error(dbError.message);
     else {
       toast.success("Número salvo");
       setNumber(result.value);
