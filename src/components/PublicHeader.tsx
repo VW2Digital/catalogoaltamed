@@ -11,18 +11,20 @@ export function PublicHeader() {
     <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2 font-bold tracking-tight">
-          <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-gradient-gold shadow-gold">
-            {logoThumbUrl ? (
-              <img
-                src={logoThumbUrl}
-                alt={storeName || "Logo"}
-                className="h-full w-full object-contain"
-              />
-            ) : (
-              <Sparkles className="h-4 w-4 text-primary-foreground" />
-            )}
-          </span>
-          <span className="truncate">{storeName || "Catálogos"}</span>
+          {logoThumbUrl ? (
+            <img
+              src={logoThumbUrl}
+              alt={storeName || "Logo"}
+              className="h-10 w-auto max-w-[180px] object-contain"
+            />
+          ) : (
+            <>
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
+                <Sparkles className="h-4 w-4 text-primary-foreground" />
+              </span>
+              <span className="truncate">{storeName || "Catálogos"}</span>
+            </>
+          )}
         </Link>
         <Button asChild variant="ghost" size="sm">
           <Link to={user && isAdmin ? "/admin" : "/auth"}>
