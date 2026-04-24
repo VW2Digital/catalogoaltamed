@@ -13,6 +13,7 @@ import PublicCatalog from "./pages/PublicCatalog.tsx";
 import CatalogsList from "./pages/admin/CatalogsList.tsx";
 import CatalogDetail from "./pages/admin/CatalogDetail.tsx";
 import Settings from "./pages/admin/Settings.tsx";
+import Reports from "./pages/admin/Reports.tsx";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
             >
               <Route index element={<CatalogsList />} />
               <Route path="catalogs/:id" element={<CatalogDetail />} />
+              <Route path="reports" element={<Reports />} />
               <Route path="settings" element={<Settings />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
