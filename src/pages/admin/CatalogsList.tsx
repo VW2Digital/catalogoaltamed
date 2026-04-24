@@ -27,7 +27,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2, FolderOpen, ArrowRight } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, FolderOpen, ArrowRight, Upload, X } from "lucide-react";
 import { slugify } from "@/lib/format";
 
 type Catalog = {
@@ -35,6 +35,8 @@ type Catalog = {
   name: string;
   slug: string;
   description: string | null;
+  cover_url: string | null;
+  icon_url: string | null;
   created_at: string;
   product_count?: number;
 };
@@ -51,6 +53,10 @@ export default function CatalogsList() {
   const [editing, setEditing] = useState<Catalog | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [iconUrl, setIconUrl] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingIcon, setUploadingIcon] = useState(false);
   const [saving, setSaving] = useState(false);
 
   async function load() {
@@ -80,6 +86,8 @@ export default function CatalogsList() {
     setEditing(null);
     setName("");
     setDescription("");
+    setCoverUrl(null);
+    setIconUrl(null);
     setOpen(true);
   }
 
@@ -87,7 +95,32 @@ export default function CatalogsList() {
     setEditing(c);
     setName(c.name);
     setDescription(c.description ?? "");
+    setCoverUrl(c.cover_url ?? null);
+    setIconUrl(c.icon_url ?? null);
     setOpen(true);
+  }
+
+  async function handleUpload(
+    file: File,
+    kind: "cover" | "icon",
+  ): Promise<string | null> {
+    const setUploading = kind === "cover" ? setUploadingCover : setUploadingIcon;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const path = `${kind}/${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage
+        .from("catalog-assets")
+        .upload(path, file, { cacheControl: "3600", upsert: false });
+      if (error) throw error;
+      const { data } = supabase.storage.from("catalog-assets").getPublicUrl(path);
+      return data.publicUrl;
+    } catch (err: any) {
+      toast.error(err.message ?? "Erro ao enviar imagem");
+      return null;
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -105,6 +138,8 @@ export default function CatalogsList() {
           .update({
             name: parsed.data.name,
             description: parsed.data.description || null,
+            cover_url: coverUrl,
+            icon_url: iconUrl,
           })
           .eq("id", editing.id);
         if (error) throw error;
@@ -124,6 +159,8 @@ export default function CatalogsList() {
           name: parsed.data.name,
           description: parsed.data.description || null,
           slug,
+          cover_url: coverUrl,
+          icon_url: iconUrl,
         });
         if (error) throw error;
         toast.success("Catálogo criado");
