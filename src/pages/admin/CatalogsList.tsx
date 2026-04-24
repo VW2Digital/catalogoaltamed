@@ -378,7 +378,7 @@ export default function CatalogsList() {
                   style={
                     c.cover_url
                       ? {
-                          backgroundImage: `linear-gradient(180deg, hsl(0 0% 0% / 0.15) 0%, hsl(0 0% 0% / 0.55) 100%), url(${c.cover_url})`,
+                          backgroundImage: `url(${c.cover_url})`,
                           backgroundSize: "cover",
                           backgroundPosition: "center",
                         }
