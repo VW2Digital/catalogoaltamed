@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
-import { ArrowRight, FolderOpen, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, FolderOpen, Loader2 } from "lucide-react";
 
 type CatalogSummary = {
   id: string;
