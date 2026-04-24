@@ -27,7 +27,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2, FolderOpen, ArrowRight, Upload, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, FolderOpen, ArrowRight, Upload, X, MoreVertical } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { slugify } from "@/lib/format";
 
 type Catalog = {
@@ -389,34 +395,38 @@ export default function CatalogsList() {
                       {c.product_count === 1 ? "produto" : "produtos"}
                     </span>
                     <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`h-8 w-8 ${
-                          c.cover_url
-                            ? "text-white/90 hover:bg-white/15 hover:text-white"
-                            : "text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
-                        }`}
-                        onClick={() => openEdit(c)}
-                        aria-label="Editar"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
                       <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className={`h-8 w-8 ${
-                              c.cover_url
-                                ? "text-white/90 hover:bg-destructive/80 hover:text-white"
-                                : "text-foreground/70 hover:bg-destructive/10 hover:text-destructive"
-                            }`}
-                            aria-label="Excluir"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={`h-8 w-8 ${
+                                c.cover_url
+                                  ? "text-white/90 hover:bg-white/15 hover:text-white"
+                                  : "text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                              }`}
+                              aria-label="Mais ações"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-40">
+                            <DropdownMenuItem onClick={() => openEdit(c)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Editar
+                            </DropdownMenuItem>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem
+                                onSelect={(e) => e.preventDefault()}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>Excluir catálogo?</AlertDialogTitle>
