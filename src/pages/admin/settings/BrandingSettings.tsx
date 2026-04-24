@@ -3,16 +3,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Loader2, Save, Upload, Trash2, Image as ImageIcon } from "lucide-react";
 import { SettingsPageHeader } from "@/components/admin/SettingsPageHeader";
 
-const KEYS = ["store_name", "logo_url"] as const;
+const KEYS = ["store_name", "store_description", "logo_url"] as const;
 type Key = (typeof KEYS)[number];
 
 export default function BrandingSettings() {
   const [values, setValues] = useState<Record<Key, string>>({
     store_name: "",
+    store_description: "",
     logo_url: "",
   });
   const [loading, setLoading] = useState(true);
@@ -26,7 +28,7 @@ export default function BrandingSettings() {
         .from("settings")
         .select("key, value")
         .in("key", KEYS as unknown as string[]);
-      const next: Record<Key, string> = { store_name: "", logo_url: "" };
+      const next: Record<Key, string> = { store_name: "", store_description: "", logo_url: "" };
       data?.forEach((row) => {
         if ((KEYS as readonly string[]).includes(row.key)) {
           next[row.key as Key] = row.value ?? "";
@@ -100,6 +102,7 @@ export default function BrandingSettings() {
     setSaving(true);
     try {
       await persist("store_name", values.store_name);
+      await persist("store_description", values.store_description);
       await persist("logo_url", values.logo_url);
       toast.success("Identidade salva");
     } catch (err) {
@@ -201,6 +204,22 @@ export default function BrandingSettings() {
               value={values.store_name}
               onChange={(e) => setValues((v) => ({ ...v, store_name: e.target.value }))}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="store_description">Descrição</Label>
+            <Textarea
+              id="store_description"
+              placeholder="Descrição curta exibida no catálogo e em compartilhamentos."
+              rows={3}
+              value={values.store_description}
+              onChange={(e) =>
+                setValues((v) => ({ ...v, store_description: e.target.value }))
+              }
+            />
+            <p className="text-xs text-muted-foreground">
+              Recomendado até 160 caracteres para SEO.
+            </p>
           </div>
 
           <Button type="submit" disabled={saving}>
