@@ -5,6 +5,7 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { groupByCategory } from "@/lib/groupByCategory";
+import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 
 type Catalog = {
   id: string;
@@ -30,6 +31,7 @@ export default function PublicCatalog() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const { number: whatsappNumber } = useWhatsAppNumber();
 
   useEffect(() => {
     (async () => {
@@ -122,6 +124,7 @@ export default function PublicCatalog() {
                       {group.items.map((p) => (
                         <ProductCard
                           key={p.id}
+                          whatsappNumber={whatsappNumber}
                           product={{
                             code: p.code,
                             name: p.name,
