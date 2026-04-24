@@ -8,7 +8,7 @@ const WaveBg = ({ fill }: { fill: string }) => (
     aria-hidden
     viewBox="0 0 1440 320"
     xmlns="http://www.w3.org/2000/svg"
-    className="pointer-events-none absolute -left-[31px] top-[32px] w-20 rotate-90"
+    className="pointer-events-none absolute -left-4 top-1/2 w-20 -translate-y-1/2 rotate-90 opacity-90"
     style={{ fill }}
   >
     <path d="M0,256L11.4,240C22.9,224,46,192,69,192C91.4,192,114,224,137,234.7C160,245,183,235,206,213.3C228.6,192,251,160,274,149.3C297.1,139,320,149,343,181.3C365.7,213,389,267,411,282.7C434.3,299,457,277,480,250.7C502.9,224,526,192,549,181.3C571.4,171,594,181,617,208C640,235,663,277,686,256C708.6,235,731,149,754,122.7C777.1,96,800,128,823,165.3C845.7,203,869,245,891,224C914.3,203,937,117,960,112C982.9,107,1006,181,1029,197.3C1051.4,213,1074,171,1097,144C1120,117,1143,107,1166,133.3C1188.6,160,1211,224,1234,218.7C1257.1,213,1280,139,1303,133.3C1325.7,128,1349,192,1371,192C1394.3,192,1417,128,1429,96L1440,64L1440,320L0,320Z" />
@@ -87,7 +87,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast relative overflow-hidden group-[.toaster]:bg-white group-[.toaster]:text-foreground group-[.toaster]:border-0 group-[.toaster]:shadow-[rgba(149,157,165,0.2)_0px_8px_24px] group-[.toaster]:rounded-lg group-[.toaster]:px-4 group-[.toaster]:py-4 group-[.toaster]:gap-[15px] group-[.toaster]:min-h-[80px] group-[.toaster]:w-[330px] group-[.toaster]:!items-center [&>[data-icon]]:!m-0 [&>[data-icon]]:!self-center [&>[data-content]]:!self-center",
+            "group toast relative overflow-hidden group-[.toaster]:bg-white group-[.toaster]:text-foreground group-[.toaster]:border-0 group-[.toaster]:shadow-[rgba(149,157,165,0.2)_0px_8px_24px] group-[.toaster]:rounded-lg group-[.toaster]:pl-5 group-[.toaster]:pr-10 group-[.toaster]:py-4 group-[.toaster]:gap-[15px] group-[.toaster]:min-h-[80px] group-[.toaster]:w-[330px] group-[.toaster]:!items-center [&>[data-icon]]:!m-0 [&>[data-icon]]:!self-center [&>[data-icon]]:!flex [&>[data-icon]]:!items-center [&>[data-icon]]:!justify-center [&>[data-icon]]:!h-[35px] [&>[data-icon]]:!w-[35px] [&>[data-content]]:!self-center [&>[data-content]]:!flex [&>[data-content]]:!flex-col [&>[data-content]]:!justify-center",
           title: "group-[.toast]:font-bold group-[.toast]:text-[17px] group-[.toast]:leading-tight",
           description: "group-[.toast]:text-[#555] group-[.toast]:text-[14px] group-[.toast]:leading-tight",
           actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
