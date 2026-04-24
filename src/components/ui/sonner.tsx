@@ -80,9 +80,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast relative overflow-hidden group-[.toaster]:bg-white group-[.toaster]:text-foreground group-[.toaster]:border-0 group-[.toaster]:shadow-[rgba(149,157,165,0.2)_0px_8px_24px] group-[.toaster]:rounded-lg group-[.toaster]:px-4 group-[.toaster]:py-2.5 group-[.toaster]:gap-[15px] group-[.toaster]:min-h-[80px] group-[.toaster]:w-[330px]",
+            "group toast relative overflow-hidden group-[.toaster]:bg-white group-[.toaster]:text-foreground group-[.toaster]:border-0 group-[.toaster]:shadow-[rgba(149,157,165,0.2)_0px_8px_24px] group-[.toaster]:rounded-lg group-[.toaster]:px-4 group-[.toaster]:py-4 group-[.toaster]:gap-[15px] group-[.toaster]:min-h-[80px] group-[.toaster]:w-[330px] group-[.toaster]:!items-center [&>[data-icon]]:!m-0 [&>[data-icon]]:!self-center [&>[data-content]]:!self-center",
           title: "group-[.toast]:font-bold group-[.toast]:text-[17px] group-[.toast]:leading-tight",
-          description: "group-[.toast]:text-[#555] group-[.toast]:text-[14px]",
+          description: "group-[.toast]:text-[#555] group-[.toast]:text-[14px] group-[.toast]:leading-tight",
           actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
           closeButton:
