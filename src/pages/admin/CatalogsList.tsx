@@ -227,14 +227,113 @@ export default function CatalogsList() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
+                    placeholder="Aparece no rodapé do card. Ex: Linha completa de preenchedores."
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Cover */}
+                  <div className="space-y-2">
+                    <Label>Foto de capa (opcional)</Label>
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-lg border bg-accent">
+                      {coverUrl ? (
+                        <>
+                          <img
+                            src={coverUrl}
+                            alt="Capa"
+                            className="h-full w-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setCoverUrl(null)}
+                            className="absolute right-1.5 top-1.5 rounded-full bg-foreground/80 p-1 text-background hover:bg-foreground"
+                            aria-label="Remover capa"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </>
+                      ) : (
+                        <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                          {uploadingCover ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Upload className="h-4 w-4" />
+                              <span>Enviar foto</span>
+                            </>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const f = e.target.files?.[0];
+                              if (!f) return;
+                              const url = await handleUpload(f, "cover");
+                              if (url) setCoverUrl(url);
+                              e.target.value = "";
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Icon */}
+                  <div className="space-y-2">
+                    <Label>Ícone (opcional)</Label>
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-lg border bg-muted">
+                      {iconUrl ? (
+                        <>
+                          <div className="flex h-full w-full items-center justify-center bg-gradient-gold p-4">
+                            <img
+                              src={iconUrl}
+                              alt="Ícone"
+                              className="h-12 w-12 object-contain"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setIconUrl(null)}
+                            className="absolute right-1.5 top-1.5 rounded-full bg-foreground/80 p-1 text-background hover:bg-foreground"
+                            aria-label="Remover ícone"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </>
+                      ) : (
+                        <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                          {uploadingIcon ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Upload className="h-4 w-4" />
+                              <span>PNG / SVG</span>
+                            </>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/png,image/svg+xml,image/webp"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const f = e.target.files?.[0];
+                              if (!f) return;
+                              const url = await handleUpload(f, "icon");
+                              if (url) setIconUrl(url);
+                              e.target.value = "";
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
               <DialogFooter className="mt-6">
                 <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={saving}>
+                <Button type="submit" disabled={saving || uploadingCover || uploadingIcon}>
                   {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Salvar
                 </Button>
