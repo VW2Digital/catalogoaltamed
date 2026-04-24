@@ -97,7 +97,7 @@ const Index = () => {
                       </span>
                     </header>
                     <h3
-                      className={`mt-auto mb-2 pr-6 text-2xl font-semibold leading-tight tracking-tight line-clamp-2 ${
+                      className={`mt-auto mb-2 pr-6 text-xl font-semibold leading-snug tracking-tight line-clamp-3 [text-wrap:balance] sm:text-2xl ${
                         c.cover_url ? "text-white drop-shadow-sm" : ""
                       }`}
                     >
