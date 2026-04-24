@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, ExternalLink, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +35,7 @@ export default function CatalogDetail() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ProductRow | null>(null);
+  const [search, setSearch] = useState("");
   const { number: whatsappNumber } = useWhatsAppNumber();
 
   async function load(opts: { showLoader?: boolean } = { showLoader: true }) {
@@ -96,6 +98,15 @@ export default function CatalogDetail() {
     );
   }
 
+  const normalized = search.trim().toLowerCase();
+  const filteredProducts = normalized
+    ? products.filter((p) =>
+        [p.name, p.code, p.brand, p.category]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(normalized)),
+      )
+    : products;
+
   return (
     <section>
       <Link
@@ -127,6 +138,19 @@ export default function CatalogDetail() {
       </div>
 
       <div className="mt-8">
+        {products.length > 0 && (
+          <div className="relative mb-6 max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Pesquisar por nome, código, marca ou categoria"
+              className="pl-9"
+              aria-label="Pesquisar produtos"
+            />
+          </div>
+        )}
         {products.length === 0 ? (
           <div className="rounded-2xl border border-dashed bg-card/50 p-12 text-center">
             <h2 className="text-lg font-semibold">Nenhum produto ainda</h2>
@@ -137,9 +161,15 @@ export default function CatalogDetail() {
               <Plus className="mr-2 h-4 w-4" /> Adicionar produto
             </Button>
           </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="rounded-2xl border border-dashed bg-card/50 p-12 text-center">
+            <p className="text-sm text-muted-foreground">
+              Nenhum produto encontrado para “{search}”.
+            </p>
+          </div>
         ) : (
           <div className="space-y-12">
-            {groupByCategory(products).map((group) => (
+            {groupByCategory(filteredProducts).map((group) => (
               <section key={group.category} aria-labelledby={`admin-cat-${group.category}`}>
                 <h2
                   id={`admin-cat-${group.category}`}
