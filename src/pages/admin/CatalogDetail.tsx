@@ -43,6 +43,7 @@ export default function CatalogDetail() {
         .from("products")
         .select("*")
         .eq("catalog_id", id)
+        .order("category", { ascending: true, nullsFirst: false })
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false }),
     ]);

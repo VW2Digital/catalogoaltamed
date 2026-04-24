@@ -50,6 +50,7 @@ export default function PublicCatalog() {
         .from("products")
         .select("*")
         .eq("catalog_id", cat.id)
+        .order("category", { ascending: true, nullsFirst: false })
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
       setProducts((prods as Product[]) ?? []);
