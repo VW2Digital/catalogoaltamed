@@ -1,7 +1,84 @@
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, LogOut, Sparkles, ExternalLink, Settings as SettingsIcon } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
+
+const navItems = [
+  { title: "Catálogos", url: "/admin", icon: LayoutGrid, end: true },
+  { title: "Configurações", url: "/admin/settings", icon: SettingsIcon, end: false },
+];
+
+function AdminSidebar() {
+  const { state } = useSidebar();
+  const collapsed = state === "collapsed";
+  const location = useLocation();
+
+  const isActive = (url: string, end: boolean) =>
+    end ? location.pathname === url : location.pathname.startsWith(url);
+
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <Link
+          to="/admin"
+          className="flex items-center gap-2 px-2 py-1.5 font-bold tracking-tight"
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
+            <Sparkles className="h-4 w-4 text-primary-foreground" />
+          </span>
+          {!collapsed && <span>Catálogos</span>}
+        </Link>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Painel</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navItems.map((item) => {
+                const active = isActive(item.url, item.end);
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={active}>
+                      <NavLink
+                        to={item.url}
+                        end={item.end}
+                        className={({ isActive: a }) =>
+                          `flex items-center gap-2 ${
+                            a || active
+                              ? "bg-accent text-accent-foreground font-medium"
+                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          }`
+                        }
+                      >
+                        <item.icon className="h-4 w-4 shrink-0" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
+}
 
 export default function AdminLayout() {
   const { user, signOut } = useAuth();
@@ -13,67 +90,37 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-page">
-      <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link to="/admin" className="flex items-center gap-2 font-bold tracking-tight">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
-              <Sparkles className="h-4 w-4 text-primary-foreground" />
-            </span>
-            <span>Catálogos</span>
-          </Link>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-gradient-page">
+        <AdminSidebar />
 
-          <nav className="hidden items-center gap-1 md:flex">
-            <NavLink
-              to="/admin"
-              end
-              className={({ isActive }) =>
-                `flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`
-              }
-            >
-              <LayoutGrid className="h-4 w-4" />
-              Catálogos
-            </NavLink>
-            <NavLink
-              to="/admin/settings"
-              className={({ isActive }) =>
-                `flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`
-              }
-            >
-              <SettingsIcon className="h-4 w-4" />
-              Configurações
-            </NavLink>
-          </nav>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-md sm:px-6">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger />
+            </div>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/" target="_blank" rel="noreferrer">
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Ver site</span>
+                </Link>
+              </Button>
+              <span className="hidden text-xs text-muted-foreground lg:inline">
+                {user?.email}
+              </span>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
+              </Button>
+            </div>
+          </header>
 
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/" target="_blank" rel="noreferrer">
-                <ExternalLink className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Ver site</span>
-              </Link>
-            </Button>
-            <span className="hidden text-xs text-muted-foreground lg:inline">
-              {user?.email}
-            </span>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sair
-            </Button>
-          </div>
+          <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
+            <Outlet />
+          </main>
         </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Outlet />
-      </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 }
