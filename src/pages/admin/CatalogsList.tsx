@@ -466,7 +466,7 @@ export default function CatalogsList() {
                   </div>
                   <Link
                     to={`/admin/catalogs/${c.id}`}
-                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/85 sm:w-auto"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
                   >
                     Abrir
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

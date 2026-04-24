@@ -123,7 +123,7 @@ const Index = () => {
                         {c.name}
                       </p>
                     </div>
-                    <span className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors group-hover:bg-foreground/85 sm:w-auto">
+                    <span className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-colors group-hover:bg-primary/90 sm:w-auto">
                       Ver catálogo
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                     </span>
