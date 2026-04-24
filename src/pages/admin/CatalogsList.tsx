@@ -448,7 +448,7 @@ export default function CatalogsList() {
                 </section>
 
                 {/* Footer */}
-                <footer className="flex flex-row items-center justify-between gap-2 p-3">
+                <footer className="flex flex-col items-stretch gap-3 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
                   <div className="flex min-w-0 flex-1 items-center gap-2.5">
                     {c.icon_url ? (
                       <div className="relative m-0 flex aspect-square h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent p-0">
@@ -471,7 +471,7 @@ export default function CatalogsList() {
                   </div>
                   <Link
                     to={`/admin/catalogs/${c.id}`}
-                    className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                    className="inline-flex w-full flex-shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
                   >
                     Abrir
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
