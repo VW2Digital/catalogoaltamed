@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useBranding } from "@/hooks/useBranding";
 import {
   LayoutGrid,
   LogOut,
@@ -63,6 +64,7 @@ function AdminSidebar({
   const collapsed = state === "collapsed";
   const location = useLocation();
   const [catalogsCount, setCatalogsCount] = useState<number | null>(null);
+  const { storeName, logoThumbUrl } = useBranding();
 
   useEffect(() => {
     (async () => {
@@ -131,12 +133,26 @@ function AdminSidebar({
           to="/admin"
           className="flex items-center gap-3 px-2 py-2"
         >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
-            <Layers className="h-5 w-5 text-primary-foreground" />
-          </span>
+          {logoThumbUrl ? (
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-card">
+              <img
+                src={logoThumbUrl}
+                alt={storeName || "Logo"}
+                className="h-full w-full object-contain"
+                loading="lazy"
+                decoding="async"
+              />
+            </span>
+          ) : (
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
+              <Layers className="h-5 w-5 text-primary-foreground" />
+            </span>
+          )}
           {!collapsed && (
             <div className="flex min-w-0 flex-col leading-tight">
-              <span className="truncate text-sm font-bold tracking-tight">Catálogos</span>
+              <span className="truncate text-sm font-bold tracking-tight">
+                {storeName || "Catálogos"}
+              </span>
               <span className="truncate text-xs text-muted-foreground">Painel admin</span>
             </div>
           )}
