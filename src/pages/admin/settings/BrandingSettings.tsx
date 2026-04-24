@@ -5,8 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, Save, Upload, Trash2, Image as ImageIcon } from "lucide-react";
+import { Loader2, Save, Upload, Trash2, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { SettingsPageHeader } from "@/components/admin/SettingsPageHeader";
+import {
+  validateStoreName,
+  validateStoreDescription,
+  validateUrl,
+} from "@/lib/validation";
 
 const KEYS = ["store_name", "store_description", "logo_url"] as const;
 type Key = (typeof KEYS)[number];
@@ -20,6 +25,7 @@ export default function BrandingSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<Key, string>>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -97,13 +103,44 @@ export default function BrandingSettings() {
     }
   }
 
+  function setField(key: Key, value: string) {
+    setValues((v) => ({ ...v, [key]: value }));
+    if (errors[key]) setErrors((e) => ({ ...e, [key]: undefined }));
+  }
+
+  function validateAll(): { ok: boolean; normalized?: Record<Key, string> } {
+    const name = validateStoreName(values.store_name);
+    const desc = validateStoreDescription(values.store_description);
+    const url = validateUrl(values.logo_url);
+    const next: Partial<Record<Key, string>> = {};
+    if (!name.ok && name.error) next.store_name = name.error;
+    if (!desc.ok && desc.error) next.store_description = desc.error;
+    if (!url.ok && url.error) next.logo_url = url.error;
+    setErrors(next);
+    if (Object.keys(next).length > 0) return { ok: false };
+    return {
+      ok: true,
+      normalized: {
+        store_name: name.value,
+        store_description: desc.value,
+        logo_url: url.value,
+      },
+    };
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    const result = validateAll();
+    if (!result.ok || !result.normalized) {
+      toast.error("Corrija os campos destacados.");
+      return;
+    }
     setSaving(true);
     try {
-      await persist("store_name", values.store_name);
-      await persist("store_description", values.store_description);
-      await persist("logo_url", values.logo_url);
+      await persist("store_name", result.normalized.store_name);
+      await persist("store_description", result.normalized.store_description);
+      await persist("logo_url", result.normalized.logo_url);
+      setValues(result.normalized);
       toast.success("Identidade salva");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao salvar");
@@ -189,11 +226,19 @@ export default function BrandingSettings() {
               id="logo_url"
               placeholder="https://..."
               value={values.logo_url}
-              onChange={(e) => setValues((v) => ({ ...v, logo_url: e.target.value }))}
+              onChange={(e) => setField("logo_url", e.target.value)}
+              aria-invalid={!!errors.logo_url}
             />
-            <p className="text-xs text-muted-foreground">
-              Preenchido automaticamente ao enviar uma imagem.
-            </p>
+            {errors.logo_url ? (
+              <p className="flex items-center gap-1.5 text-xs font-medium text-destructive">
+                <AlertCircle className="h-3.5 w-3.5" />
+                {errors.logo_url}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Preenchido automaticamente ao enviar uma imagem.
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -202,8 +247,16 @@ export default function BrandingSettings() {
               id="store_name"
               placeholder="Ex.: Minha Loja"
               value={values.store_name}
-              onChange={(e) => setValues((v) => ({ ...v, store_name: e.target.value }))}
+              onChange={(e) => setField("store_name", e.target.value)}
+              aria-invalid={!!errors.store_name}
+              maxLength={60}
             />
+            {errors.store_name && (
+              <p className="flex items-center gap-1.5 text-xs font-medium text-destructive">
+                <AlertCircle className="h-3.5 w-3.5" />
+                {errors.store_name}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -213,13 +266,20 @@ export default function BrandingSettings() {
               placeholder="Descrição curta exibida no catálogo e em compartilhamentos."
               rows={3}
               value={values.store_description}
-              onChange={(e) =>
-                setValues((v) => ({ ...v, store_description: e.target.value }))
-              }
+              onChange={(e) => setField("store_description", e.target.value)}
+              aria-invalid={!!errors.store_description}
+              maxLength={160}
             />
-            <p className="text-xs text-muted-foreground">
-              Recomendado até 160 caracteres para SEO.
-            </p>
+            {errors.store_description ? (
+              <p className="flex items-center gap-1.5 text-xs font-medium text-destructive">
+                <AlertCircle className="h-3.5 w-3.5" />
+                {errors.store_description}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {values.store_description.length}/160 caracteres
+              </p>
+            )}
           </div>
 
           <Button type="submit" disabled={saving}>

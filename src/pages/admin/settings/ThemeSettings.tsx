@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Save, RotateCcw, Check } from "lucide-react";
+import { Loader2, Save, RotateCcw, Check, AlertCircle } from "lucide-react";
 import { SettingsPageHeader } from "@/components/admin/SettingsPageHeader";
 import {
   COLOR_PRESETS,
@@ -12,21 +12,36 @@ import {
   hslToHex,
   useThemeSettings,
 } from "@/hooks/useThemeSettings";
+import { validateHsl } from "@/lib/validation";
 
 export default function ThemeSettings() {
   const { settings, loading, preview, resetPreview, save } = useThemeSettings();
   const [saving, setSaving] = useState(false);
+  const [hslError, setHslError] = useState<string | null>(null);
 
   async function handleSave() {
+    const result = validateHsl(settings.primary_hsl);
+    if (!result.ok) {
+      const msg = result.error ?? "HSL inválido";
+      setHslError(msg);
+      toast.error(msg);
+      return;
+    }
+    setHslError(null);
     setSaving(true);
     try {
-      await save({ primary_hsl: settings.primary_hsl });
+      await save({ primary_hsl: result.value });
       toast.success("Cor salva");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao salvar");
     } finally {
       setSaving(false);
     }
+  }
+
+  function handleHslChange(v: string) {
+    preview({ primary_hsl: v });
+    if (hslError) setHslError(null);
   }
 
   if (loading) {
@@ -89,10 +104,20 @@ export default function ThemeSettings() {
             <Input
               id="hsl-input"
               value={settings.primary_hsl}
-              onChange={(e) => preview({ primary_hsl: e.target.value })}
+              onChange={(e) => handleHslChange(e.target.value)}
               placeholder="36 55% 50%"
+              aria-invalid={!!hslError}
             />
-            <p className="text-xs text-muted-foreground">Formato: matiz saturação% luminosidade%</p>
+            {hslError ? (
+              <p className="flex items-center gap-1.5 text-xs font-medium text-destructive">
+                <AlertCircle className="h-3.5 w-3.5" />
+                {hslError}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Formato: matiz saturação% luminosidade%
+              </p>
+            )}
           </div>
         </div>
 
