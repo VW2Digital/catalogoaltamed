@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { groupByCategory } from "@/lib/groupByCategory";
 
 type Catalog = {
   id: string;
@@ -107,20 +108,32 @@ export default function PublicCatalog() {
                 </p>
               </div>
             ) : (
-              <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {products.map((p) => (
-                  <ProductCard
-                    key={p.id}
-                    product={{
-                      code: p.code,
-                      name: p.name,
-                      category: p.category,
-                      brand: p.brand,
-                      unit: p.unit,
-                      price: p.price,
-                      image_url: p.image_url,
-                    }}
-                  />
+              <div className="mt-10 space-y-14">
+                {groupByCategory(products).map((group) => (
+                  <section key={group.category} aria-labelledby={`cat-${group.category}`}>
+                    <h2
+                      id={`cat-${group.category}`}
+                      className="text-3xl font-bold tracking-tight text-foreground"
+                    >
+                      {group.category}
+                    </h2>
+                    <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                      {group.items.map((p) => (
+                        <ProductCard
+                          key={p.id}
+                          product={{
+                            code: p.code,
+                            name: p.name,
+                            category: p.category,
+                            brand: p.brand,
+                            unit: p.unit,
+                            price: p.price,
+                            image_url: p.image_url,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </section>
                 ))}
               </div>
             )}

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import ProductFormDialog, { ProductRow } from "@/components/admin/ProductFormDialog";
 import { ProductCard } from "@/components/ProductCard";
+import { groupByCategory } from "@/lib/groupByCategory";
 
 type Catalog = {
   id: string;
@@ -134,58 +135,70 @@ export default function CatalogDetail() {
             </Button>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((p) => (
-              <div key={p.id} className="relative">
-                <ProductCard
-                  product={{
-                    code: p.code,
-                    name: p.name,
-                    category: p.category,
-                    brand: p.brand,
-                    unit: p.unit,
-                    price: p.price,
-                    image_url: p.image_url,
-                  }}
-                />
-                <div className="absolute right-3 top-3 flex gap-1 rounded-full bg-background/90 p-1 shadow-card backdrop-blur">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => handleEdit(p)}
-                    aria-label="Editar"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        aria-label="Excluir"
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Esta ação não pode ser desfeita.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(p)}>
-                          Excluir
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+          <div className="space-y-12">
+            {groupByCategory(products).map((group) => (
+              <section key={group.category} aria-labelledby={`admin-cat-${group.category}`}>
+                <h2
+                  id={`admin-cat-${group.category}`}
+                  className="text-2xl font-bold tracking-tight text-foreground"
+                >
+                  {group.category}
+                </h2>
+                <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {group.items.map((p) => (
+                    <div key={p.id} className="relative">
+                      <ProductCard
+                        product={{
+                          code: p.code,
+                          name: p.name,
+                          category: p.category,
+                          brand: p.brand,
+                          unit: p.unit,
+                          price: p.price,
+                          image_url: p.image_url,
+                        }}
+                      />
+                      <div className="absolute right-3 top-3 flex gap-1 rounded-full bg-background/90 p-1 shadow-card backdrop-blur">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleEdit(p)}
+                          aria-label="Editar"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              aria-label="Excluir"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(p)}>
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
+              </section>
             ))}
           </div>
         )}
