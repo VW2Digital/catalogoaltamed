@@ -26,7 +26,7 @@ export function ProductCard({ product, whatsappNumber }: Props) {
         Cód.: <span className="text-foreground/80">{product.code}</span>
       </p>
 
-      <div className="mt-4 flex aspect-[16/9] items-center justify-center overflow-hidden rounded-xl bg-muted">
+      <div className="mt-4 flex aspect-[16/9] items-center justify-center overflow-hidden rounded-xl bg-white">
         {product.image_url ? (
           <img
             src={product.image_url}
