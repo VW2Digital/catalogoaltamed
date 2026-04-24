@@ -59,7 +59,7 @@ export default function BrandingSettings() {
       maxBytes: 5 * 1024 * 1024,
     });
     if (!validation.ok) {
-      toast.error(validation.error);
+      toast.error(validation.error ?? "Imagem inválida");
       return;
     }
     setUploading(true);
