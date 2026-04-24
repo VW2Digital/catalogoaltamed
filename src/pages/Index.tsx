@@ -107,16 +107,16 @@ const Index = () => {
                   <footer className="flex flex-col items-start gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                       {c.icon_url ? (
-                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent p-0">
+                        <div className="m-0 flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent p-0">
                           <img
                             src={c.icon_url}
                             alt=""
-                            className="h-9 w-9 object-contain"
+                            className="m-0 h-9 w-9 object-contain"
                           />
                         </div>
                       ) : (
-                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
-                          <FolderOpen className="h-4 w-4 text-primary-foreground" />
+                        <div className="m-0 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-gold p-0 shadow-gold">
+                          <FolderOpen className="h-5 w-5 text-primary-foreground" />
                         </div>
                       )}
                       <p className="text-sm font-bold leading-tight line-clamp-2">
