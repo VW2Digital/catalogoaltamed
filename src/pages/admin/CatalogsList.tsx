@@ -367,9 +367,24 @@ export default function CatalogsList() {
                 className="group flex flex-col rounded-2xl border bg-card p-2 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
               >
                 {/* Hero */}
-                <section className="rounded-t-xl bg-accent p-6">
+                <section
+                  className="relative overflow-hidden rounded-xl bg-accent p-6"
+                  style={
+                    c.cover_url
+                      ? {
+                          backgroundImage: `linear-gradient(180deg, hsl(0 0% 0% / 0.15) 0%, hsl(0 0% 0% / 0.55) 100%), url(${c.cover_url})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }
+                      : undefined
+                  }
+                >
                   <header className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-bold text-foreground/80">
+                    <span
+                      className={`text-sm font-bold ${
+                        c.cover_url ? "text-white/90" : "text-foreground/80"
+                      }`}
+                    >
                       {c.product_count}{" "}
                       {c.product_count === 1 ? "produto" : "produtos"}
                     </span>
@@ -377,7 +392,11 @@ export default function CatalogsList() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                        className={`h-8 w-8 ${
+                          c.cover_url
+                            ? "text-white/90 hover:bg-white/15 hover:text-white"
+                            : "text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                        }`}
                         onClick={() => openEdit(c)}
                         aria-label="Editar"
                       >
@@ -388,7 +407,11 @@ export default function CatalogsList() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-foreground/70 hover:bg-destructive/10 hover:text-destructive"
+                            className={`h-8 w-8 ${
+                              c.cover_url
+                                ? "text-white/90 hover:bg-destructive/80 hover:text-white"
+                                : "text-foreground/70 hover:bg-destructive/10 hover:text-destructive"
+                            }`}
                             aria-label="Excluir"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -412,7 +435,11 @@ export default function CatalogsList() {
                       </AlertDialog>
                     </div>
                   </header>
-                  <h3 className="mt-8 mb-2 pr-6 text-2xl font-semibold leading-tight tracking-tight line-clamp-2">
+                  <h3
+                    className={`mt-8 mb-2 pr-6 text-2xl font-semibold leading-tight tracking-tight line-clamp-2 ${
+                      c.cover_url ? "text-white drop-shadow-sm" : ""
+                    }`}
+                  >
                     {c.name}
                   </h3>
                 </section>
@@ -420,9 +447,19 @@ export default function CatalogsList() {
                 {/* Footer */}
                 <footer className="flex flex-col items-start gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
-                      <FolderOpen className="h-4 w-4 text-primary-foreground" />
-                    </div>
+                    {c.icon_url ? (
+                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-gold shadow-gold">
+                        <img
+                          src={c.icon_url}
+                          alt=""
+                          className="h-5 w-5 object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-gold shadow-gold">
+                        <FolderOpen className="h-4 w-4 text-primary-foreground" />
+                      </div>
+                    )}
                     <p className="text-sm font-bold leading-tight line-clamp-2">
                       {c.description?.trim() ? c.description : "Catálogo de produtos"}
                     </p>
