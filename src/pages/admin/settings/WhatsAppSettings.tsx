@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, AlertCircle } from "lucide-react";
 import { SettingsPageHeader } from "@/components/admin/SettingsPageHeader";
+import { validateWhatsApp, formatWhatsAppDisplay } from "@/lib/validation";
 
 export default function WhatsAppSettings() {
   const [number, setNumber] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -24,18 +26,30 @@ export default function WhatsAppSettings() {
     })();
   }, []);
 
+  function handleChange(v: string) {
+    // Normalize live: keep digits only
+    const digits = v.replace(/\D/g, "").slice(0, 15);
+    setNumber(digits);
+    if (error) setError(null);
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    const result = validateWhatsApp(number);
+    if (!result.ok) {
+      setError(result.error);
+      toast.error(result.error);
+      return;
+    }
     setSaving(true);
-    const digits = number.replace(/\D/g, "");
     const { error } = await supabase
       .from("settings")
-      .upsert({ key: "whatsapp_number", value: digits }, { onConflict: "key" });
+      .upsert({ key: "whatsapp_number", value: result.value }, { onConflict: "key" });
     setSaving(false);
     if (error) toast.error(error.message);
     else {
       toast.success("Número salvo");
-      setNumber(digits);
+      setNumber(result.value);
     }
   }
 
@@ -56,13 +70,27 @@ export default function WhatsAppSettings() {
             <Label htmlFor="whatsapp">Número de WhatsApp</Label>
             <Input
               id="whatsapp"
+              inputMode="numeric"
               placeholder="Ex.: 5511999999999 (com DDI e DDD)"
               value={number}
-              onChange={(e) => setNumber(e.target.value)}
+              onChange={(e) => handleChange(e.target.value)}
+              aria-invalid={!!error}
+              aria-describedby={error ? "whatsapp-error" : "whatsapp-help"}
             />
-            <p className="text-xs text-muted-foreground">
-              Inclua o código do país (55 para Brasil) seguido do DDD e número.
-            </p>
+            {error ? (
+              <p
+                id="whatsapp-error"
+                className="flex items-center gap-1.5 text-xs font-medium text-destructive"
+              >
+                <AlertCircle className="h-3.5 w-3.5" />
+                {error}
+              </p>
+            ) : (
+              <p id="whatsapp-help" className="text-xs text-muted-foreground">
+                Apenas dígitos. Inclua DDI (55 para Brasil) + DDD + número.
+                {number ? ` Pré-visualização: ${formatWhatsAppDisplay(number)}` : ""}
+              </p>
+            )}
           </div>
           <Button type="submit" disabled={saving}>
             <Save className="mr-2 h-4 w-4" />
