@@ -5,6 +5,7 @@ import { LayoutGrid, LogOut, Sparkles, ExternalLink, Settings as SettingsIcon } 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -22,7 +23,13 @@ const navItems = [
   { title: "Configurações", url: "/admin/settings", icon: SettingsIcon, end: false },
 ];
 
-function AdminSidebar() {
+function AdminSidebar({
+  email,
+  onSignOut,
+}: {
+  email?: string;
+  onSignOut: () => void;
+}) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
@@ -76,6 +83,32 @@ function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Ver site">
+              <Link to="/" target="_blank" rel="noreferrer">
+                <ExternalLink className="h-4 w-4 shrink-0" />
+                {!collapsed && <span>Ver site</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {!collapsed && email && (
+            <li className="px-2 pt-1 text-xs text-muted-foreground truncate">
+              {email}
+            </li>
+          )}
+
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={onSignOut} tooltip="Sair">
+              <LogOut className="h-4 w-4 shrink-0" />
+              {!collapsed && <span>Sair</span>}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
@@ -92,28 +125,11 @@ export default function AdminLayout() {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-gradient-page">
-        <AdminSidebar />
+        <AdminSidebar email={user?.email} onSignOut={handleSignOut} />
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-md sm:px-6">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger />
-            </div>
-            <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm">
-                <Link to="/" target="_blank" rel="noreferrer">
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  <span className="hidden sm:inline">Ver site</span>
-                </Link>
-              </Button>
-              <span className="hidden text-xs text-muted-foreground lg:inline">
-                {user?.email}
-              </span>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Sair
-              </Button>
-            </div>
+          <header className="sticky top-0 z-30 flex h-14 items-center border-b bg-background/80 px-4 backdrop-blur-md sm:px-6">
+            <SidebarTrigger />
           </header>
 
           <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
