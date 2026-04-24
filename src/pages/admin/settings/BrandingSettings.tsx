@@ -53,6 +53,30 @@ export default function BrandingSettings() {
     })();
   }, []);
 
+  /**
+   * Extract a storage object path from a public URL pointing at the
+   * "branding" bucket. Returns null if the URL is external or malformed,
+   * so we never try to delete files we don't own.
+   */
+  function pathFromBrandingUrl(url: string): string | null {
+    if (!url) return null;
+    const marker = "/branding/";
+    const idx = url.indexOf(marker);
+    if (idx === -1) return null;
+    const path = url.slice(idx + marker.length).split("?")[0];
+    return path || null;
+  }
+
+  async function removeFromBranding(paths: string[]) {
+    const unique = Array.from(new Set(paths.filter(Boolean)));
+    if (unique.length === 0) return;
+    const { error } = await supabase.storage.from("branding").remove(unique);
+    if (error) {
+      // Non-fatal: log but don't surface, since the new upload already succeeded.
+      console.warn("Falha ao remover arquivos antigos do logo:", error.message);
+    }
+  }
+
   async function persist(key: Key, value: string) {
     const { error } = await supabase
       .from("settings")
@@ -72,6 +96,12 @@ export default function BrandingSettings() {
     setUploading(true);
     try {
       const detected = validation.type!;
+      // Snapshot the URLs we may need to clean up *before* mutating state.
+      const previousPaths = [
+        pathFromBrandingUrl(values.logo_url),
+        pathFromBrandingUrl(values.logo_thumb_url),
+      ].filter((p): p is string => !!p);
+
       // Build optimized variants client-side. For raster formats this re-encodes
       // to WebP and downscales (max 512px main, 128px thumb).
       const { main, thumb } = await buildLogoVariants(file, detected);
@@ -110,6 +140,13 @@ export default function BrandingSettings() {
       ]);
       setValues((v) => ({ ...v, logo_url: mainUrl, logo_thumb_url: thumbUrl }));
 
+      // Clean up the previous logo files from the bucket. Skip any path that
+      // matches the new upload (avoids deleting the file we just stored,
+      // e.g. when an SVG reuses the same name pattern).
+      const newPaths = new Set([mainPath, thumbPath]);
+      const stalePaths = previousPaths.filter((p) => !newPaths.has(p));
+      await removeFromBranding(stalePaths);
+
       const savedKb = Math.max(0, file.size - main.blob.size);
       toast.success(
         detected === "svg"
@@ -126,16 +163,11 @@ export default function BrandingSettings() {
 
   async function handleRemoveLogo() {
     try {
-      const marker = "/branding/";
-      const toRemove: string[] = [];
-      for (const url of [values.logo_url, values.logo_thumb_url]) {
-        if (!url) continue;
-        const idx = url.indexOf(marker);
-        if (idx !== -1) toRemove.push(url.slice(idx + marker.length));
-      }
-      if (toRemove.length > 0) {
-        await supabase.storage.from("branding").remove(toRemove);
-      }
+      const toRemove = [
+        pathFromBrandingUrl(values.logo_url),
+        pathFromBrandingUrl(values.logo_thumb_url),
+      ].filter((p): p is string => !!p);
+      await removeFromBranding(toRemove);
       await Promise.all([persist("logo_url", ""), persist("logo_thumb_url", "")]);
       setValues((v) => ({ ...v, logo_url: "", logo_thumb_url: "" }));
       toast.success("Logo removido");
