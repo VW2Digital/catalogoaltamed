@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, LogIn } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useBranding } from "@/hooks/useBranding";
+import { useBranding, LOGO_IMG_CLASS } from "@/hooks/useBranding";
 
 export function PublicHeader() {
   const { user, isAdmin } = useAuth();
@@ -15,7 +15,7 @@ export function PublicHeader() {
             <img
               src={logoThumbUrl}
               alt={storeName || "Logo"}
-              className="h-10 w-auto max-w-[180px] object-contain"
+              className={LOGO_IMG_CLASS}
             />
           ) : (
             <>
