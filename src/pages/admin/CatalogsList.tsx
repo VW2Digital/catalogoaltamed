@@ -445,13 +445,6 @@ export default function CatalogsList() {
                       </AlertDialog>
                     </div>
                   </header>
-                  <h3
-                    className={`m-0 pr-6 text-xl font-semibold leading-snug tracking-tight line-clamp-3 [text-wrap:balance] sm:text-2xl ${
-                      c.cover_url ? "text-white drop-shadow-sm" : ""
-                    }`}
-                  >
-                    {c.name}
-                  </h3>
                 </section>
 
                 {/* Footer */}
