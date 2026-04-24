@@ -1,0 +1,132 @@
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Loader2, Sparkles } from "lucide-react";
+
+const schema = z.object({
+  email: z.string().trim().email("E-mail inválido").max(255),
+  password: z.string().min(6, "Mínimo de 6 caracteres").max(72),
+});
+
+export default function Auth() {
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && user) navigate("/admin", { replace: true });
+  }, [user, authLoading, navigate]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const parsed = schema.safeParse({ email, password });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0].message);
+      return;
+    }
+    setLoading(true);
+    try {
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signUp({
+          email: parsed.data.email,
+          password: parsed.data.password,
+          options: { emailRedirectTo: `${window.location.origin}/admin` },
+        });
+        if (error) throw error;
+        toast.success("Conta criada! Verifique seu e-mail se a confirmação estiver ativa.");
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: parsed.data.email,
+          password: parsed.data.password,
+        });
+        if (error) throw error;
+        toast.success("Bem-vindo!");
+        navigate("/admin", { replace: true });
+      }
+    } catch (err: any) {
+      const msg = err?.message ?? "Erro inesperado";
+      if (msg.toLowerCase().includes("invalid login")) {
+        toast.error("E-mail ou senha incorretos.");
+      } else if (msg.toLowerCase().includes("already registered")) {
+        toast.error("Este e-mail já está cadastrado. Faça login.");
+      } else {
+        toast.error(msg);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main className="min-h-screen bg-gradient-page">
+      <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 py-12">
+        <Link to="/" className="mb-8 flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <span>Voltar para o catálogo</span>
+        </Link>
+
+        <div className="w-full rounded-2xl border bg-card p-8 shadow-card">
+          <h1 className="text-2xl font-bold tracking-tight">
+            {mode === "signin" ? "Entrar no painel" : "Criar conta"}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Gerencie seus catálogos e produtos.
+          </p>
+
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {mode === "signin" ? "Entrar" : "Criar conta"}
+            </Button>
+          </form>
+
+          <button
+            type="button"
+            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+            className="mt-6 w-full text-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {mode === "signin"
+              ? "Não tem conta? Criar agora"
+              : "Já tem conta? Entrar"}
+          </button>
+        </div>
+
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          O primeiro usuário criado precisa receber a permissão de administrador
+          manualmente no banco. Depois disso, terá acesso total.
+        </p>
+      </div>
+    </main>
+  );
+}
