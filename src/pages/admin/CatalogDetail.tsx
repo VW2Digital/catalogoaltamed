@@ -36,9 +36,9 @@ export default function CatalogDetail() {
   const [editing, setEditing] = useState<ProductRow | null>(null);
   const { number: whatsappNumber } = useWhatsAppNumber();
 
-  async function load() {
+  async function load(opts: { showLoader?: boolean } = { showLoader: true }) {
     if (!id) return;
-    setLoading(true);
+    if (opts.showLoader) setLoading(true);
     const [{ data: cat }, { data: prods }] = await Promise.all([
       supabase.from("catalogs").select("*").eq("id", id).maybeSingle(),
       supabase
@@ -51,7 +51,7 @@ export default function CatalogDetail() {
     ]);
     setCatalog(cat as Catalog | null);
     setProducts((prods as ProductRow[]) ?? []);
-    setLoading(false);
+    if (opts.showLoader) setLoading(false);
   }
 
   useEffect(() => {
@@ -71,10 +71,10 @@ export default function CatalogDetail() {
   async function handleDelete(p: ProductRow) {
     const { error } = await supabase.from("products").delete().eq("id", p.id);
     if (error) toast.error(error.message);
-    else {
-      toast.success("Produto excluído");
-      load();
-    }
+      else {
+        toast.success("Produto excluído");
+        load({ showLoader: false });
+      }
   }
 
   if (loading) {
