@@ -374,7 +374,7 @@ export default function CatalogsList() {
               >
                 {/* Hero */}
                 <section
-                  className="relative overflow-hidden rounded-xl bg-accent p-6"
+                  className="relative flex min-h-[180px] flex-col overflow-hidden rounded-xl bg-accent p-6 sm:min-h-[240px] lg:min-h-[280px]"
                   style={
                     c.cover_url
                       ? {
@@ -446,7 +446,7 @@ export default function CatalogsList() {
                     </div>
                   </header>
                   <h3
-                    className={`mt-8 mb-2 pr-6 text-2xl font-semibold leading-tight tracking-tight line-clamp-2 ${
+                    className={`mt-auto mb-2 pr-6 text-2xl font-semibold leading-tight tracking-tight line-clamp-2 ${
                       c.cover_url ? "text-white drop-shadow-sm" : ""
                     }`}
                   >
