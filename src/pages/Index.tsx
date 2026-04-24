@@ -107,15 +107,17 @@ const Index = () => {
                   <footer className="flex flex-row items-center justify-between gap-2 p-3">
                     <div className="flex min-w-0 flex-1 items-center gap-2.5">
                       {c.icon_url ? (
-                        <div className="m-0 flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent p-0">
+                        <div className="relative m-0 flex aspect-square h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent p-0">
                           <img
                             src={c.icon_url}
                             alt=""
-                            className="m-0 h-9 w-9 object-contain"
+                            loading="lazy"
+                            decoding="async"
+                            className="m-0 block h-full w-full object-contain object-center"
                           />
                         </div>
                       ) : (
-                        <div className="m-0 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-gold p-0 shadow-gold">
+                        <div className="m-0 flex aspect-square h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-gold p-0 shadow-gold">
                           <FolderOpen className="h-5 w-5 text-primary-foreground" />
                         </div>
                       )}
