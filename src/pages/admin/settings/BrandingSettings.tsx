@@ -8,13 +8,14 @@ import { toast } from "sonner";
 import { Loader2, Save, Upload, Trash2, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { SettingsPageHeader } from "@/components/admin/SettingsPageHeader";
 import { validateImageFile } from "@/lib/imageValidation";
+import { buildLogoVariants, formatBytes } from "@/lib/imageProcessing";
 import {
   validateStoreName,
   validateStoreDescription,
   validateUrl,
 } from "@/lib/validation";
 
-const KEYS = ["store_name", "store_description", "logo_url"] as const;
+const KEYS = ["store_name", "store_description", "logo_url", "logo_thumb_url"] as const;
 type Key = (typeof KEYS)[number];
 
 export default function BrandingSettings() {
@@ -22,6 +23,7 @@ export default function BrandingSettings() {
     store_name: "",
     store_description: "",
     logo_url: "",
+    logo_thumb_url: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -35,7 +37,12 @@ export default function BrandingSettings() {
         .from("settings")
         .select("key, value")
         .in("key", KEYS as unknown as string[]);
-      const next: Record<Key, string> = { store_name: "", store_description: "", logo_url: "" };
+      const next: Record<Key, string> = {
+        store_name: "",
+        store_description: "",
+        logo_url: "",
+        logo_thumb_url: "",
+      };
       data?.forEach((row) => {
         if ((KEYS as readonly string[]).includes(row.key)) {
           next[row.key as Key] = row.value ?? "";
@@ -55,7 +62,7 @@ export default function BrandingSettings() {
 
   async function handleUpload(file: File) {
     const validation = await validateImageFile(file, {
-      allowed: ["png", "jpeg", "webp", "svg"],
+      allowed: ["png", "jpeg", "webp", "svg", "gif"],
       maxBytes: 5 * 1024 * 1024,
     });
     if (!validation.ok) {
@@ -64,24 +71,51 @@ export default function BrandingSettings() {
     }
     setUploading(true);
     try {
-      // Use extension + content-type derived from the actual binary signature
-      // so a spoofed filename can't poison the storage object metadata.
-      const path = `logo-${Date.now()}.${validation.ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("branding")
-        .upload(path, file, {
+      const detected = validation.type!;
+      // Build optimized variants client-side. For raster formats this re-encodes
+      // to WebP and downscales (max 512px main, 128px thumb).
+      const { main, thumb } = await buildLogoVariants(file, detected);
+
+      const stamp = Date.now();
+      const mainPath = `logo-${stamp}.${main.ext}`;
+      const thumbPath = `logo-${stamp}-thumb.${thumb.ext}`;
+
+      const [mainUpload, thumbUpload] = await Promise.all([
+        supabase.storage.from("branding").upload(mainPath, main.blob, {
           cacheControl: "3600",
           upsert: false,
-          contentType: validation.mime,
-        });
-      if (uploadError) throw uploadError;
+          contentType: main.mime,
+        }),
+        // For SVG both variants point at the same blob; skip the duplicate write.
+        detected === "svg"
+          ? Promise.resolve({ error: null as null | { message: string } })
+          : supabase.storage.from("branding").upload(thumbPath, thumb.blob, {
+              cacheControl: "3600",
+              upsert: false,
+              contentType: thumb.mime,
+            }),
+      ]);
+      if (mainUpload.error) throw mainUpload.error;
+      if (thumbUpload.error) throw thumbUpload.error;
 
-      const { data: pub } = supabase.storage.from("branding").getPublicUrl(path);
-      const url = pub.publicUrl;
+      const mainUrl = supabase.storage.from("branding").getPublicUrl(mainPath).data.publicUrl;
+      const thumbUrl =
+        detected === "svg"
+          ? mainUrl
+          : supabase.storage.from("branding").getPublicUrl(thumbPath).data.publicUrl;
 
-      await persist("logo_url", url);
-      setValues((v) => ({ ...v, logo_url: url }));
-      toast.success("Logo enviado");
+      await Promise.all([
+        persist("logo_url", mainUrl),
+        persist("logo_thumb_url", thumbUrl),
+      ]);
+      setValues((v) => ({ ...v, logo_url: mainUrl, logo_thumb_url: thumbUrl }));
+
+      const savedKb = Math.max(0, file.size - main.blob.size);
+      toast.success(
+        detected === "svg"
+          ? "Logo enviado"
+          : `Logo otimizado: ${formatBytes(main.blob.size)} (economia de ${formatBytes(savedKb)})`
+      );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao enviar logo");
     } finally {
@@ -92,17 +126,18 @@ export default function BrandingSettings() {
 
   async function handleRemoveLogo() {
     try {
-      const url = values.logo_url;
-      if (url) {
-        const marker = "/branding/";
+      const marker = "/branding/";
+      const toRemove: string[] = [];
+      for (const url of [values.logo_url, values.logo_thumb_url]) {
+        if (!url) continue;
         const idx = url.indexOf(marker);
-        if (idx !== -1) {
-          const path = url.slice(idx + marker.length);
-          await supabase.storage.from("branding").remove([path]);
-        }
+        if (idx !== -1) toRemove.push(url.slice(idx + marker.length));
       }
-      await persist("logo_url", "");
-      setValues((v) => ({ ...v, logo_url: "" }));
+      if (toRemove.length > 0) {
+        await supabase.storage.from("branding").remove(toRemove);
+      }
+      await Promise.all([persist("logo_url", ""), persist("logo_thumb_url", "")]);
+      setValues((v) => ({ ...v, logo_url: "", logo_thumb_url: "" }));
       toast.success("Logo removido");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao remover logo");
@@ -130,6 +165,7 @@ export default function BrandingSettings() {
         store_name: name.value,
         store_description: desc.value,
         logo_url: url.value,
+        logo_thumb_url: values.logo_thumb_url,
       },
     };
   }
@@ -146,6 +182,10 @@ export default function BrandingSettings() {
       await persist("store_name", result.normalized.store_name);
       await persist("store_description", result.normalized.store_description);
       await persist("logo_url", result.normalized.logo_url);
+        // Keep the thumb in sync — if the URL was edited manually, fall back to it.
+        if (!values.logo_thumb_url && result.normalized.logo_url) {
+          await persist("logo_thumb_url", result.normalized.logo_url);
+        }
       setValues(result.normalized);
       toast.success("Identidade salva");
     } catch (err) {
@@ -172,11 +212,13 @@ export default function BrandingSettings() {
             <Label>Logo da loja</Label>
             <div className="flex items-center gap-4">
               <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl border bg-muted/40">
-                {values.logo_url ? (
+                {values.logo_thumb_url || values.logo_url ? (
                   <img
-                    src={values.logo_url}
+                    src={values.logo_thumb_url || values.logo_url}
                     alt="Logo da loja"
                     className="h-full w-full object-contain"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <ImageIcon className="h-8 w-8 text-muted-foreground" />
