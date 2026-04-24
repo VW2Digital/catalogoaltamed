@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -44,6 +51,8 @@ type Props = {
   onSaved: () => void;
 };
 
+type CategoryOption = { id: string; name: string };
+
 export default function ProductFormDialog({
   open,
   onOpenChange,
@@ -61,6 +70,7 @@ export default function ProductFormDialog({
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -73,6 +83,19 @@ export default function ProductFormDialog({
       setImageUrl(product?.image_url ?? null);
     }
   }, [open, product]);
+
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      const { data } = await supabase
+        .from("categories")
+        .select("id,name")
+        .eq("catalog_id", catalogId)
+        .order("sort_order", { ascending: true })
+        .order("name", { ascending: true });
+      setCategories((data as CategoryOption[]) ?? []);
+    })();
+  }, [open, catalogId]);
 
   async function handleUpload(file: File) {
     if (file.size > 5 * 1024 * 1024) {
@@ -236,12 +259,29 @@ export default function ProductFormDialog({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="cat">Categoria</Label>
-                <Input
-                  id="cat"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  placeholder="Preenchedor"
-                />
+                <Select
+                  value={category || "__none__"}
+                  onValueChange={(v) => setCategory(v === "__none__" ? "" : v)}
+                >
+                  <SelectTrigger id="cat">
+                    <SelectValue placeholder="Sem categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Sem categoria</SelectItem>
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.name}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                    {category &&
+                      !categories.some((c) => c.name === category) && (
+                        <SelectItem value={category}>{category}</SelectItem>
+                      )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Crie novas categorias na página do catálogo.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="brand">Marca</Label>
