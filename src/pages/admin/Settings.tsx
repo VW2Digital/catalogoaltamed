@@ -5,20 +5,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
+import CategoriesManager from "@/components/admin/CategoriesManager";
+
+type Catalog = { id: string; name: string };
 
 export default function Settings() {
   const [number, setNumber] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [catalogs, setCatalogs] = useState<Catalog[]>([]);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("settings")
-        .select("value")
-        .eq("key", "whatsapp_number")
-        .maybeSingle();
-      setNumber(data?.value ?? "");
+      const [{ data: setting }, { data: cats }] = await Promise.all([
+        supabase
+          .from("settings")
+          .select("value")
+          .eq("key", "whatsapp_number")
+          .maybeSingle(),
+        supabase.from("catalogs").select("id,name").order("name", { ascending: true }),
+      ]);
+      setNumber(setting?.value ?? "");
+      setCatalogs((cats as Catalog[]) ?? []);
       setLoading(false);
     })();
   }, []);
@@ -48,13 +56,16 @@ export default function Settings() {
   }
 
   return (
-    <section className="max-w-xl">
+    <section className="max-w-3xl space-y-10">
+      <div>
       <h1 className="text-3xl font-bold tracking-tight">Configurações</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Defina o número de WhatsApp que receberá as consultas de preço dos produtos.
+        Gerencie o WhatsApp de contato e as categorias de cada catálogo.
       </p>
+      </div>
 
-      <form onSubmit={handleSave} className="mt-8 space-y-4 rounded-2xl border bg-card p-6 shadow-card">
+      <form onSubmit={handleSave} className="space-y-4 rounded-2xl border bg-card p-6 shadow-card">
+        <h2 className="text-lg font-semibold">WhatsApp</h2>
         <div className="space-y-2">
           <Label htmlFor="whatsapp">Número de WhatsApp</Label>
           <Input
@@ -72,6 +83,30 @@ export default function Settings() {
           {saving ? "Salvando..." : "Salvar"}
         </Button>
       </form>
+
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Categorias por catálogo</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Cada catálogo tem suas próprias categorias.
+          </p>
+        </div>
+
+        {catalogs.length === 0 ? (
+          <p className="rounded-2xl border border-dashed bg-card/50 p-8 text-center text-sm text-muted-foreground">
+            Nenhum catálogo criado ainda.
+          </p>
+        ) : (
+          catalogs.map((c) => (
+            <div key={c.id} className="space-y-2">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                {c.name}
+              </h3>
+              <CategoriesManager catalogId={c.id} />
+            </div>
+          ))
+        )}
+      </div>
     </section>
   );
 }

@@ -19,7 +19,6 @@ import ProductFormDialog, { ProductRow } from "@/components/admin/ProductFormDia
 import { ProductCard } from "@/components/ProductCard";
 import { groupByCategory } from "@/lib/groupByCategory";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
-import CategoriesManager from "@/components/admin/CategoriesManager";
 
 type Catalog = {
   id: string;
@@ -125,10 +124,6 @@ export default function CatalogDetail() {
             <Plus className="mr-2 h-4 w-4" /> Novo produto
           </Button>
         </div>
-      </div>
-
-      <div className="mt-8">
-        <CategoriesManager catalogId={catalog.id} onChange={load} />
       </div>
 
       <div className="mt-8">
