@@ -67,15 +67,15 @@ const Index = () => {
               </p>
             </div>
           ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {catalogs.map((c) => (
                 <Link
                   key={c.id}
                   to={`/c/${c.slug}`}
-                  className="group flex flex-col rounded-2xl border bg-card p-2 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
+                  className="group flex h-full flex-col rounded-2xl border bg-card p-2 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
                 >
                   <section
-                    className="relative flex min-h-[180px] flex-col overflow-hidden rounded-xl bg-accent p-6 sm:min-h-[240px] lg:min-h-[280px]"
+                    className="relative flex min-h-[180px] flex-1 flex-col overflow-hidden rounded-xl bg-accent p-6 sm:min-h-[240px] lg:min-h-[280px]"
                     style={
                       c.cover_url
                         ? {
