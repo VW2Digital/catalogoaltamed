@@ -51,24 +51,30 @@ export type Database = {
       }
       catalogs: {
         Row: {
+          cover_url: string | null
           created_at: string
           description: string | null
+          icon_url: string | null
           id: string
           name: string
           slug: string
           updated_at: string
         }
         Insert: {
+          cover_url?: string | null
           created_at?: string
           description?: string | null
+          icon_url?: string | null
           id?: string
           name: string
           slug: string
           updated_at?: string
         }
         Update: {
+          cover_url?: string | null
           created_at?: string
           description?: string | null
+          icon_url?: string | null
           id?: string
           name?: string
           slug?: string
