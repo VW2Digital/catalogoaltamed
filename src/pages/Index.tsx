@@ -75,7 +75,7 @@ const Index = () => {
                   className="group flex flex-col rounded-2xl border bg-card p-2 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
                 >
                   <section
-                    className="relative overflow-hidden rounded-xl bg-accent p-6"
+                    className="relative flex min-h-[220px] flex-col overflow-hidden rounded-xl bg-accent p-6"
                     style={
                       c.cover_url
                         ? {
@@ -97,7 +97,7 @@ const Index = () => {
                       </span>
                     </header>
                     <h3
-                      className={`mt-8 mb-2 pr-6 text-2xl font-semibold leading-tight tracking-tight line-clamp-2 ${
+                      className={`mt-auto mb-2 pr-6 text-2xl font-semibold leading-tight tracking-tight line-clamp-2 ${
                         c.cover_url ? "text-white drop-shadow-sm" : ""
                       }`}
                     >
