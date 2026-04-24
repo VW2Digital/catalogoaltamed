@@ -461,7 +461,7 @@ export default function CatalogsList() {
                       </div>
                     )}
                     <p className="text-sm font-bold leading-tight line-clamp-2">
-                      {c.description?.trim() ? c.description : "Catálogo de produtos"}
+                      {c.name}
                     </p>
                   </div>
                   <Link

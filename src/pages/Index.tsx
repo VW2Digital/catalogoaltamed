@@ -120,7 +120,7 @@ const Index = () => {
                         </div>
                       )}
                       <p className="text-sm font-bold leading-tight line-clamp-2">
-                        {c.description?.trim() ? c.description : "Catálogo de produtos"}
+                        {c.name}
                       </p>
                     </div>
                     <span className="inline-flex w-full items-center justify-center gap-1.5 rounded-2xl bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors group-hover:bg-foreground/85 sm:w-auto">
