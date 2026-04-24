@@ -374,7 +374,7 @@ export default function CatalogsList() {
               >
                 {/* Hero */}
                 <section
-                  className="relative flex min-h-[180px] flex-1 flex-col justify-between gap-4 overflow-hidden rounded-xl bg-accent p-6 sm:min-h-[240px] lg:min-h-[280px]"
+                  className="relative flex min-h-[180px] flex-1 flex-col overflow-hidden rounded-xl bg-accent p-6 sm:min-h-[240px] lg:min-h-[280px]"
                   style={
                     c.cover_url
                       ? {
@@ -445,13 +445,6 @@ export default function CatalogsList() {
                       </AlertDialog>
                     </div>
                   </header>
-                  <h3
-                    className={`m-0 pr-6 text-xl font-semibold leading-snug tracking-tight line-clamp-3 [text-wrap:balance] sm:text-2xl ${
-                      c.cover_url ? "text-white drop-shadow-sm" : ""
-                    }`}
-                  >
-                    {c.name}
-                  </h3>
                 </section>
 
                 {/* Footer */}
