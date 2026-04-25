@@ -24,8 +24,55 @@ import BrandingSettings from "./pages/admin/settings/BrandingSettings.tsx";
 import ThemeSettings from "./pages/admin/settings/ThemeSettings.tsx";
 import FontsSettings from "./pages/admin/settings/FontsSettings.tsx";
 import ComingSoon from "./pages/admin/settings/ComingSoon.tsx";
+import CustomCodeSettings from "./pages/admin/settings/CustomCodeSettings.tsx";
+import { useCustomCodeInjector } from "@/hooks/useCustomCode";
 
 const queryClient = new QueryClient();
+
+const AppInner = () => {
+  useCustomCodeInjector();
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/c/:slug" element={<PublicCatalog />} />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<CatalogsList />} />
+        <Route path="catalogs/:id" element={<CatalogDetail />} />
+        <Route path="reports" element={<Reports />} />
+        <Route path="preview" element={<TypographyPreview />} />
+        <Route path="settings" element={<SettingsLayout />}>
+          <Route index element={<SettingsIndex />} />
+          <Route path="whatsapp" element={<WhatsAppSettings />} />
+          <Route path="categories" element={<CategoriesSettings />} />
+          <Route path="brands" element={<BrandsSettings />} />
+          <Route path="branding" element={<BrandingSettings />} />
+          <Route path="theme" element={<ThemeSettings />} />
+          <Route path="fonts" element={<FontsSettings />} />
+          <Route path="custom-code" element={<CustomCodeSettings />} />
+          <Route
+            path="css"
+            element={
+              <ComingSoon
+                title="CSS Customizado"
+                description="Estilos personalizados para a loja."
+              />
+            }
+          />
+        </Route>
+      </Route>
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -35,53 +82,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <ThemeSettingsProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/c/:slug" element={<PublicCatalog />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<CatalogsList />} />
-              <Route path="catalogs/:id" element={<CatalogDetail />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="preview" element={<TypographyPreview />} />
-              <Route path="settings" element={<SettingsLayout />}>
-                <Route index element={<SettingsIndex />} />
-                <Route path="whatsapp" element={<WhatsAppSettings />} />
-                <Route path="categories" element={<CategoriesSettings />} />
-                <Route path="brands" element={<BrandsSettings />} />
-                <Route
-                  path="branding"
-                  element={<BrandingSettings />}
-                />
-                <Route
-                  path="theme"
-                  element={<ThemeSettings />}
-                />
-                <Route
-                  path="fonts"
-                  element={<FontsSettings />}
-                />
-                <Route
-                  path="css"
-                  element={
-                    <ComingSoon
-                      title="CSS Customizado"
-                      description="Estilos personalizados para a loja."
-                    />
-                  }
-                />
-              </Route>
-            </Route>
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+            <AppInner />
           </ThemeSettingsProvider>
         </AuthProvider>
       </BrowserRouter>

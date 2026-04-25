@@ -11,6 +11,7 @@ import {
   Settings2,
   Paintbrush,
   FolderOpen,
+  ScrollText,
 } from "lucide-react";
 
 type Item = {
@@ -84,6 +85,12 @@ const sections: Section[] = [
         title: "CSS Customizado",
         description: "Estilos personalizados para a loja",
         icon: Code2,
+      },
+      {
+        to: "custom-code",
+        title: "Códigos Personalizados",
+        description: "Tags no <head> e antes do </body> (Analytics, Pixel...)",
+        icon: ScrollText,
       },
     ],
   },
