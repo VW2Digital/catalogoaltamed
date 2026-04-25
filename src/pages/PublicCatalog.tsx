@@ -149,9 +149,11 @@ export default function PublicCatalog() {
         ) : (
           <>
             <header className="mt-4">
-              <h1 className="text-4xl font-bold tracking-tight">{catalog.name}</h1>
+              <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+                {catalog.name}
+              </h1>
               {catalog.description && (
-                <p className="mt-3 max-w-2xl text-muted-foreground">
+                <p className="mt-3 max-w-2xl text-base text-muted-foreground">
                   {catalog.description}
                 </p>
               )}
