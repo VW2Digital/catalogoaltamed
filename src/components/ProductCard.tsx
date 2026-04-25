@@ -43,6 +43,11 @@ export function ProductCard({ product, whatsappNumber, layout = "grid" }: Props)
           <p className="text-xs font-medium text-muted-foreground">
             Cód.: <span className="text-foreground/80">{product.code}</span>
           </p>
+          {product.brand && (
+            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-primary">
+              {product.brand}
+            </p>
+          )}
           <h3 className="mt-1 text-base font-bold leading-tight text-foreground line-clamp-2">
             {product.name}
           </h3>
@@ -61,20 +66,16 @@ export function ProductCard({ product, whatsappNumber, layout = "grid" }: Props)
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="price-pill inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition-transform hover:scale-[1.02]"
+                className="price-pill inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition-transform hover:scale-[1.02]"
               >
-                <span className="min-w-0 truncate">{product.brand || "—"}</span>
-                <span className="flex shrink-0 items-center gap-1">
-                  <WhatsAppIcon className="h-3.5 w-3.5" />
-                  <span className="font-bold tracking-tight">Consultar</span>
-                </span>
+                <WhatsAppIcon className="h-3.5 w-3.5" />
+                <span className="font-bold tracking-tight">Consultar</span>
               </a>
             ) : (
               <div
-                className="price-pill inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold opacity-80"
+                className="price-pill inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold opacity-80"
                 title="Configure o número de WhatsApp no admin"
               >
-                <span className="min-w-0 truncate">{product.brand || "—"}</span>
                 <span className="shrink-0 font-bold tracking-tight">Consultar</span>
               </div>
             )}
