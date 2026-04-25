@@ -7,7 +7,6 @@ import {
   LogOut,
   ExternalLink,
   Settings as SettingsIcon,
-  Home,
   BarChart3,
   Layers,
 } from "lucide-react";
@@ -42,7 +41,6 @@ type NavItem = {
 
 const principal: NavItem[] = [
   { title: "Catálogos", url: "/admin", icon: LayoutGrid, end: true, badgeKey: "catalogs" },
-  { title: "Início", url: "/", icon: Home, external: true },
   { title: "Relatórios", url: "/admin/reports", icon: BarChart3 },
 ];
 
