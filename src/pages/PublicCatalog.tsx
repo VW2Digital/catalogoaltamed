@@ -191,15 +191,62 @@ export default function PublicCatalog() {
 
             {products.length > 0 && (
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="relative w-full sm:flex-1">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    type="search"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Buscar por nome, código ou marca..."
-                    className="pl-9"
-                  />
+                <div className="flex w-full items-center gap-2 sm:flex-1">
+                  <div className="relative min-w-0 flex-1">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      type="search"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Buscar por nome, código ou marca..."
+                      className="pl-9"
+                    />
+                  </div>
+                  <div
+                    role="group"
+                    aria-label="Modo de visualização"
+                    className="inline-flex shrink-0 rounded-full border bg-card p-1 shadow-sm sm:hidden"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("one")}
+                      aria-pressed={viewMode === "one"}
+                      aria-label="Uma coluna"
+                      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                        viewMode === "one"
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Square className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("two")}
+                      aria-pressed={viewMode === "two"}
+                      aria-label="Duas colunas"
+                      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                        viewMode === "two"
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("list")}
+                      aria-pressed={viewMode === "list"}
+                      aria-label="Lista"
+                      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                        viewMode === "list"
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Rows3 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 sm:contents">
                   <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -240,56 +287,6 @@ export default function PublicCatalog() {
                     Limpar filtros
                   </Button>
                 )}
-              </div>
-            )}
-
-            {products.length > 0 && (
-              <div className="mt-3 flex justify-end sm:hidden">
-                <div
-                  role="group"
-                  aria-label="Modo de visualização"
-                  className="inline-flex rounded-full border bg-card p-1 shadow-sm"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("one")}
-                    aria-pressed={viewMode === "one"}
-                    aria-label="Uma coluna"
-                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
-                      viewMode === "one"
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Square className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("two")}
-                    aria-pressed={viewMode === "two"}
-                    aria-label="Duas colunas"
-                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
-                      viewMode === "two"
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("list")}
-                    aria-pressed={viewMode === "list"}
-                    aria-label="Lista"
-                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
-                      viewMode === "list"
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Rows3 className="h-4 w-4" />
-                  </button>
-                </div>
               </div>
             )}
 
