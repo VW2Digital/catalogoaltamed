@@ -85,7 +85,7 @@ const Index = () => {
                   >
                     <header className="flex shrink-0 items-start justify-between gap-3">
                       <span
-                        className={`inline-flex items-center text-sm font-bold leading-none ${
+                        className={`inline-flex items-center text-sm font-bold leading-none [text-shadow:0_1px_2px_rgba(0,0,0,0.35)] ${
                           c.cover_url ? "text-white/90" : "text-foreground/80"
                         }`}
                       >
