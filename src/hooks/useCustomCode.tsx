@@ -7,6 +7,42 @@ const BODY_KEY = "custom_code_body";
 const HEAD_MARK = "data-custom-head";
 const BODY_MARK = "data-custom-body";
 
+/** Rotas (e seus prefixos) onde códigos personalizados nunca devem ser injetados. */
+const PROTECTED_PREFIXES = ["/admin", "/auth"] as const;
+
+/**
+ * Normaliza um pathname para comparação segura:
+ * - converte para minúsculas
+ * - colapsa barras múltiplas ("//admin" → "/admin")
+ * - remove barra final (exceto raiz)
+ */
+function normalizePath(pathname: string): string {
+  try {
+    // Trata pathname como URL relativa para resolver "/foo/../bar", "//admin" etc.
+    const url = new URL(pathname, "http://_local_");
+    let p = url.pathname.toLowerCase().replace(/\/{2,}/g, "/");
+    if (p.length > 1 && p.endsWith("/")) p = p.slice(0, -1);
+    return p;
+  } catch {
+    return pathname.toLowerCase();
+  }
+}
+
+/** True se a rota atual (ou qualquer subrota) for área protegida. */
+function isProtectedRoute(pathname: string): boolean {
+  const p = normalizePath(pathname);
+  return PROTECTED_PREFIXES.some(
+    (prefix) => p === prefix || p.startsWith(`${prefix}/`)
+  );
+}
+
+/** Remove qualquer node previamente injetado pelo hook. */
+function purgeInjectedNodes() {
+  document
+    .querySelectorAll(`[${HEAD_MARK}],[${BODY_MARK}]`)
+    .forEach((n) => n.remove());
+}
+
 /**
  * Recursivamente reescreve <script> em qualquer profundidade dentro de `node`,
  * substituindo-os por scripts criados via document.createElement, que são
@@ -66,16 +102,14 @@ function applyHTML(html: string, mark: string, target: HTMLElement) {
 
 export function useCustomCodeInjector() {
   const { pathname } = useLocation();
+  const blocked = isProtectedRoute(pathname);
 
   useEffect(() => {
-    // Não injetar nas rotas administrativas/autenticação
-    const isAdminArea = pathname.startsWith("/admin") || pathname.startsWith("/auth");
+    // Sempre limpa antes de decidir injetar — evita resíduo ao navegar
+    // de uma rota pública para uma protegida.
+    purgeInjectedNodes();
 
-    if (isAdminArea) {
-      // Garante limpeza ao navegar para o admin
-      document.querySelectorAll(`[${HEAD_MARK}],[${BODY_MARK}]`).forEach((n) => n.remove());
-      return;
-    }
+    if (blocked) return;
 
     let cancelled = false;
     (async () => {
@@ -83,14 +117,30 @@ export function useCustomCodeInjector() {
         .from("settings")
         .select("key,value")
         .in("key", [HEAD_KEY, BODY_KEY]);
-      if (cancelled) return;
+      // Reavalia a rota no momento da resposta — o usuário pode ter
+      // navegado para /admin enquanto o fetch estava em andamento.
+      if (cancelled || isProtectedRoute(window.location.pathname)) return;
       const head = data?.find((d) => d.key === HEAD_KEY)?.value ?? "";
       const body = data?.find((d) => d.key === BODY_KEY)?.value ?? "";
       applyHTML(head, HEAD_MARK, document.head);
       applyHTML(body, BODY_MARK, document.body);
     })();
+
+    // Salvaguarda final: observa o DOM e remove qualquer nó marcado
+    // que aparecer enquanto estivermos em rota protegida (ex: scripts
+    // de terceiros que se auto-injetaram após carregamento).
+    let observer: MutationObserver | null = null;
+    if (blocked) {
+      observer = new MutationObserver(() => purgeInjectedNodes());
+      observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+      });
+    }
+
     return () => {
       cancelled = true;
+      observer?.disconnect();
     };
-  }, [pathname]);
+  }, [pathname, blocked]);
 }
