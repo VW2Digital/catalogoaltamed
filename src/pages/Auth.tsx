@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -56,10 +56,6 @@ export default function Auth() {
   return (
     <main className="min-h-screen bg-gradient-page">
       <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 py-12">
-        <Link to="/" className="mb-8 flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
-          <span>Voltar para o catálogo</span>
-        </Link>
-
         <div className="w-full rounded-2xl border bg-card p-8 shadow-card">
           <h1 className="text-2xl font-bold tracking-tight">Entrar no painel</h1>
           <p className="mt-1 text-sm text-muted-foreground">
