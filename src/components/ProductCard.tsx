@@ -17,10 +17,73 @@ type Props = {
   product: ProductCardData;
   className?: string;
   whatsappNumber?: string;
+  layout?: "grid" | "list";
 };
 
-export function ProductCard({ product, whatsappNumber }: Props) {
+export function ProductCard({ product, whatsappNumber, layout = "grid" }: Props) {
   const waLink = buildWhatsAppLink(whatsappNumber ?? "", product.name);
+
+  if (layout === "list") {
+    return (
+      <article className="group relative flex gap-4 rounded-2xl bg-card p-4 shadow-card transition-all duration-300 ease-smooth hover:shadow-card-hover">
+        <div className="flex aspect-square h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
+          {product.image_url ? (
+            <img
+              src={product.image_url}
+              alt={product.name}
+              loading="lazy"
+              className="h-full w-full object-contain"
+            />
+          ) : (
+            <ImageOff className="h-8 w-8 text-muted-foreground/40" aria-hidden />
+          )}
+        </div>
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <p className="text-xs font-medium text-muted-foreground">
+            Cód.: <span className="text-foreground/80">{product.code}</span>
+          </p>
+          <h3 className="mt-1 text-base font-bold leading-tight text-foreground line-clamp-2">
+            {product.name}
+          </h3>
+          {product.category && (
+            <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
+          )}
+          {Number(product.price) > 0 && (
+            <p className="mt-1 text-base font-bold text-primary">
+              {formatBRL(product.price)}
+            </p>
+          )}
+
+          <div className="mt-2">
+            {waLink ? (
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="price-pill inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition-transform hover:scale-[1.02]"
+              >
+                <span className="min-w-0 truncate">{product.brand || "—"}</span>
+                <span className="flex shrink-0 items-center gap-1">
+                  <WhatsAppIcon className="h-3.5 w-3.5" />
+                  <span className="font-bold tracking-tight">Consultar</span>
+                </span>
+              </a>
+            ) : (
+              <div
+                className="price-pill inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold opacity-80"
+                title="Configure o número de WhatsApp no admin"
+              >
+                <span className="min-w-0 truncate">{product.brand || "—"}</span>
+                <span className="shrink-0 font-bold tracking-tight">Consultar</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </article>
+    );
+  }
+
   return (
     <article className="group relative flex flex-col rounded-2xl bg-card p-5 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover">
       <p className="text-xs font-medium text-muted-foreground">
