@@ -118,9 +118,11 @@ export default function CatalogDetail() {
 
       <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{catalog.name}</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            {catalog.name}
+          </h1>
           {catalog.description && (
-            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+            <p className="mt-3 max-w-2xl text-base text-muted-foreground">
               {catalog.description}
             </p>
           )}
@@ -153,8 +155,10 @@ export default function CatalogDetail() {
         )}
         {products.length === 0 ? (
           <div className="rounded-2xl border border-dashed bg-card/50 p-12 text-center">
-            <h2 className="text-lg font-semibold">Nenhum produto ainda</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">
+              Nenhum produto ainda
+            </h2>
+            <p className="mt-2 text-base text-muted-foreground">
               Adicione produtos para vê-los aparecer no catálogo público.
             </p>
             <Button onClick={handleNew} className="mt-6">
@@ -173,7 +177,7 @@ export default function CatalogDetail() {
               <section key={group.category} aria-labelledby={`admin-cat-${group.category}`}>
                 <h2
                   id={`admin-cat-${group.category}`}
-                  className="text-2xl font-bold tracking-tight text-foreground"
+                  className="text-3xl font-bold tracking-tight text-foreground"
                 >
                   {group.category}
                 </h2>
