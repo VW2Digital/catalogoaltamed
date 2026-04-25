@@ -340,6 +340,22 @@ export default function ProductFormDialog({
                 required
               />
             </div>
+
+            <div className="flex items-start justify-between gap-4 rounded-lg border bg-muted/30 p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="visible" className="text-sm font-semibold">
+                  Visível no catálogo público
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Desative para ocultar este produto sem precisar excluí-lo.
+                </p>
+              </div>
+              <Switch
+                id="visible"
+                checked={isVisible}
+                onCheckedChange={setIsVisible}
+              />
+            </div>
           </div>
 
           <DialogFooter className="mt-6">

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, ExternalLink, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Eye, EyeOff, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,6 +77,20 @@ export default function CatalogDetail() {
         toast.success("Produto excluído");
         load({ showLoader: false });
       }
+  }
+
+  async function handleToggleVisibility(p: ProductRow) {
+    const next = !(p.is_visible ?? true);
+    const { error } = await supabase
+      .from("products")
+      .update({ is_visible: next })
+      .eq("id", p.id);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success(next ? "Produto visível no catálogo" : "Produto oculto do catálogo");
+      load({ showLoader: false });
+    }
   }
 
   if (loading) {
@@ -184,7 +198,8 @@ export default function CatalogDetail() {
                 <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {group.items.map((p) => (
                     <div key={p.id} className="relative">
-                      <ProductCard
+                      <div className={(p.is_visible ?? true) ? "" : "opacity-50"}>
+                        <ProductCard
                         whatsappNumber={whatsappNumber}
                         product={{
                           code: p.code,
@@ -195,8 +210,28 @@ export default function CatalogDetail() {
                           price: p.price,
                           image_url: p.image_url,
                         }}
-                      />
+                        />
+                      </div>
+                      {!(p.is_visible ?? true) && (
+                        <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-background/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground shadow-card backdrop-blur">
+                          <EyeOff className="h-3 w-3" /> Oculto
+                        </span>
+                      )}
                       <div className="absolute right-3 top-3 flex gap-1 rounded-full bg-background/90 p-1 shadow-card backdrop-blur">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleToggleVisibility(p)}
+                          aria-label={(p.is_visible ?? true) ? "Ocultar do catálogo" : "Mostrar no catálogo"}
+                          title={(p.is_visible ?? true) ? "Ocultar do catálogo" : "Mostrar no catálogo"}
+                        >
+                          {(p.is_visible ?? true) ? (
+                            <Eye className="h-4 w-4" />
+                          ) : (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
