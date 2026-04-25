@@ -321,6 +321,7 @@ export default function PublicCatalog() {
                           key={p.id}
                           whatsappNumber={whatsappNumber}
                           layout={isMobileView && viewMode === "list" ? "list" : "grid"}
+                          compact={isMobileView && viewMode === "two"}
                           product={{
                             code: p.code,
                             name: p.name,

@@ -18,10 +18,12 @@ type Props = {
   className?: string;
   whatsappNumber?: string;
   layout?: "grid" | "list";
+  compact?: boolean;
 };
 
-export function ProductCard({ product, whatsappNumber, layout = "grid" }: Props) {
+export function ProductCard({ product, whatsappNumber, layout = "grid", compact = false }: Props) {
   const waLink = buildWhatsAppLink(whatsappNumber ?? "", product.name);
+  const ctaLabel = compact ? "Consultar" : "Consultar Disponibilidade";
 
   if (layout === "list") {
     return (
@@ -69,14 +71,14 @@ export function ProductCard({ product, whatsappNumber, layout = "grid" }: Props)
                 className="price-pill inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition-transform hover:scale-[1.02]"
               >
                 <WhatsAppIcon className="h-3.5 w-3.5" />
-                <span className="tracking-tight font-semibold text-[0.675rem]">Consultar Disponibilidade</span>
+                <span className="tracking-tight font-semibold text-[0.675rem]">{ctaLabel}</span>
               </a>
             ) : (
               <div
                 className="price-pill inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold opacity-80"
                 title="Configure o número de WhatsApp no admin"
               >
-                <span className="shrink-0 tracking-tight font-semibold text-[0.675rem]">Consultar Disponibilidade</span>
+                <span className="shrink-0 tracking-tight font-semibold text-[0.675rem]">{ctaLabel}</span>
               </div>
             )}
           </div>
@@ -131,14 +133,14 @@ export function ProductCard({ product, whatsappNumber, layout = "grid" }: Props)
           className="price-pill mt-5 flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold transition-transform hover:scale-[1.02]"
         >
           <WhatsAppIcon className="h-3.5 w-3.5" />
-          <span className="tracking-tight font-semibold text-[0.675rem]">Consultar Disponibilidade</span>
+          <span className="tracking-tight font-semibold text-[0.675rem]">{ctaLabel}</span>
         </a>
       ) : (
         <div
           className="price-pill mt-5 flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold opacity-80"
           title="Configure o número de WhatsApp no admin"
         >
-          <span className="shrink-0 tracking-tight font-semibold text-[0.675rem]">Consultar Disponibilidade</span>
+          <span className="shrink-0 tracking-tight font-semibold text-[0.675rem]">{ctaLabel}</span>
         </div>
       )}
     </article>
