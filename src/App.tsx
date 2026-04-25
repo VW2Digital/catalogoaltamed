@@ -14,6 +14,7 @@ import PublicCatalog from "./pages/PublicCatalog.tsx";
 import CatalogsList from "./pages/admin/CatalogsList.tsx";
 import CatalogDetail from "./pages/admin/CatalogDetail.tsx";
 import Reports from "./pages/admin/Reports.tsx";
+import TypographyPreview from "./pages/admin/TypographyPreview.tsx";
 import SettingsLayout from "./pages/admin/settings/SettingsLayout.tsx";
 import SettingsIndex from "./pages/admin/settings/SettingsIndex.tsx";
 import WhatsAppSettings from "./pages/admin/settings/WhatsAppSettings.tsx";
@@ -49,6 +50,7 @@ const App = () => (
               <Route index element={<CatalogsList />} />
               <Route path="catalogs/:id" element={<CatalogDetail />} />
               <Route path="reports" element={<Reports />} />
+              <Route path="preview" element={<TypographyPreview />} />
               <Route path="settings" element={<SettingsLayout />}>
                 <Route index element={<SettingsIndex />} />
                 <Route path="whatsapp" element={<WhatsAppSettings />} />
