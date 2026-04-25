@@ -104,7 +104,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid" }: Props)
       </div>
 
       <div className="mt-5 flex-1">
-        <h3 className="text-xl font-bold leading-tight text-foreground">
+        <h3 className="text-xs font-bold leading-tight text-foreground">
           {product.name}
         </h3>
         {product.category && (
