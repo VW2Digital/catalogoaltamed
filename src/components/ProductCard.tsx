@@ -18,10 +18,12 @@ type Props = {
   className?: string;
   whatsappNumber?: string;
   layout?: "grid" | "list";
+  compact?: boolean;
 };
 
-export function ProductCard({ product, whatsappNumber, layout = "grid" }: Props) {
+export function ProductCard({ product, whatsappNumber, layout = "grid", compact = false }: Props) {
   const waLink = buildWhatsAppLink(whatsappNumber ?? "", product.name);
+  const ctaLabel = compact ? "Consultar" : "Consultar Disponibilidade";
 
   if (layout === "list") {
     return (
