@@ -37,7 +37,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-page">
       <PublicHeader />
-      <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <section className="mx-auto max-w-2xl text-center">
           <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl">
             Conheça nossos catálogos
