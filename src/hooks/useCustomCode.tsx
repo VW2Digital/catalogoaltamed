@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 const HEAD_KEY = "custom_code_head";
@@ -64,7 +65,18 @@ function applyHTML(html: string, mark: string, target: HTMLElement) {
 }
 
 export function useCustomCodeInjector() {
+  const { pathname } = useLocation();
+
   useEffect(() => {
+    // Não injetar nas rotas administrativas/autenticação
+    const isAdminArea = pathname.startsWith("/admin") || pathname.startsWith("/auth");
+
+    if (isAdminArea) {
+      // Garante limpeza ao navegar para o admin
+      document.querySelectorAll(`[${HEAD_MARK}],[${BODY_MARK}]`).forEach((n) => n.remove());
+      return;
+    }
+
     let cancelled = false;
     (async () => {
       const { data } = await supabase
@@ -80,5 +92,5 @@ export function useCustomCodeInjector() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [pathname]);
 }
