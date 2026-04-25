@@ -46,6 +46,17 @@ export default function PublicCatalog() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [brandFilter, setBrandFilter] = useState<string>("all");
   type ViewMode = "one" | "two" | "list";
+  const [isMobileView, setIsMobileView] = useState<boolean>(() =>
+    typeof window !== "undefined" ? window.innerWidth < 640 : false,
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia("(max-width: 639px)");
+    const onChange = () => setIsMobileView(mql.matches);
+    onChange();
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     if (typeof window === "undefined") return "two";
     const saved = window.localStorage.getItem("publicCatalog.viewMode");
@@ -311,7 +322,7 @@ export default function PublicCatalog() {
                         <ProductCard
                           key={p.id}
                           whatsappNumber={whatsappNumber}
-                          layout={viewMode === "list" ? "list" : "grid"}
+                          layout={isMobileView && viewMode === "list" ? "list" : "grid"}
                           product={{
                             code: p.code,
                             name: p.name,
