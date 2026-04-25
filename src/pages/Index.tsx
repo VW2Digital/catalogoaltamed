@@ -39,10 +39,10 @@ const Index = () => {
       <PublicHeader />
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <section className="mx-auto max-w-2xl text-center">
-          <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             Conheça nossos catálogos
           </h1>
-          <p className="mt-4 text-balance text-muted-foreground">
+          <p className="mt-4 text-balance text-base text-muted-foreground">
             Selecione um catálogo abaixo para ver todos os produtos com fotos,
             códigos e preços atualizados.
           </p>
@@ -56,10 +56,10 @@ const Index = () => {
           ) : catalogs.length === 0 ? (
             <div className="mx-auto max-w-md rounded-2xl border border-dashed bg-card/50 p-12 text-center">
               <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground/60" />
-              <h2 className="mt-4 text-lg font-semibold">
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground">
                 Nenhum catálogo publicado
               </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-2 text-base text-muted-foreground">
                 Volte em breve — os catálogos aparecerão aqui assim que forem criados.
               </p>
             </div>
