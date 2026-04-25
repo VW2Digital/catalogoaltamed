@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 const schema = z.object({
   email: z.string().trim().email("E-mail inválido").max(255),
@@ -57,7 +57,6 @@ export default function Auth() {
     <main className="min-h-screen bg-gradient-page">
       <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 py-12">
         <Link to="/" className="mb-8 flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
-          <Sparkles className="h-4 w-4 text-primary" />
           <span>Voltar para o catálogo</span>
         </Link>
 
