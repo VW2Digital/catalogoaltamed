@@ -37,7 +37,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-page">
       <PublicHeader />
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <section className="mx-auto max-w-2xl text-center">
           <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             Conheça nossos catálogos
@@ -48,13 +48,13 @@ const Index = () => {
           </p>
         </section>
 
-        <section className="mt-12">
+        <section className="mt-8 sm:mt-10 lg:mt-12">
           {loading ? (
-            <div className="flex justify-center py-20">
+            <div className="flex justify-center py-12 sm:py-16 lg:py-20">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : catalogs.length === 0 ? (
-            <div className="mx-auto max-w-md rounded-2xl border border-dashed bg-card/50 p-12 text-center">
+            <div className="mx-auto max-w-md rounded-2xl border border-dashed bg-card/50 p-8 text-center sm:p-10 lg:p-12">
               <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground/60" />
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground">
                 Nenhum catálogo publicado
