@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { ArrowLeft, Loader2, Search, X } from "lucide-react";
+import { LayoutGrid, Rows3, Square } from "lucide-react";
 import { groupByCategory } from "@/lib/groupByCategory";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 import { Input } from "@/components/ui/input";
@@ -44,6 +45,21 @@ export default function PublicCatalog() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [brandFilter, setBrandFilter] = useState<string>("all");
+  type ViewMode = "one" | "two" | "list";
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window === "undefined") return "two";
+    const saved = window.localStorage.getItem("publicCatalog.viewMode");
+    return saved === "one" || saved === "two" || saved === "list" ? saved : "two";
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("publicCatalog.viewMode", viewMode);
+    }
+  }, [viewMode]);
+
+  const mobileGridClass =
+    viewMode === "one" || viewMode === "list" ? "grid-cols-1" : "grid-cols-2";
 
   const hasActiveFilters =
     search.trim() !== "" || categoryFilter !== "all" || brandFilter !== "all";
@@ -216,6 +232,56 @@ export default function PublicCatalog() {
               </div>
             )}
 
+            {products.length > 0 && (
+              <div className="mt-3 flex justify-end sm:hidden">
+                <div
+                  role="group"
+                  aria-label="Modo de visualização"
+                  className="inline-flex rounded-full border bg-card p-1 shadow-sm"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("one")}
+                    aria-pressed={viewMode === "one"}
+                    aria-label="Uma coluna"
+                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                      viewMode === "one"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Square className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("two")}
+                    aria-pressed={viewMode === "two"}
+                    aria-label="Duas colunas"
+                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                      viewMode === "two"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("list")}
+                    aria-pressed={viewMode === "list"}
+                    aria-label="Lista"
+                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                      viewMode === "list"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Rows3 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
             {products.length === 0 ? (
               <div className="mt-10 rounded-2xl border border-dashed p-12 text-center">
                 <p className="text-muted-foreground">
@@ -238,11 +304,14 @@ export default function PublicCatalog() {
                     >
                       {group.category}
                     </h2>
-                    <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <div
+                      className={`mt-6 grid gap-6 ${mobileGridClass} sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`}
+                    >
                       {group.items.map((p) => (
                         <ProductCard
                           key={p.id}
                           whatsappNumber={whatsappNumber}
+                          layout={viewMode === "list" ? "list" : "grid"}
                           product={{
                             code: p.code,
                             name: p.name,
