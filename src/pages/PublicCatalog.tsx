@@ -3,10 +3,11 @@ import { Link, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
-import { ArrowLeft, Loader2, Search } from "lucide-react";
+import { ArrowLeft, Loader2, Search, X } from "lucide-react";
 import { groupByCategory } from "@/lib/groupByCategory";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -43,6 +44,15 @@ export default function PublicCatalog() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [brandFilter, setBrandFilter] = useState<string>("all");
+
+  const hasActiveFilters =
+    search.trim() !== "" || categoryFilter !== "all" || brandFilter !== "all";
+
+  const clearFilters = () => {
+    setSearch("");
+    setCategoryFilter("all");
+    setBrandFilter("all");
+  };
 
   useEffect(() => {
     (async () => {
@@ -188,6 +198,17 @@ export default function PublicCatalog() {
                     ))}
                   </SelectContent>
                 </Select>
+                {hasActiveFilters && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={clearFilters}
+                    className="w-full sm:w-auto"
+                  >
+                    <X className="mr-1.5 h-4 w-4" />
+                    Limpar filtros
+                  </Button>
+                )}
               </div>
             )}
 
