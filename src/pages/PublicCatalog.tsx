@@ -1,11 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Search } from "lucide-react";
 import { groupByCategory } from "@/lib/groupByCategory";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Catalog = {
   id: string;
@@ -32,6 +40,8 @@ export default function PublicCatalog() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const { number: whatsappNumber } = useWhatsAppNumber();
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   useEffect(() => {
     (async () => {
@@ -71,6 +81,30 @@ export default function PublicCatalog() {
     }
   }, [catalog]);
 
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => {
+      if (p.category && p.category.trim()) set.add(p.category.trim());
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return products.filter((p) => {
+      if (categoryFilter !== "all" && (p.category ?? "") !== categoryFilter) {
+        return false;
+      }
+      if (!q) return true;
+      return (
+        p.name.toLowerCase().includes(q) ||
+        p.code.toLowerCase().includes(q) ||
+        (p.brand ?? "").toLowerCase().includes(q) ||
+        (p.category ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [products, search, categoryFilter]);
+
   return (
     <div className="min-h-screen bg-gradient-page">
       <PublicHeader />
@@ -104,15 +138,49 @@ export default function PublicCatalog() {
               </p>
             </header>
 
+            {products.length > 0 && (
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <div className="relative flex-1">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Buscar por nome, código ou marca..."
+                    className="pl-9"
+                  />
+                </div>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-full sm:w-64">
+                    <SelectValue placeholder="Categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as categorias</SelectItem>
+                    {categories.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {products.length === 0 ? (
               <div className="mt-10 rounded-2xl border border-dashed p-12 text-center">
                 <p className="text-muted-foreground">
                   Nenhum produto neste catálogo ainda.
                 </p>
               </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="mt-10 rounded-2xl border border-dashed p-12 text-center">
+                <p className="text-muted-foreground">
+                  Nenhum produto encontrado para a busca.
+                </p>
+              </div>
             ) : (
               <div className="mt-10 space-y-14">
-                {groupByCategory(products).map((group) => (
+                {groupByCategory(filteredProducts).map((group) => (
                   <section key={group.category} aria-labelledby={`cat-${group.category}`}>
                     <h2
                       id={`cat-${group.category}`}
