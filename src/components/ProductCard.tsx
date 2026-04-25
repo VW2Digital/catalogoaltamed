@@ -108,7 +108,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid" }: Props)
           {product.name}
         </h3>
         {product.category && (
-          <p className="mt-1 text-lg text-muted-foreground">{product.category}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
         )}
         {Number(product.price) > 0 && (
           <p className="mt-2 text-lg font-bold text-primary">
