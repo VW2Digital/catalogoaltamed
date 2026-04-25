@@ -126,6 +126,7 @@ export type Database = {
           created_at: string
           id: string
           image_url: string | null
+          is_visible: boolean
           name: string
           price: number
           sort_order: number
@@ -140,6 +141,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string | null
+          is_visible?: boolean
           name: string
           price?: number
           sort_order?: number
@@ -154,6 +156,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string | null
+          is_visible?: boolean
           name?: string
           price?: number
           sort_order?: number
