@@ -22,7 +22,7 @@ type Props = {
 };
 
 export function ProductCard({ product, whatsappNumber, layout = "grid", compact = false }: Props) {
-  const waLink = buildWhatsAppLink(whatsappNumber ?? "", product.name);
+  const waLink = buildWhatsAppLink(whatsappNumber ?? "", product.name, product.image_url);
   const ctaLabel = compact ? "Consultar" : "Consultar Disponibilidade";
 
   if (layout === "list") {
