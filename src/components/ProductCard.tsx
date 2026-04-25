@@ -1,6 +1,7 @@
 import { ImageOff } from "lucide-react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
+import { formatBRL } from "@/lib/format";
 
 export type ProductCardData = {
   code: string;
@@ -46,6 +47,9 @@ export function ProductCard({ product, whatsappNumber }: Props) {
         {product.category && (
           <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
         )}
+        <p className="mt-2 text-lg font-bold text-primary">
+          {formatBRL(product.price)}
+        </p>
       </div>
 
       {waLink ? (
