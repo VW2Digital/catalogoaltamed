@@ -42,6 +42,7 @@ export default function PublicCatalog() {
   const { number: whatsappNumber } = useWhatsAppNumber();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [brandFilter, setBrandFilter] = useState<string>("all");
 
   useEffect(() => {
     (async () => {
@@ -89,10 +90,21 @@ export default function PublicCatalog() {
     return Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
   }, [products]);
 
+  const brands = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => {
+      if (p.brand && p.brand.trim()) set.add(p.brand.trim());
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
     const q = search.trim().toLowerCase();
     return products.filter((p) => {
       if (categoryFilter !== "all" && (p.category ?? "") !== categoryFilter) {
+        return false;
+      }
+      if (brandFilter !== "all" && (p.brand ?? "") !== brandFilter) {
         return false;
       }
       if (!q) return true;
@@ -103,7 +115,7 @@ export default function PublicCatalog() {
         (p.category ?? "").toLowerCase().includes(q)
       );
     });
-  }, [products, search, categoryFilter]);
+  }, [products, search, categoryFilter, brandFilter]);
 
   return (
     <div className="min-h-screen bg-gradient-page">
@@ -151,7 +163,7 @@ export default function PublicCatalog() {
                   />
                 </div>
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger className="w-full sm:w-64">
+                  <SelectTrigger className="w-full sm:w-56">
                     <SelectValue placeholder="Categoria" />
                   </SelectTrigger>
                   <SelectContent>
@@ -159,6 +171,19 @@ export default function PublicCatalog() {
                     {categories.map((c) => (
                       <SelectItem key={c} value={c}>
                         {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={brandFilter} onValueChange={setBrandFilter}>
+                  <SelectTrigger className="w-full sm:w-56">
+                    <SelectValue placeholder="Marca" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as marcas</SelectItem>
+                    {brands.map((b) => (
+                      <SelectItem key={b} value={b}>
+                        {b}
                       </SelectItem>
                     ))}
                   </SelectContent>
