@@ -6,11 +6,9 @@ type Scale = {
   id: "sm" | "base" | "lg";
   label: string;
   description: string;
-  catalogTitle: string; // class for catalog card name
-  catalogMeta: string; // class for "X produtos"
-  productName: string; // class for product card name override
-  productCategory: string; // class for category line override
-  productPrice: string; // class for price override
+  catalogTitle: string;
+  catalogMeta: string;
+  productOverrides: string;
 };
 
 const SCALES: Scale[] = [
@@ -20,9 +18,8 @@ const SCALES: Scale[] = [
     description: "Versão compacta — mais densidade na página.",
     catalogTitle: "text-base",
     catalogMeta: "text-xs",
-    productName: "text-base",
-    productCategory: "text-xs",
-    productPrice: "text-base",
+    productOverrides:
+      "[&_h3]:!text-base [&_p.text-muted-foreground]:!text-xs [&_p.text-primary]:!text-base",
   },
   {
     id: "base",
@@ -30,9 +27,8 @@ const SCALES: Scale[] = [
     description: "Tamanho atualmente em produção.",
     catalogTitle: "text-lg",
     catalogMeta: "text-sm",
-    productName: "text-xl",
-    productCategory: "text-lg",
-    productPrice: "text-lg",
+    productOverrides:
+      "[&_h3]:!text-xl [&_p.text-muted-foreground]:!text-lg [&_p.text-primary]:!text-lg",
   },
   {
     id: "lg",
@@ -40,9 +36,8 @@ const SCALES: Scale[] = [
     description: "Mais legível — bom para clientes mobile.",
     catalogTitle: "text-2xl",
     catalogMeta: "text-base",
-    productName: "text-2xl",
-    productCategory: "text-xl",
-    productPrice: "text-2xl",
+    productOverrides:
+      "[&_h3]:!text-2xl [&_p.text-muted-foreground]:!text-xl [&_p.text-primary]:!text-2xl",
   },
 ];
 
@@ -98,17 +93,8 @@ function CatalogCardPreview({ scale }: { scale: Scale }) {
 }
 
 function ScaledProductCard({ scale }: { scale: Scale }) {
-  // Override typography on top of the existing ProductCard structure
-  // by wrapping it with a class scope using arbitrary descendant selectors.
   return (
-    <div
-      className={[
-        "[&_h3]:!font-bold",
-        `[&_h3]:!${scale.productName}`,
-        `[&_p.text-muted-foreground]:!${scale.productCategory}`,
-        `[&_p.text-primary]:!${scale.productPrice}`,
-      ].join(" ")}
-    >
+    <div className={scale.productOverrides}>
       <ProductCard product={MOCK_PRODUCT} />
     </div>
   );
