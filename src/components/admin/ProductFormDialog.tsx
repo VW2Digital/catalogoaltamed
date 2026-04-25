@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { ImagePlus, Loader2, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 export type ProductRow = {
   id: string;
@@ -32,6 +33,7 @@ export type ProductRow = {
   unit: string;
   price: number | string;
   image_url: string | null;
+  is_visible?: boolean;
 };
 
 const schema = z.object({
@@ -70,6 +72,7 @@ export default function ProductFormDialog({
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [brands, setBrands] = useState<BrandOption[]>([]);
@@ -83,6 +86,7 @@ export default function ProductFormDialog({
       setUnit(product?.unit ?? "UND");
       setPrice(product ? String(product.price) : "");
       setImageUrl(product?.image_url ?? null);
+      setIsVisible(product?.is_visible ?? true);
     }
   }, [open, product]);
 
@@ -149,6 +153,7 @@ export default function ProductFormDialog({
         unit: parsed.data.unit,
         price: parsed.data.price,
         image_url: imageUrl,
+        is_visible: isVisible,
       };
       if (product) {
         const { error } = await supabase
@@ -333,6 +338,22 @@ export default function ProductFormDialog({
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="195.02"
                 required
+              />
+            </div>
+
+            <div className="flex items-start justify-between gap-4 rounded-lg border bg-muted/30 p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="visible" className="text-sm font-semibold">
+                  Visível no catálogo público
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Desative para ocultar este produto sem precisar excluí-lo.
+                </p>
+              </div>
+              <Switch
+                id="visible"
+                checked={isVisible}
+                onCheckedChange={setIsVisible}
               />
             </div>
           </div>
