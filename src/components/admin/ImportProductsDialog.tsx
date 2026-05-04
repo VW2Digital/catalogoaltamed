@@ -29,6 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 type Props = {
   open: boolean;
@@ -132,6 +134,8 @@ type PreviewRow = {
 
 type Step = "upload" | "mapping" | "preview" | "importing";
 
+type DuplicateMode = "block" | "skip" | "update";
+
 export default function ImportProductsDialog({
   open, onOpenChange, catalogId, onImported,
 }: Props) {
@@ -144,7 +148,8 @@ export default function ImportProductsDialog({
     {} as Record<FieldKey, number | null>,
   );
   const [preview, setPreview] = useState<PreviewRow[]>([]);
-  const [skipDuplicates, setSkipDuplicates] = useState(true);
+  const [duplicateMode, setDuplicateMode] = useState<DuplicateMode>("skip");
+  const [existingByCode, setExistingByCode] = useState<Map<string, string>>(new Map());
   const [progress, setProgress] = useState(0);
   const [analyzing, setAnalyzing] = useState(false);
 
