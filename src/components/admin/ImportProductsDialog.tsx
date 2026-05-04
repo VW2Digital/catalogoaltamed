@@ -18,9 +18,17 @@ import {
   CheckCircle2,
   XCircle,
   ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Props = {
   open: boolean;
@@ -29,10 +37,38 @@ type Props = {
   onImported: () => void;
 };
 
-const EXPECTED_HEADERS = [
-  "CÓDIGO","PRODUTO","DESCRIÇÃO ATIVO","LISTA","CLASSIFICAÇÃO","UND","QTD",
-  "VLR. COMPRA","CUSTO S/ ANTECIP","CUSTO C/ ANTECIP","VLR. VENDA",
-  "FORNECEDOR","NOTA FISCAL","SUGESTÃO DE CADASTRO","MARCA","VLR MERCADO","FORNECEDOR 01",
+type FieldKey =
+  | "code" | "name" | "descricao_ativo" | "lista" | "category" | "unit" | "qtd"
+  | "vlr_compra" | "custo_sem_antecip" | "custo_com_antecip" | "price"
+  | "fornecedor" | "nota_fiscal" | "sugestao_cadastro" | "brand"
+  | "vlr_mercado" | "fornecedor_01";
+
+type FieldDef = {
+  key: FieldKey;
+  label: string;        // Nome do campo no sistema
+  expectedHeader: string; // Cabeçalho esperado no arquivo
+  required?: boolean;
+  type: "text" | "number" | "money";
+};
+
+const FIELDS: FieldDef[] = [
+  { key: "code", label: "Código", expectedHeader: "CÓDIGO", required: true, type: "text" },
+  { key: "name", label: "Nome do produto", expectedHeader: "PRODUTO", required: true, type: "text" },
+  { key: "descricao_ativo", label: "Descrição ativo", expectedHeader: "DESCRIÇÃO ATIVO", type: "text" },
+  { key: "lista", label: "Lista", expectedHeader: "LISTA", type: "text" },
+  { key: "category", label: "Categoria (Classificação)", expectedHeader: "CLASSIFICAÇÃO", type: "text" },
+  { key: "unit", label: "Unidade", expectedHeader: "UND", type: "text" },
+  { key: "qtd", label: "Quantidade", expectedHeader: "QTD", type: "number" },
+  { key: "vlr_compra", label: "Vlr. compra", expectedHeader: "VLR. COMPRA", type: "money" },
+  { key: "custo_sem_antecip", label: "Custo s/ antecip.", expectedHeader: "CUSTO S/ ANTECIP", type: "money" },
+  { key: "custo_com_antecip", label: "Custo c/ antecip.", expectedHeader: "CUSTO C/ ANTECIP", type: "money" },
+  { key: "price", label: "Preço de venda", expectedHeader: "VLR. VENDA", type: "money" },
+  { key: "fornecedor", label: "Fornecedor", expectedHeader: "FORNECEDOR", type: "text" },
+  { key: "nota_fiscal", label: "Nota fiscal", expectedHeader: "NOTA FISCAL", type: "text" },
+  { key: "sugestao_cadastro", label: "Sugestão de cadastro", expectedHeader: "SUGESTÃO DE CADASTRO", type: "text" },
+  { key: "brand", label: "Marca", expectedHeader: "MARCA", type: "text" },
+  { key: "vlr_mercado", label: "Vlr. mercado", expectedHeader: "VLR MERCADO", type: "money" },
+  { key: "fornecedor_01", label: "Fornecedor 01", expectedHeader: "FORNECEDOR 01", type: "text" },
 ];
 
 function parseCSV(text: string): string[][] {
@@ -82,35 +118,31 @@ function parseNumStrict(v: string): { value: number | null; error?: string } {
 }
 
 const norm = (s: string) => s.trim().toUpperCase().replace(/\s+/g, " ");
+const NONE = "__none__";
 
-type RowStatus = "ok" | "warning" | "error" | "skipped";
-
+type RowStatus = "ok" | "warning" | "error";
 type PreviewRow = {
   rowNum: number;
-  code: string;
-  name: string;
-  category: string;
-  brand: string;
+  code: string; name: string; brand: string;
   price: number | null;
-  qtd: number | null;
-  vlr_compra: number | null;
   status: RowStatus;
-  errors: string[];
-  warnings: string[];
+  errors: string[]; warnings: string[];
   payload: any | null;
 };
 
-type Step = "upload" | "preview" | "importing";
+type Step = "upload" | "mapping" | "preview" | "importing";
 
 export default function ImportProductsDialog({
-  open,
-  onOpenChange,
-  catalogId,
-  onImported,
+  open, onOpenChange, catalogId, onImported,
 }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<Step>("upload");
   const [fileName, setFileName] = useState("");
+  const [fileHeaders, setFileHeaders] = useState<string[]>([]);
+  const [fileRows, setFileRows] = useState<string[][]>([]);
+  const [mapping, setMapping] = useState<Record<FieldKey, number | null>>(
+    {} as Record<FieldKey, number | null>,
+  );
   const [preview, setPreview] = useState<PreviewRow[]>([]);
   const [skipDuplicates, setSkipDuplicates] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -118,9 +150,18 @@ export default function ImportProductsDialog({
 
   function reset() {
     setStep("upload");
-    setFileName("");
-    setPreview([]);
-    setProgress(0);
+    setFileName(""); setFileHeaders([]); setFileRows([]);
+    setMapping({} as any); setPreview([]); setProgress(0);
+  }
+
+  function autoDetectMapping(headers: string[]): Record<FieldKey, number | null> {
+    const normalized = headers.map(norm);
+    const result = {} as Record<FieldKey, number | null>;
+    FIELDS.forEach((f) => {
+      const i = normalized.indexOf(norm(f.expectedHeader));
+      result[f.key] = i === -1 ? null : i;
+    });
+    return result;
   }
 
   function handleFile(file: File) {
@@ -128,7 +169,7 @@ export default function ImportProductsDialog({
     setAnalyzing(true);
     const isXlsx = /\.(xlsx|xls)$/i.test(file.name);
     const reader = new FileReader();
-    reader.onload = async () => {
+    reader.onload = () => {
       let parsed: string[][] = [];
       try {
         if (isXlsx) {
@@ -144,122 +185,135 @@ export default function ImportProductsDialog({
         }
       } catch (err: any) {
         toast.error(`Falha ao ler arquivo: ${err.message ?? err}`);
-        setAnalyzing(false);
-        return;
+        setAnalyzing(false); return;
       }
       if (parsed.length < 2) {
         toast.error("Arquivo vazio ou inválido");
-        setAnalyzing(false);
-        return;
+        setAnalyzing(false); return;
       }
-      const headers = parsed[0].map(norm);
-      const idx: Record<string, number> = {};
-      EXPECTED_HEADERS.forEach((h) => {
-        const i = headers.indexOf(norm(h));
-        if (i !== -1) idx[h] = i;
-      });
-      if (idx["CÓDIGO"] === undefined || idx["PRODUTO"] === undefined) {
-        toast.error("Arquivo precisa ter ao menos as colunas CÓDIGO e PRODUTO");
-        setAnalyzing(false);
-        return;
-      }
-
-      // Buscar códigos já existentes neste catálogo
-      const { data: existing } = await supabase
-        .from("products")
-        .select("code")
-        .eq("catalog_id", catalogId);
-      const existingCodes = new Set(
-        (existing ?? []).map((r: any) => String(r.code).trim().toLowerCase()),
-      );
-
-      const get = (row: string[], h: string) =>
-        idx[h] !== undefined ? (row[idx[h]] ?? "").trim() : "";
-
-      const seenInFile = new Map<string, number>();
-      const dataRows = parsed.slice(1);
-      const result: PreviewRow[] = dataRows.map((row, i) => {
-        const rowNum = i + 2; // +1 cabeçalho, +1 1-index
-        const errors: string[] = [];
-        const warnings: string[] = [];
-
-        const code = get(row, "CÓDIGO");
-        const name = get(row, "PRODUTO");
-        const category = get(row, "CLASSIFICAÇÃO");
-        const brand = get(row, "MARCA");
-        const unit = get(row, "UND") || "UND";
-
-        if (!code) errors.push("CÓDIGO obrigatório");
-        if (!name) errors.push("PRODUTO obrigatório");
-        if (code.length > 40) errors.push("CÓDIGO > 40 caracteres");
-        if (name.length > 200) errors.push("PRODUTO > 200 caracteres");
-
-        const priceRaw = get(row, "VLR. VENDA");
-        const price = parseMoneyStrict(priceRaw);
-        if (price.error) errors.push(`VLR. VENDA: ${price.error}`);
-        else if (price.value == null) warnings.push("VLR. VENDA vazio (será 0)");
-
-        const qtd = parseNumStrict(get(row, "QTD"));
-        if (qtd.error) errors.push(`QTD: ${qtd.error}`);
-
-        const vc = parseMoneyStrict(get(row, "VLR. COMPRA"));
-        if (vc.error) errors.push(`VLR. COMPRA: ${vc.error}`);
-        const cs = parseMoneyStrict(get(row, "CUSTO S/ ANTECIP"));
-        if (cs.error) errors.push(`CUSTO S/ ANTECIP: ${cs.error}`);
-        const cc = parseMoneyStrict(get(row, "CUSTO C/ ANTECIP"));
-        if (cc.error) errors.push(`CUSTO C/ ANTECIP: ${cc.error}`);
-        const vm = parseMoneyStrict(get(row, "VLR MERCADO"));
-        if (vm.error) errors.push(`VLR MERCADO: ${vm.error}`);
-
-        const codeKey = code.toLowerCase();
-        if (code) {
-          if (seenInFile.has(codeKey)) {
-            errors.push(`CÓDIGO duplicado no arquivo (linha ${seenInFile.get(codeKey)})`);
-          } else {
-            seenInFile.set(codeKey, rowNum);
-          }
-          if (existingCodes.has(codeKey)) {
-            warnings.push("CÓDIGO já existe no catálogo");
-          }
-        }
-
-        const status: RowStatus = errors.length ? "error" : warnings.length ? "warning" : "ok";
-
-        const payload = errors.length ? null : {
-          catalog_id: catalogId,
-          code,
-          name,
-          descricao_ativo: get(row, "DESCRIÇÃO ATIVO") || null,
-          lista: get(row, "LISTA") || null,
-          category: category || null,
-          unit,
-          qtd: qtd.value,
-          vlr_compra: vc.value,
-          custo_sem_antecip: cs.value,
-          custo_com_antecip: cc.value,
-          price: price.value ?? 0,
-          fornecedor: get(row, "FORNECEDOR") || null,
-          nota_fiscal: get(row, "NOTA FISCAL") || null,
-          sugestao_cadastro: get(row, "SUGESTÃO DE CADASTRO") || null,
-          brand: brand || null,
-          vlr_mercado: vm.value,
-          fornecedor_01: get(row, "FORNECEDOR 01") || null,
-          is_visible: true,
-        };
-
-        return {
-          rowNum, code, name, category, brand,
-          price: price.value, qtd: qtd.value, vlr_compra: vc.value,
-          status, errors, warnings, payload,
-        };
-      });
-
-      setPreview(result);
-      setStep("preview");
+      const headers = parsed[0];
+      setFileHeaders(headers);
+      setFileRows(parsed.slice(1));
+      setMapping(autoDetectMapping(headers));
+      setStep("mapping");
       setAnalyzing(false);
     };
     if (isXlsx) reader.readAsArrayBuffer(file);
     else reader.readAsText(file, "utf-8");
+  }
+
+  const mappingStats = useMemo(() => {
+    const mapped = FIELDS.filter((f) => mapping[f.key] != null && mapping[f.key]! >= 0).length;
+    const requiredMissing = FIELDS.filter(
+      (f) => f.required && (mapping[f.key] == null || mapping[f.key]! < 0),
+    );
+    return { mapped, total: FIELDS.length, requiredMissing };
+  }, [mapping]);
+
+  // Detecta a mesma coluna mapeada em mais de um campo
+  const duplicateColumnKeys = useMemo(() => {
+    const used = new Map<number, FieldKey[]>();
+    FIELDS.forEach((f) => {
+      const idx = mapping[f.key];
+      if (idx != null && idx >= 0) {
+        const arr = used.get(idx) ?? [];
+        arr.push(f.key);
+        used.set(idx, arr);
+      }
+    });
+    const dup = new Set<FieldKey>();
+    used.forEach((keys) => { if (keys.length > 1) keys.forEach((k) => dup.add(k)); });
+    return dup;
+  }, [mapping]);
+
+  async function buildPreview() {
+    setAnalyzing(true);
+    const get = (row: string[], key: FieldKey) => {
+      const idx = mapping[key];
+      if (idx == null || idx < 0) return "";
+      return (row[idx] ?? "").trim();
+    };
+
+    const { data: existing } = await supabase
+      .from("products")
+      .select("code")
+      .eq("catalog_id", catalogId);
+    const existingCodes = new Set(
+      (existing ?? []).map((r: any) => String(r.code).trim().toLowerCase()),
+    );
+
+    const seenInFile = new Map<string, number>();
+    const result: PreviewRow[] = fileRows.map((row, i) => {
+      const rowNum = i + 2;
+      const errors: string[] = [];
+      const warnings: string[] = [];
+
+      const code = get(row, "code");
+      const name = get(row, "name");
+
+      if (!code) errors.push("Código obrigatório");
+      if (!name) errors.push("Nome obrigatório");
+      if (code.length > 40) errors.push("Código > 40 caracteres");
+      if (name.length > 200) errors.push("Nome > 200 caracteres");
+
+      const priceRes = parseMoneyStrict(get(row, "price"));
+      if (priceRes.error) errors.push(`Preço: ${priceRes.error}`);
+      else if (priceRes.value == null) warnings.push("Preço vazio (será 0)");
+
+      const qtd = parseNumStrict(get(row, "qtd"));
+      if (qtd.error) errors.push(`Qtd: ${qtd.error}`);
+
+      const vc = parseMoneyStrict(get(row, "vlr_compra"));
+      if (vc.error) errors.push(`Vlr. compra: ${vc.error}`);
+      const cs = parseMoneyStrict(get(row, "custo_sem_antecip"));
+      if (cs.error) errors.push(`Custo s/ antecip.: ${cs.error}`);
+      const cc = parseMoneyStrict(get(row, "custo_com_antecip"));
+      if (cc.error) errors.push(`Custo c/ antecip.: ${cc.error}`);
+      const vm = parseMoneyStrict(get(row, "vlr_mercado"));
+      if (vm.error) errors.push(`Vlr. mercado: ${vm.error}`);
+
+      const codeKey = code.toLowerCase();
+      if (code) {
+        if (seenInFile.has(codeKey)) {
+          errors.push(`Código duplicado no arquivo (linha ${seenInFile.get(codeKey)})`);
+        } else {
+          seenInFile.set(codeKey, rowNum);
+        }
+        if (existingCodes.has(codeKey)) warnings.push("Código já existe no catálogo");
+      }
+
+      const status: RowStatus = errors.length ? "error" : warnings.length ? "warning" : "ok";
+
+      const payload = errors.length ? null : {
+        catalog_id: catalogId,
+        code, name,
+        descricao_ativo: get(row, "descricao_ativo") || null,
+        lista: get(row, "lista") || null,
+        category: get(row, "category") || null,
+        unit: get(row, "unit") || "UND",
+        qtd: qtd.value,
+        vlr_compra: vc.value,
+        custo_sem_antecip: cs.value,
+        custo_com_antecip: cc.value,
+        price: priceRes.value ?? 0,
+        fornecedor: get(row, "fornecedor") || null,
+        nota_fiscal: get(row, "nota_fiscal") || null,
+        sugestao_cadastro: get(row, "sugestao_cadastro") || null,
+        brand: get(row, "brand") || null,
+        vlr_mercado: vm.value,
+        fornecedor_01: get(row, "fornecedor_01") || null,
+        is_visible: true,
+      };
+
+      return {
+        rowNum, code, name, brand: get(row, "brand"),
+        price: priceRes.value, status, errors, warnings, payload,
+      };
+    });
+
+    setPreview(result);
+    setStep("preview");
+    setAnalyzing(false);
   }
 
   const stats = useMemo(() => {
@@ -280,49 +334,45 @@ export default function ImportProductsDialog({
 
   async function handleImport() {
     if (!toImport.length) return;
-    setStep("importing");
-    setProgress(0);
+    setStep("importing"); setProgress(0);
     const payloads = toImport.map((r) => r.payload).filter(Boolean);
-    let inserted = 0;
-    let failed = 0;
+    let inserted = 0; let failed = 0;
     const CHUNK = 50;
     try {
       for (let i = 0; i < payloads.length; i += CHUNK) {
         const slice = payloads.slice(i, i + CHUNK);
         const { error } = await supabase.from("products").insert(slice);
-        if (error) {
-          failed += slice.length;
-          console.error("Erro lote", error);
-        } else {
-          inserted += slice.length;
-        }
+        if (error) { failed += slice.length; console.error("Erro lote", error); }
+        else inserted += slice.length;
         setProgress(Math.round(((i + slice.length) / payloads.length) * 100));
       }
       if (failed > 0) toast.warning(`${inserted} importados, ${failed} falharam`);
       else toast.success(`${inserted} produtos importados`);
-      onImported();
-      onOpenChange(false);
-      reset();
+      onImported(); onOpenChange(false); reset();
     } catch (err: any) {
       toast.error(err.message ?? "Falha na importação");
       setStep("preview");
     }
   }
 
+  const canProceedMapping =
+    mappingStats.requiredMissing.length === 0 && duplicateColumnKeys.size === 0;
+
   return (
     <Dialog open={open} onOpenChange={(o) => { onOpenChange(o); if (!o) reset(); }}>
-      <DialogContent className="max-h-[90vh] max-w-5xl overflow-hidden">
+      <DialogContent className="flex max-h-[90vh] max-w-5xl flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>
             {step === "upload" && "Importar produtos (CSV ou XLSX)"}
+            {step === "mapping" && "Mapear colunas do arquivo"}
             {step === "preview" && "Prévia da importação"}
             {step === "importing" && "Importando…"}
           </DialogTitle>
           <DialogDescription>
-            {step === "upload" &&
-              "Envie a planilha base (.csv ou .xlsx) para revisão antes de salvar."}
-            {step === "preview" &&
-              "Revise erros e avisos. Linhas com erro não serão importadas."}
+            {step === "upload" && "Envie a planilha (.csv ou .xlsx)."}
+            {step === "mapping" &&
+              `Confira para qual campo do sistema cada coluna do arquivo será enviada. ${mappingStats.mapped} de ${mappingStats.total} campos mapeados automaticamente.`}
+            {step === "preview" && "Revise erros e avisos. Linhas com erro não serão importadas."}
             {step === "importing" && "Salvando produtos no catálogo…"}
           </DialogDescription>
         </DialogHeader>
@@ -336,25 +386,15 @@ export default function ImportProductsDialog({
               className="flex w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-muted/50 p-8 text-sm text-muted-foreground transition-colors hover:border-primary hover:bg-accent hover:text-accent-foreground"
             >
               {analyzing ? (
-                <>
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                  <span>Analisando arquivo…</span>
-                </>
+                <><Loader2 className="h-6 w-6 animate-spin" /><span>Analisando…</span></>
               ) : fileName ? (
-                <>
-                  <FileText className="h-6 w-6" />
-                  <span className="font-medium text-foreground">{fileName}</span>
-                </>
+                <><FileText className="h-6 w-6" /><span className="font-medium text-foreground">{fileName}</span></>
               ) : (
-                <>
-                  <Upload className="h-6 w-6" />
-                  <span>Clique para selecionar o arquivo (CSV ou XLSX)</span>
-                </>
+                <><Upload className="h-6 w-6" /><span>Clique para selecionar (CSV ou XLSX)</span></>
               )}
             </button>
             <input
-              ref={fileRef}
-              type="file"
+              ref={fileRef} type="file"
               accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
               className="hidden"
               onChange={(e) => {
@@ -363,16 +403,111 @@ export default function ImportProductsDialog({
                 e.target.value = "";
               }}
             />
+          </div>
+        )}
+
+        {step === "mapping" && (
+          <div className="mt-2 flex flex-1 flex-col gap-3 overflow-hidden">
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="rounded-full bg-muted px-2.5 py-1">
+                Arquivo: <strong>{fileName}</strong>
+              </span>
+              <span className="rounded-full bg-muted px-2.5 py-1">
+                {fileRows.length} linhas de dados
+              </span>
+              <span className="rounded-full bg-muted px-2.5 py-1">
+                {fileHeaders.length} colunas detectadas
+              </span>
+            </div>
+
+            {mappingStats.requiredMissing.length > 0 && (
+              <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>
+                  Campos obrigatórios sem coluna mapeada:{" "}
+                  <strong>
+                    {mappingStats.requiredMissing.map((f) => f.label).join(", ")}
+                  </strong>
+                </div>
+              </div>
+            )}
+
+            {duplicateColumnKeys.size > 0 && (
+              <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>A mesma coluna do arquivo foi mapeada para mais de um campo. Ajuste antes de continuar.</div>
+              </div>
+            )}
+
+            <div className="flex-1 overflow-auto rounded-lg border">
+              <table className="w-full text-xs">
+                <thead className="sticky top-0 bg-muted text-left">
+                  <tr>
+                    <th className="px-3 py-2">Campo do sistema</th>
+                    <th className="px-3 py-2">Tipo</th>
+                    <th className="px-3 py-2">Coluna do arquivo</th>
+                    <th className="px-3 py-2">Exemplo (linha 2)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {FIELDS.map((f) => {
+                    const idx = mapping[f.key];
+                    const isDup = duplicateColumnKeys.has(f.key);
+                    const example =
+                      idx != null && idx >= 0 && fileRows[0]
+                        ? fileRows[0][idx] ?? ""
+                        : "";
+                    return (
+                      <tr key={f.key} className={isDup ? "bg-amber-500/5" : ""}>
+                        <td className="px-3 py-2">
+                          <span className="font-medium">{f.label}</span>
+                          {f.required && (
+                            <span className="ml-1 text-destructive">*</span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 text-muted-foreground">
+                          {f.type === "money" ? "R$" : f.type === "number" ? "número" : "texto"}
+                        </td>
+                        <td className="px-3 py-2">
+                          <Select
+                            value={idx == null ? NONE : String(idx)}
+                            onValueChange={(v) => {
+                              setMapping((prev) => ({
+                                ...prev,
+                                [f.key]: v === NONE ? null : Number(v),
+                              }));
+                            }}
+                          >
+                            <SelectTrigger className="h-8 min-w-[220px]">
+                              <SelectValue placeholder="— Não importar —" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value={NONE}>— Não importar —</SelectItem>
+                              {fileHeaders.map((h, i) => (
+                                <SelectItem key={i} value={String(i)}>
+                                  {h || `(coluna ${i + 1})`}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </td>
+                        <td className="px-3 py-2 max-w-[260px] truncate text-muted-foreground" title={example}>
+                          {example || "—"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
             <p className="text-xs text-muted-foreground">
-              Colunas reconhecidas: CÓDIGO, PRODUTO, DESCRIÇÃO ATIVO, LISTA, CLASSIFICAÇÃO, UND, QTD,
-              VLR. COMPRA, CUSTO S/ ANTECIP, CUSTO C/ ANTECIP, VLR. VENDA, FORNECEDOR, NOTA FISCAL,
-              SUGESTÃO DE CADASTRO, MARCA, VLR MERCADO, FORNECEDOR 01.
+              <span className="text-destructive">*</span> Campos obrigatórios. Os demais são opcionais — selecione "— Não importar —" para ignorar.
             </p>
           </div>
         )}
 
         {step === "preview" && (
-          <div className="mt-4 flex flex-col gap-4 overflow-hidden">
+          <div className="mt-2 flex flex-1 flex-col gap-3 overflow-hidden">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
               <StatCard label="Total" value={stats.total} />
               <StatCard label="OK" value={stats.ok} tone="success" />
@@ -380,20 +515,12 @@ export default function ImportProductsDialog({
               <StatCard label="Erros" value={stats.err} tone="error" />
               <StatCard label="Duplicados" value={stats.dup} tone="warning" />
             </div>
-
             {stats.dup > 0 && (
               <label className="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
-                <Checkbox
-                  checked={skipDuplicates}
-                  onCheckedChange={(v) => setSkipDuplicates(!!v)}
-                />
-                <span>
-                  Pular CÓDIGOS já existentes no catálogo ({stats.dup}). Desmarque para criar
-                  registros duplicados.
-                </span>
+                <Checkbox checked={skipDuplicates} onCheckedChange={(v) => setSkipDuplicates(!!v)} />
+                <span>Pular CÓDIGOS já existentes no catálogo ({stats.dup}).</span>
               </label>
             )}
-
             <div className="flex-1 overflow-auto rounded-lg border">
               <table className="w-full text-xs">
                 <thead className="sticky top-0 bg-muted text-left">
@@ -409,16 +536,11 @@ export default function ImportProductsDialog({
                 </thead>
                 <tbody>
                   {preview.map((r) => (
-                    <tr
-                      key={r.rowNum}
+                    <tr key={r.rowNum}
                       className={
-                        r.status === "error"
-                          ? "bg-destructive/5"
-                          : r.status === "warning"
-                          ? "bg-amber-500/5"
-                          : ""
-                      }
-                    >
+                        r.status === "error" ? "bg-destructive/5"
+                        : r.status === "warning" ? "bg-amber-500/5" : ""
+                      }>
                       <td className="px-2 py-1.5 text-muted-foreground">{r.rowNum}</td>
                       <td className="px-2 py-1.5">
                         {r.status === "ok" && (
@@ -438,9 +560,7 @@ export default function ImportProductsDialog({
                         )}
                       </td>
                       <td className="px-2 py-1.5 font-mono">{r.code || "—"}</td>
-                      <td className="px-2 py-1.5 max-w-[260px] truncate" title={r.name}>
-                        {r.name || "—"}
-                      </td>
+                      <td className="px-2 py-1.5 max-w-[260px] truncate" title={r.name}>{r.name || "—"}</td>
                       <td className="px-2 py-1.5">{r.brand || "—"}</td>
                       <td className="px-2 py-1.5 text-right">
                         {r.price != null ? `R$ ${r.price.toFixed(2)}` : "—"}
@@ -465,27 +585,34 @@ export default function ImportProductsDialog({
           </div>
         )}
 
-        <DialogFooter className="mt-4">
-          {step === "preview" && (
+        <DialogFooter className="mt-4 shrink-0">
+          {step === "mapping" && (
             <Button type="button" variant="outline" onClick={reset}>
               <ArrowLeft className="mr-2 h-4 w-4" /> Trocar arquivo
             </Button>
           )}
+          {step === "preview" && (
+            <Button type="button" variant="outline" onClick={() => setStep("mapping")}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Voltar ao mapeamento
+            </Button>
+          )}
           {step !== "importing" && (
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
           )}
-          {step === "preview" && (
+          {step === "mapping" && (
             <Button
               type="button"
-              onClick={handleImport}
-              disabled={!toImport.length}
+              onClick={buildPreview}
+              disabled={!canProceedMapping || analyzing}
             >
+              {analyzing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Confirmar mapeamento <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          )}
+          {step === "preview" && (
+            <Button type="button" onClick={handleImport} disabled={!toImport.length}>
               Importar {toImport.length} produto{toImport.length === 1 ? "" : "s"}
             </Button>
           )}
@@ -497,16 +624,11 @@ export default function ImportProductsDialog({
 
 function StatCard({
   label, value, tone,
-}: {
-  label: string;
-  value: number;
-  tone?: "success" | "warning" | "error";
-}) {
+}: { label: string; value: number; tone?: "success" | "warning" | "error" }) {
   const color =
     tone === "success" ? "text-green-600"
     : tone === "warning" ? "text-amber-600"
-    : tone === "error" ? "text-destructive"
-    : "text-foreground";
+    : tone === "error" ? "text-destructive" : "text-foreground";
   return (
     <div className="rounded-lg border bg-card p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
