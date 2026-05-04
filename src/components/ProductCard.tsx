@@ -11,6 +11,7 @@ export type ProductCardData = {
   unit: string;
   price: number | string;
   image_url?: string | null;
+  descricao_ativo?: string | null;
 };
 
 type Props = {
@@ -55,6 +56,11 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", compact 
           </h3>
           {product.category && (
             <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
+          )}
+          {product.descricao_ativo && (
+            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+              {product.descricao_ativo}
+            </p>
           )}
           {Number(product.price) > 0 && (
             <p className="mt-1 text-base font-bold text-primary">
@@ -117,6 +123,11 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", compact 
         </h3>
         {product.category && (
           <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
+        )}
+        {product.descricao_ativo && (
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-3">
+            {product.descricao_ativo}
+          </p>
         )}
         {Number(product.price) > 0 && (
           <p className="mt-2 text-lg font-bold text-primary">
