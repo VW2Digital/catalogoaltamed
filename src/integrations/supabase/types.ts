@@ -124,14 +124,25 @@ export type Database = {
           category: string | null
           code: string
           created_at: string
+          custo_com_antecip: number | null
+          custo_sem_antecip: number | null
+          descricao_ativo: string | null
+          fornecedor: string | null
+          fornecedor_01: string | null
           id: string
           image_url: string | null
           is_visible: boolean
+          lista: string | null
           name: string
+          nota_fiscal: string | null
           price: number
+          qtd: number | null
           sort_order: number
+          sugestao_cadastro: string | null
           unit: string
           updated_at: string
+          vlr_compra: number | null
+          vlr_mercado: number | null
         }
         Insert: {
           brand?: string | null
@@ -139,14 +150,25 @@ export type Database = {
           category?: string | null
           code: string
           created_at?: string
+          custo_com_antecip?: number | null
+          custo_sem_antecip?: number | null
+          descricao_ativo?: string | null
+          fornecedor?: string | null
+          fornecedor_01?: string | null
           id?: string
           image_url?: string | null
           is_visible?: boolean
+          lista?: string | null
           name: string
+          nota_fiscal?: string | null
           price?: number
+          qtd?: number | null
           sort_order?: number
+          sugestao_cadastro?: string | null
           unit?: string
           updated_at?: string
+          vlr_compra?: number | null
+          vlr_mercado?: number | null
         }
         Update: {
           brand?: string | null
@@ -154,14 +176,25 @@ export type Database = {
           category?: string | null
           code?: string
           created_at?: string
+          custo_com_antecip?: number | null
+          custo_sem_antecip?: number | null
+          descricao_ativo?: string | null
+          fornecedor?: string | null
+          fornecedor_01?: string | null
           id?: string
           image_url?: string | null
           is_visible?: boolean
+          lista?: string | null
           name?: string
+          nota_fiscal?: string | null
           price?: number
+          qtd?: number | null
           sort_order?: number
+          sugestao_cadastro?: string | null
           unit?: string
           updated_at?: string
+          vlr_compra?: number | null
+          vlr_mercado?: number | null
         }
         Relationships: [
           {

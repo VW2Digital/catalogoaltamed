@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -34,11 +35,22 @@ export type ProductRow = {
   price: number | string;
   image_url: string | null;
   is_visible?: boolean;
+  descricao_ativo?: string | null;
+  lista?: string | null;
+  qtd?: number | string | null;
+  vlr_compra?: number | string | null;
+  custo_sem_antecip?: number | string | null;
+  custo_com_antecip?: number | string | null;
+  fornecedor?: string | null;
+  nota_fiscal?: string | null;
+  sugestao_cadastro?: string | null;
+  vlr_mercado?: number | string | null;
+  fornecedor_01?: string | null;
 };
 
 const schema = z.object({
   code: z.string().trim().min(1, "Código obrigatório").max(40),
-  name: z.string().trim().min(1, "Nome obrigatório").max(120),
+  name: z.string().trim().min(1, "Nome obrigatório").max(200),
   category: z.string().trim().max(80).optional(),
   brand: z.string().trim().max(80).optional(),
   unit: z.string().trim().min(1).max(10),
@@ -53,8 +65,13 @@ type Props = {
   onSaved: () => void;
 };
 
-type CategoryOption = { id: string; name: string };
-type BrandOption = { id: string; name: string };
+type Option = { id: string; name: string };
+
+const numOrNull = (v: string) => {
+  if (!v.trim()) return null;
+  const n = Number(v.replace(",", "."));
+  return Number.isFinite(n) ? n : null;
+};
 
 export default function ProductFormDialog({
   open,
@@ -65,26 +82,48 @@ export default function ProductFormDialog({
 }: Props) {
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
+  const [descricaoAtivo, setDescricaoAtivo] = useState("");
+  const [lista, setLista] = useState("");
   const [category, setCategory] = useState("");
-  const [brand, setBrand] = useState("");
   const [unit, setUnit] = useState("UND");
+  const [qtd, setQtd] = useState("");
+  const [vlrCompra, setVlrCompra] = useState("");
+  const [custoSem, setCustoSem] = useState("");
+  const [custoCom, setCustoCom] = useState("");
   const [price, setPrice] = useState("");
+  const [fornecedor, setFornecedor] = useState("");
+  const [notaFiscal, setNotaFiscal] = useState("");
+  const [sugestaoCadastro, setSugestaoCadastro] = useState("");
+  const [brand, setBrand] = useState("");
+  const [vlrMercado, setVlrMercado] = useState("");
+  const [fornecedor01, setFornecedor01] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
-  const [categories, setCategories] = useState<CategoryOption[]>([]);
-  const [brands, setBrands] = useState<BrandOption[]>([]);
+  const [categories, setCategories] = useState<Option[]>([]);
+  const [brands, setBrands] = useState<Option[]>([]);
 
   useEffect(() => {
     if (open) {
       setCode(product?.code ?? "");
       setName(product?.name ?? "");
+      setDescricaoAtivo(product?.descricao_ativo ?? "");
+      setLista(product?.lista ?? "");
       setCategory(product?.category ?? "");
-      setBrand(product?.brand ?? "");
       setUnit(product?.unit ?? "UND");
+      setQtd(product?.qtd != null ? String(product.qtd) : "");
+      setVlrCompra(product?.vlr_compra != null ? String(product.vlr_compra) : "");
+      setCustoSem(product?.custo_sem_antecip != null ? String(product.custo_sem_antecip) : "");
+      setCustoCom(product?.custo_com_antecip != null ? String(product.custo_com_antecip) : "");
       setPrice(product ? String(product.price) : "");
+      setFornecedor(product?.fornecedor ?? "");
+      setNotaFiscal(product?.nota_fiscal ?? "");
+      setSugestaoCadastro(product?.sugestao_cadastro ?? "");
+      setBrand(product?.brand ?? "");
+      setVlrMercado(product?.vlr_mercado != null ? String(product.vlr_mercado) : "");
+      setFornecedor01(product?.fornecedor_01 ?? "");
       setImageUrl(product?.image_url ?? null);
       setIsVisible(product?.is_visible ?? true);
     }
@@ -107,8 +146,8 @@ export default function ProductFormDialog({
           .order("sort_order", { ascending: true })
           .order("name", { ascending: true }),
       ]);
-      setCategories((cats as CategoryOption[]) ?? []);
-      setBrands((brs as BrandOption[]) ?? []);
+      setCategories((cats as Option[]) ?? []);
+      setBrands((brs as Option[]) ?? []);
     })();
   }, [open, catalogId]);
 
@@ -148,10 +187,21 @@ export default function ProductFormDialog({
         catalog_id: catalogId,
         code: parsed.data.code,
         name: parsed.data.name,
+        descricao_ativo: descricaoAtivo.trim() || null,
+        lista: lista.trim() || null,
         category: parsed.data.category || null,
-        brand: parsed.data.brand || null,
         unit: parsed.data.unit,
+        qtd: numOrNull(qtd),
+        vlr_compra: numOrNull(vlrCompra),
+        custo_sem_antecip: numOrNull(custoSem),
+        custo_com_antecip: numOrNull(custoCom),
         price: parsed.data.price,
+        fornecedor: fornecedor.trim() || null,
+        nota_fiscal: notaFiscal.trim() || null,
+        sugestao_cadastro: sugestaoCadastro.trim() || null,
+        brand: parsed.data.brand || null,
+        vlr_mercado: numOrNull(vlrMercado),
+        fornecedor_01: fornecedor01.trim() || null,
         image_url: imageUrl,
         is_visible: isVisible,
       };
@@ -178,16 +228,16 @@ export default function ProductFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
         <form onSubmit={handleSave}>
           <DialogHeader>
             <DialogTitle>{product ? "Editar produto" : "Novo produto"}</DialogTitle>
             <DialogDescription>
-              Os campos abaixo aparecem exatamente no card.
+              Campos correspondentes às colunas da planilha base.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-4 space-y-4">
+          <div className="mt-4 space-y-5">
             <div>
               <Label>Imagem</Label>
               <div className="mt-2">
@@ -238,108 +288,117 @@ export default function ProductFormDialog({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="code">Código</Label>
-                <Input
-                  id="code"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="10387"
-                  required
-                />
+            <fieldset className="space-y-4 rounded-lg border p-4">
+              <legend className="px-1 text-sm font-semibold">Identificação</legend>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="code">CÓDIGO</Label>
+                  <Input id="code" value={code} onChange={(e) => setCode(e.target.value)} placeholder="10366" required />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="pname">PRODUTO</Label>
+                  <Input id="pname" value={name} onChange={(e) => setName(e.target.value)} required />
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="unit">Unidade</Label>
-                <Input
-                  id="unit"
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value.toUpperCase())}
-                  placeholder="UND"
-                  required
-                />
+                <Label htmlFor="ativo">DESCRIÇÃO ATIVO</Label>
+                <Textarea id="ativo" value={descricaoAtivo} onChange={(e) => setDescricaoAtivo(e.target.value)} rows={2} />
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="pname">Nome do produto</Label>
-              <Input
-                id="pname"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Rennova Lift Lido Ser 1Ml"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="cat">Categoria</Label>
-                <Select
-                  value={category || "__none__"}
-                  onValueChange={(v) => setCategory(v === "__none__" ? "" : v)}
-                >
-                  <SelectTrigger id="cat">
-                    <SelectValue placeholder="Sem categoria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">Sem categoria</SelectItem>
-                    {categories.map((c) => (
-                      <SelectItem key={c.id} value={c.name}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                    {category &&
-                      !categories.some((c) => c.name === category) && (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="lista">LISTA</Label>
+                  <Input id="lista" value={lista} onChange={(e) => setLista(e.target.value)} placeholder="ESTETICA PRINCIPAL" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cat">CLASSIFICAÇÃO</Label>
+                  <Select value={category || "__none__"} onValueChange={(v) => setCategory(v === "__none__" ? "" : v)}>
+                    <SelectTrigger id="cat"><SelectValue placeholder="Sem categoria" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">Sem categoria</SelectItem>
+                      {categories.map((c) => (
+                        <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                      ))}
+                      {category && !categories.some((c) => c.name === category) && (
                         <SelectItem value={category}>{category}</SelectItem>
                       )}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Crie novas categorias na página do catálogo.
-                </p>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="unit">UND</Label>
+                  <Input id="unit" value={unit} onChange={(e) => setUnit(e.target.value.toUpperCase())} required />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="brand">Marca</Label>
-                <Select
-                  value={brand || "__none__"}
-                  onValueChange={(v) => setBrand(v === "__none__" ? "" : v)}
-                >
-                  <SelectTrigger id="brand">
-                    <SelectValue placeholder="Sem marca" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">Sem marca</SelectItem>
-                    {brands.map((b) => (
-                      <SelectItem key={b.id} value={b.name}>
-                        {b.name}
-                      </SelectItem>
-                    ))}
-                    {brand &&
-                      !brands.some((b) => b.name === brand) && (
+            </fieldset>
+
+            <fieldset className="space-y-4 rounded-lg border p-4">
+              <legend className="px-1 text-sm font-semibold">Estoque e custos</legend>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="space-y-2">
+                  <Label htmlFor="qtd">QTD</Label>
+                  <Input id="qtd" type="number" step="any" value={qtd} onChange={(e) => setQtd(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="vc">VLR. COMPRA</Label>
+                  <Input id="vc" type="number" step="0.01" value={vlrCompra} onChange={(e) => setVlrCompra(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cs">CUSTO S/ ANTECIP</Label>
+                  <Input id="cs" type="number" step="0.01" value={custoSem} onChange={(e) => setCustoSem(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cc">CUSTO C/ ANTECIP</Label>
+                  <Input id="cc" type="number" step="0.01" value={custoCom} onChange={(e) => setCustoCom(e.target.value)} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="price">VLR. VENDA (preço público)</Label>
+                  <Input id="price" type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="vm">VLR. MERCADO</Label>
+                  <Input id="vm" type="number" step="0.01" value={vlrMercado} onChange={(e) => setVlrMercado(e.target.value)} />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset className="space-y-4 rounded-lg border p-4">
+              <legend className="px-1 text-sm font-semibold">Fornecimento e cadastro</legend>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="forn">FORNECEDOR</Label>
+                  <Input id="forn" value={fornecedor} onChange={(e) => setFornecedor(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="nf">NOTA FISCAL</Label>
+                  <Input id="nf" value={notaFiscal} onChange={(e) => setNotaFiscal(e.target.value)} />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="sug">SUGESTÃO DE CADASTRO</Label>
+                  <Input id="sug" value={sugestaoCadastro} onChange={(e) => setSugestaoCadastro(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="brand">MARCA</Label>
+                  <Select value={brand || "__none__"} onValueChange={(v) => setBrand(v === "__none__" ? "" : v)}>
+                    <SelectTrigger id="brand"><SelectValue placeholder="Sem marca" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">Sem marca</SelectItem>
+                      {brands.map((b) => (
+                        <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>
+                      ))}
+                      {brand && !brands.some((b) => b.name === brand) && (
                         <SelectItem value={brand}>{brand}</SelectItem>
                       )}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Crie novas marcas em Configurações &gt; Marcas.
-                </p>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="f01">FORNECEDOR 01</Label>
+                  <Input id="f01" value={fornecedor01} onChange={(e) => setFornecedor01(e.target.value)} />
+                </div>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="price">Preço (R$)</Label>
-              <Input
-                id="price"
-                type="number"
-                step="0.01"
-                min="0"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="195.02"
-                required
-              />
-            </div>
+            </fieldset>
 
             <div className="flex items-start justify-between gap-4 rounded-lg border bg-muted/30 p-4">
               <div className="space-y-0.5">
@@ -350,11 +409,7 @@ export default function ProductFormDialog({
                   Desative para ocultar este produto sem precisar excluí-lo.
                 </p>
               </div>
-              <Switch
-                id="visible"
-                checked={isVisible}
-                onCheckedChange={setIsVisible}
-              />
+              <Switch id="visible" checked={isVisible} onCheckedChange={setIsVisible} />
             </div>
           </div>
 
