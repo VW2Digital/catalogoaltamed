@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import * as XLSX from "xlsx";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -86,10 +87,29 @@ export default function ImportProductsDialog({
 
   function handleFile(file: File) {
     setFileName(file.name);
+    const isXlsx = /\.(xlsx|xls)$/i.test(file.name);
     const reader = new FileReader();
     reader.onload = () => {
-      const text = String(reader.result ?? "");
-      const parsed = parseCSV(text);
+      let parsed: string[][] = [];
+      try {
+        if (isXlsx) {
+          const data = new Uint8Array(reader.result as ArrayBuffer);
+          const wb = XLSX.read(data, { type: "array" });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const arr = XLSX.utils.sheet_to_json<any[]>(ws, {
+            header: 1,
+            raw: false,
+            defval: "",
+          });
+          parsed = arr.map((r) => r.map((v) => (v == null ? "" : String(v))));
+        } else {
+          const text = String(reader.result ?? "");
+          parsed = parseCSV(text);
+        }
+      } catch (err: any) {
+        toast.error(`Falha ao ler arquivo: ${err.message ?? err}`);
+        return;
+      }
       if (parsed.length < 2) {
         toast.error("Arquivo vazio ou inválido");
         return;
@@ -101,14 +121,15 @@ export default function ImportProductsDialog({
         if (i !== -1) idx[h] = i;
       });
       if (idx["CÓDIGO"] === undefined || idx["PRODUTO"] === undefined) {
-        toast.error("CSV precisa ter ao menos as colunas CÓDIGO e PRODUTO");
+        toast.error("Arquivo precisa ter ao menos as colunas CÓDIGO e PRODUTO");
         return;
       }
       setHeaderIdx(idx);
       setRows(parsed.slice(1));
       toast.success(`${parsed.length - 1} linhas detectadas`);
     };
-    reader.readAsText(file, "utf-8");
+    if (isXlsx) reader.readAsArrayBuffer(file);
+    else reader.readAsText(file, "utf-8");
   }
 
   async function handleImport() {
@@ -182,9 +203,9 @@ export default function ImportProductsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Importar produtos via CSV</DialogTitle>
+          <DialogTitle>Importar produtos (CSV ou XLSX)</DialogTitle>
           <DialogDescription>
-            Envie a planilha base. Colunas reconhecidas: CÓDIGO, PRODUTO, DESCRIÇÃO ATIVO, LISTA,
+            Envie a planilha base (.csv ou .xlsx). Colunas reconhecidas: CÓDIGO, PRODUTO, DESCRIÇÃO ATIVO, LISTA,
             CLASSIFICAÇÃO, UND, QTD, VLR. COMPRA, CUSTO S/ ANTECIP, CUSTO C/ ANTECIP, VLR. VENDA,
             FORNECEDOR, NOTA FISCAL, SUGESTÃO DE CADASTRO, MARCA, VLR MERCADO, FORNECEDOR 01.
           </DialogDescription>
@@ -206,14 +227,14 @@ export default function ImportProductsDialog({
             ) : (
               <>
                 <Upload className="h-6 w-6" />
-                <span>Clique para selecionar o CSV</span>
+                <span>Clique para selecionar o arquivo (CSV ou XLSX)</span>
               </>
             )}
           </button>
           <input
             ref={fileRef}
             type="file"
-            accept=".csv,text/csv"
+            accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];
