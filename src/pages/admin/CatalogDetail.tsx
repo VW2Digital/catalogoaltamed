@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, ExternalLink, Eye, EyeOff, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Eye, EyeOff, Loader2, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import ProductFormDialog, { ProductRow } from "@/components/admin/ProductFormDialog";
+import ImportProductsDialog from "@/components/admin/ImportProductsDialog";
 import { ProductCard } from "@/components/ProductCard";
 import { groupByCategory } from "@/lib/groupByCategory";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
@@ -36,6 +37,7 @@ export default function CatalogDetail() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ProductRow | null>(null);
   const [search, setSearch] = useState("");
+  const [importOpen, setImportOpen] = useState(false);
   const { number: whatsappNumber } = useWhatsAppNumber();
 
   async function load(opts: { showLoader?: boolean } = { showLoader: true }) {
@@ -146,6 +148,9 @@ export default function CatalogDetail() {
             <Link to={`/c/${catalog.slug}`} target="_blank" rel="noreferrer">
               <ExternalLink className="mr-2 h-4 w-4" /> Ver público
             </Link>
+          </Button>
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" /> Importar CSV
           </Button>
           <Button onClick={handleNew} size="lg">
             <Plus className="mr-2 h-4 w-4" /> Novo produto
@@ -283,6 +288,13 @@ export default function CatalogDetail() {
         catalogId={catalog.id}
         product={editing}
         onSaved={() => load({ showLoader: false })}
+      />
+
+      <ImportProductsDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        catalogId={catalog.id}
+        onImported={() => load({ showLoader: false })}
       />
     </section>
   );
