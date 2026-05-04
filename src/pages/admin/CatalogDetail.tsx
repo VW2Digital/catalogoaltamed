@@ -214,6 +214,7 @@ export default function CatalogDetail() {
                           unit: p.unit,
                           price: p.price,
                           image_url: p.image_url,
+                          descricao_ativo: p.descricao_ativo,
                         }}
                         />
                       </div>
