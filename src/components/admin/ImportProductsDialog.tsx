@@ -241,11 +241,13 @@ export default function ImportProductsDialog({
 
     const { data: existing } = await supabase
       .from("products")
-      .select("code")
+      .select("id, code")
       .eq("catalog_id", catalogId);
-    const existingCodes = new Set(
-      (existing ?? []).map((r: any) => String(r.code).trim().toLowerCase()),
+    const existingMap = new Map<string, string>(
+      (existing ?? []).map((r: any) => [String(r.code).trim().toLowerCase(), r.id]),
     );
+    const existingCodes = new Set(existingMap.keys());
+    setExistingByCode(existingMap);
 
     const seenInFile = new Map<string, number>();
     const result: PreviewRow[] = fileRows.map((row, i) => {
@@ -329,30 +331,87 @@ export default function ImportProductsDialog({
     return { ok, warn, err, dup, total: preview.length };
   }, [preview]);
 
+  const isDuplicate = (r: PreviewRow) =>
+    r.warnings.some((w) => w.includes("já existe"));
+
+  // Aplica regra de duplicados ao status efetivo
+  const effectivePreview = useMemo(() => {
+    if (duplicateMode !== "block") return preview;
+    return preview.map((r) =>
+      isDuplicate(r) && r.status !== "error"
+        ? {
+            ...r,
+            status: "error" as RowStatus,
+            errors: [...r.errors, "Código duplicado (modo bloquear)"],
+          }
+        : r,
+    );
+  }, [preview, duplicateMode]);
+
   const toImport = useMemo(() => {
-    return preview.filter((r) => {
+    return effectivePreview.filter((r) => {
       if (r.status === "error") return false;
-      if (skipDuplicates && r.warnings.some((w) => w.includes("já existe"))) return false;
-      return true;
+      if (duplicateMode === "skip" && isDuplicate(r)) return false;
+      return true; // "update" mantém duplicados, vão por upsert
     });
-  }, [preview, skipDuplicates]);
+  }, [effectivePreview, duplicateMode]);
+
+  const counts = useMemo(() => {
+    const dups = toImport.filter(isDuplicate).length;
+    return { newOnes: toImport.length - dups, updates: dups };
+  }, [toImport]);
 
   async function handleImport() {
     if (!toImport.length) return;
     setStep("importing"); setProgress(0);
-    const payloads = toImport.map((r) => r.payload).filter(Boolean);
-    let inserted = 0; let failed = 0;
+
+    const inserts: any[] = [];
+    const updates: { id: string; payload: any }[] = [];
+    toImport.forEach((r) => {
+      if (!r.payload) return;
+      const existingId =
+        duplicateMode === "update"
+          ? existingByCode.get(r.code.toLowerCase())
+          : undefined;
+      if (existingId) updates.push({ id: existingId, payload: r.payload });
+      else inserts.push(r.payload);
+    });
+
+    let insertedCount = 0;
+    let updatedCount = 0;
+    let failed = 0;
+    const total = inserts.length + updates.length;
+    let done = 0;
     const CHUNK = 50;
+
     try {
-      for (let i = 0; i < payloads.length; i += CHUNK) {
-        const slice = payloads.slice(i, i + CHUNK);
+      // Inserts em lote
+      for (let i = 0; i < inserts.length; i += CHUNK) {
+        const slice = inserts.slice(i, i + CHUNK);
         const { error } = await supabase.from("products").insert(slice);
-        if (error) { failed += slice.length; console.error("Erro lote", error); }
-        else inserted += slice.length;
-        setProgress(Math.round(((i + slice.length) / payloads.length) * 100));
+        if (error) { failed += slice.length; console.error("Erro insert", error); }
+        else insertedCount += slice.length;
+        done += slice.length;
+        setProgress(Math.round((done / total) * 100));
       }
-      if (failed > 0) toast.warning(`${inserted} importados, ${failed} falharam`);
-      else toast.success(`${inserted} produtos importados`);
+      // Updates individuais (cada um por id)
+      for (const u of updates) {
+        const { catalog_id, code, ...rest } = u.payload;
+        const { error } = await supabase
+          .from("products")
+          .update(rest)
+          .eq("id", u.id);
+        if (error) { failed += 1; console.error("Erro update", error); }
+        else updatedCount += 1;
+        done += 1;
+        setProgress(Math.round((done / total) * 100));
+      }
+      const parts: string[] = [];
+      if (insertedCount) parts.push(`${insertedCount} criado(s)`);
+      if (updatedCount) parts.push(`${updatedCount} atualizado(s)`);
+      if (failed) parts.push(`${failed} falha(s)`);
+      if (failed > 0) toast.warning(parts.join(" · "));
+      else toast.success(parts.join(" · ") || "Concluído");
       onImported(); onOpenChange(false); reset();
     } catch (err: any) {
       toast.error(err.message ?? "Falha na importação");
@@ -521,10 +580,59 @@ export default function ImportProductsDialog({
               <StatCard label="Duplicados" value={stats.dup} tone="warning" />
             </div>
             {stats.dup > 0 && (
-              <label className="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
-                <Checkbox checked={skipDuplicates} onCheckedChange={(v) => setSkipDuplicates(!!v)} />
-                <span>Pular CÓDIGOS já existentes no catálogo ({stats.dup}).</span>
-              </label>
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <p className="mb-2 text-sm font-semibold">
+                  Como tratar os {stats.dup} CÓDIGO(S) já existente(s) no catálogo?
+                </p>
+                <RadioGroup
+                  value={duplicateMode}
+                  onValueChange={(v) => setDuplicateMode(v as DuplicateMode)}
+                  className="grid gap-2 sm:grid-cols-3"
+                >
+                  <label
+                    htmlFor="dup-block"
+                    className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm transition-colors ${
+                      duplicateMode === "block" ? "border-primary bg-accent" : "hover:bg-muted/50"
+                    }`}
+                  >
+                    <RadioGroupItem id="dup-block" value="block" className="mt-0.5" />
+                    <div>
+                      <div className="font-semibold">Bloquear</div>
+                      <p className="text-xs text-muted-foreground">
+                        Marca como erro e não importa nenhum duplicado.
+                      </p>
+                    </div>
+                  </label>
+                  <label
+                    htmlFor="dup-skip"
+                    className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm transition-colors ${
+                      duplicateMode === "skip" ? "border-primary bg-accent" : "hover:bg-muted/50"
+                    }`}
+                  >
+                    <RadioGroupItem id="dup-skip" value="skip" className="mt-0.5" />
+                    <div>
+                      <div className="font-semibold">Pular</div>
+                      <p className="text-xs text-muted-foreground">
+                        Mantém o produto existente como está e ignora a linha.
+                      </p>
+                    </div>
+                  </label>
+                  <label
+                    htmlFor="dup-update"
+                    className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm transition-colors ${
+                      duplicateMode === "update" ? "border-primary bg-accent" : "hover:bg-muted/50"
+                    }`}
+                  >
+                    <RadioGroupItem id="dup-update" value="update" className="mt-0.5" />
+                    <div>
+                      <div className="font-semibold">Atualizar</div>
+                      <p className="text-xs text-muted-foreground">
+                        Sobrescreve os dados do produto existente com os do arquivo.
+                      </p>
+                    </div>
+                  </label>
+                </RadioGroup>
+              </div>
             )}
             <div className="flex-1 overflow-auto rounded-lg border">
               <table className="w-full text-xs">
@@ -540,7 +648,7 @@ export default function ImportProductsDialog({
                   </tr>
                 </thead>
                 <tbody>
-                  {preview.map((r) => (
+                  {effectivePreview.map((r) => (
                     <tr key={r.rowNum}
                       className={
                         r.status === "error" ? "bg-destructive/5"
