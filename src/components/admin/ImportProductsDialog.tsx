@@ -726,7 +726,9 @@ export default function ImportProductsDialog({
           )}
           {step === "preview" && (
             <Button type="button" onClick={handleImport} disabled={!toImport.length}>
-              Importar {toImport.length} produto{toImport.length === 1 ? "" : "s"}
+              {duplicateMode === "update" && counts.updates > 0
+                ? `Importar (${counts.newOnes} novo(s) + ${counts.updates} atualização(ões))`
+                : `Importar ${toImport.length} produto${toImport.length === 1 ? "" : "s"}`}
             </Button>
           )}
         </DialogFooter>
