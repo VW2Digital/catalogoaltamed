@@ -33,6 +33,7 @@ type Product = {
   unit: string;
   price: number | string;
   image_url: string | null;
+  descricao_ativo: string | null;
 };
 
 export default function PublicCatalog() {
@@ -330,6 +331,7 @@ export default function PublicCatalog() {
                             unit: p.unit,
                             price: p.price,
                             image_url: p.image_url,
+                            descricao_ativo: p.descricao_ativo,
                           }}
                         />
                       ))}
