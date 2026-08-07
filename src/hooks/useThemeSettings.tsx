@@ -9,8 +9,8 @@ export type ThemeSettings = {
 
 const DEFAULTS: ThemeSettings = {
   primary_hsl: "36 55% 50%",
-  font_heading: "Poppins",
-  font_body: "Poppins",
+  font_heading: "Inter",
+  font_body: "Inter",
 };
 
 const KEYS = ["primary_hsl", "font_heading", "font_body"] as const;
