@@ -98,7 +98,7 @@ export default function PublicCatalog() {
       }
       setCatalog(cat as Catalog);
       const { data: prods } = await supabase
-        .from("products")
+        .from("products_public")
         .select("*")
         .eq("catalog_id", cat.id)
         .eq("is_visible", true)
