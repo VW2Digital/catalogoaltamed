@@ -40,6 +40,7 @@ export default function PublicCatalog() {
   const { slug } = useParams<{ slug: string }>();
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const { number: whatsappNumber } = useWhatsAppNumber();
@@ -97,6 +98,13 @@ export default function PublicCatalog() {
         return;
       }
       setCatalog(cat as Catalog);
+      const { data: cats } = await supabase
+        .from("categories")
+        .select("name, sort_order")
+        .eq("catalog_id", cat.id)
+        .order("sort_order", { ascending: true })
+        .order("name", { ascending: true });
+      setCategoryOrder(((cats as { name: string }[]) ?? []).map((c) => c.name));
       const { data: prods } = await supabase
         .from("products_public")
         .select("*")
@@ -126,8 +134,14 @@ export default function PublicCatalog() {
     products.forEach((p) => {
       if (p.category && p.category.trim()) set.add(p.category.trim());
     });
-    return Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
-  }, [products]);
+    const rank = (n: string) => {
+      const i = categoryOrder.indexOf(n);
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+    };
+    return Array.from(set).sort(
+      (a, b) => rank(a) - rank(b) || a.localeCompare(b, "pt-BR"),
+    );
+  }, [products, categoryOrder]);
 
   const brands = useMemo(() => {
     const set = new Set<string>();
@@ -293,7 +307,16 @@ export default function PublicCatalog() {
               </div>
             ) : (
               <div className="mt-10 space-y-14">
-                {groupByCategory(filteredProducts).map((group) => (
+                {groupByCategory(filteredProducts)
+                  .sort((a, b) => {
+                    const rank = (n: string) => {
+                      const i = categoryOrder.indexOf(n);
+                      return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+                    };
+                    return rank(a.category) - rank(b.category) ||
+                      a.category.localeCompare(b.category, "pt-BR");
+                  })
+                  .map((group) => (
                   <section key={group.category} aria-labelledby={`cat-${group.category}`}>
                     <h2
                       id={`cat-${group.category}`}
