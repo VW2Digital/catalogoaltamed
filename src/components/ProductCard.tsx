@@ -28,7 +28,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", compact 
 
   if (layout === "list") {
     return (
-      <article className="group relative flex gap-4 rounded-2xl bg-card p-4 shadow-card transition-all duration-300 ease-smooth hover:shadow-card-hover">
+      <article className="group relative flex gap-4 rounded-product-card bg-card p-4 shadow-card transition-all duration-300 ease-smooth hover:shadow-card-hover">
         <div className="flex aspect-square h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
           {product.image_url ? (
             <img
@@ -94,7 +94,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", compact 
   }
 
   return (
-    <article className="group relative flex flex-col rounded-2xl bg-card p-5 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover">
+    <article className="group relative flex flex-col rounded-product-card bg-card p-5 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover">
       <p className="text-xs font-medium text-muted-foreground">
         Cód.: <span className="text-foreground/80">{product.code}</span>
       </p>

@@ -40,7 +40,8 @@ All colors MUST be HSL.
     --input: 36 20% 88%;
     --ring: 36 55% 50%;
 
-    --radius: 6px;
+    --radius: 0.875rem;
+    --product-card-radius: 6px;
 
     /* Gradients */
     --gradient-gold: linear-gradient(135deg, hsl(36 60% 55%), hsl(32 65% 42%));
