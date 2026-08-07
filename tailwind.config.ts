@@ -81,7 +81,7 @@ export default {
         smooth: "cubic-bezier(0.22, 1, 0.36, 1)",
       },
       fontFamily: {
-        sans: ["Poppins", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
