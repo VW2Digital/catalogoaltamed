@@ -116,8 +116,11 @@ All colors MUST be HSL.
 }
 
 @layer base {
-  * {
+  *,
+  *::before,
+  *::after {
     @apply border-border;
+    font-family: var(--font-body, 'Poppins', ui-sans-serif, system-ui, sans-serif);
   }
 
   body {

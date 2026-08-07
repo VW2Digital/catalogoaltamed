@@ -80,7 +80,7 @@ export default function CustomCodeSettings() {
               value={headCode}
               onChange={(e) => setHeadCode(e.target.value)}
               placeholder={`<!-- Ex.: Google Analytics -->\n<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXX"></script>`}
-              className="min-h-[180px] font-mono text-xs"
+              className="min-h-[180px] font-sans text-xs"
               maxLength={MAX}
             />
             <p className="text-xs text-muted-foreground">
@@ -99,7 +99,7 @@ export default function CustomCodeSettings() {
               value={bodyCode}
               onChange={(e) => setBodyCode(e.target.value)}
               placeholder={`<!-- Ex.: Chat / Pixel noscript fallback -->`}
-              className="min-h-[180px] font-mono text-xs"
+              className="min-h-[180px] font-sans text-xs"
               maxLength={MAX}
             />
             <p className="text-xs text-muted-foreground">

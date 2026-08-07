@@ -672,7 +672,7 @@ export default function ImportProductsDialog({
                           </span>
                         )}
                       </td>
-                      <td className="px-2 py-1.5 font-mono">{r.code || "—"}</td>
+                      <td className="px-2 py-1.5 font-sans">{r.code || "—"}</td>
                       <td className="px-2 py-1.5 max-w-[260px] truncate" title={r.name}>{r.name || "—"}</td>
                       <td className="px-2 py-1.5">{r.brand || "—"}</td>
                       <td className="px-2 py-1.5 text-right">
