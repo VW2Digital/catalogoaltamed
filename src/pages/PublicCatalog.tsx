@@ -297,7 +297,7 @@ export default function PublicCatalog() {
                   <section key={group.category} aria-labelledby={`cat-${group.category}`}>
                     <h2
                       id={`cat-${group.category}`}
-                      className="text-3xl font-bold tracking-tight text-foreground"
+                      className="text-lg font-semibold tracking-tight text-foreground sm:text-xl"
                     >
                       {group.category}
                     </h2>
