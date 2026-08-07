@@ -5,7 +5,7 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductTable } from "@/components/ProductTable";
 import { Loader2, Search, X } from "lucide-react";
-import { LayoutGrid, Rows3, Square, Table2 } from "lucide-react";
+import { LayoutGrid, Rows3, Table2 } from "lucide-react";
 import { groupByCategory } from "@/lib/groupByCategory";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 import { Input } from "@/components/ui/input";
