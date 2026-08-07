@@ -44,6 +44,8 @@ export default function CatalogDetail() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ProductRow | null>(null);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [brandFilter, setBrandFilter] = useState("all");
   const [importOpen, setImportOpen] = useState(false);
   const { number: whatsappNumber } = useWhatsAppNumber();
 
