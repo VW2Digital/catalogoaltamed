@@ -200,7 +200,7 @@ export default function CatalogDetail() {
                 >
                   {group.category}
                 </h2>
-                <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                   {group.items.map((p) => (
                     <div key={p.id} className="relative">
                       <div className={(p.is_visible ?? true) ? "" : "opacity-50"}>
