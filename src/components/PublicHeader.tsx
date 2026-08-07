@@ -16,7 +16,7 @@ export function PublicHeader({ backTo }: { backTo?: string }) {
       <div className="mx-auto grid h-16 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6 lg:px-8">
         <div className="flex justify-start">
           {backTo && (
-            <Button asChild variant="secondary" size="icon" className="rounded-xl">
+            <Button asChild variant="secondary" size="icon" className="rounded-xl bg-header-button text-header-button-foreground hover:bg-header-button/80">
               <Link to={backTo}>
                 <ArrowLeft className="h-4 w-4" />
                 <span className="sr-only">Voltar</span>
@@ -41,7 +41,7 @@ export function PublicHeader({ backTo }: { backTo?: string }) {
           )}
         </Link>
         <div className="flex items-center justify-end gap-1">
-          <Button asChild variant="secondary" size="icon" className="relative rounded-xl">
+          <Button asChild variant="secondary" size="icon" className="relative rounded-xl bg-header-button text-header-button-foreground hover:bg-header-button/80">
             <Link to="/sacola" aria-label="Sacola">
               <ShoppingBag className="h-5 w-5" />
               {count > 0 && (
@@ -52,7 +52,7 @@ export function PublicHeader({ backTo }: { backTo?: string }) {
             </Link>
           </Button>
           {isHome && (
-            <Button asChild variant="secondary" size="sm" className="rounded-xl">
+            <Button asChild variant="secondary" size="sm" className="rounded-xl bg-header-button text-header-button-foreground hover:bg-header-button/80">
               <Link to={user && isAdmin ? "/admin" : "/auth"}>
                 <LogIn className="mr-2 h-4 w-4" />
                 {user && isAdmin ? "Painel" : "Entrar"}
