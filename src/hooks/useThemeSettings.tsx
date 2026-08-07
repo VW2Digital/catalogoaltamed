@@ -46,10 +46,9 @@ function applyToDocument(s: ThemeSettings) {
   const root = document.documentElement;
   root.style.setProperty("--primary", s.primary_hsl);
   root.style.setProperty("--ring", s.primary_hsl);
-  root.style.setProperty("--font-heading", `'${s.font_heading}', ui-sans-serif, system-ui, sans-serif`);
-  root.style.setProperty("--font-body", `'${s.font_body}', ui-sans-serif, system-ui, sans-serif`);
-  ensureGoogleFont(s.font_heading);
-  ensureGoogleFont(s.font_body);
+  root.style.setProperty("--font-heading", "'Poppins', ui-sans-serif, system-ui, sans-serif");
+  root.style.setProperty("--font-body", "'Poppins', ui-sans-serif, system-ui, sans-serif");
+  ensureGoogleFont("Poppins");
 }
 
 export function ThemeSettingsProvider({ children }: { children: React.ReactNode }) {
