@@ -25,7 +25,7 @@ export function PublicHeader({ backTo }: { backTo?: string }) {
             <img
               src={logoThumbUrl}
               alt={storeName || "Logo"}
-              className={LOGO_IMG_CLASS}
+              className="h-8 w-auto max-w-[128px] object-contain"
             />
           ) : (
             <>
