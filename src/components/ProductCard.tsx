@@ -1,7 +1,8 @@
-import { ImageOff } from "lucide-react";
+import { ImageOff, ShoppingBag } from "lucide-react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import { formatBRL } from "@/lib/format";
+import { Button } from "@/components/ui/button";
 
 export type ProductCardData = {
   code: string;
@@ -23,12 +24,50 @@ type Props = {
   onSelect?: () => void;
 };
 
-export function ProductCard({ product, whatsappNumber, layout = "grid", compact = false, onSelect }: Props) {
+export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect }: Props) {
   const waLink = buildWhatsAppLink(whatsappNumber ?? "", product.name, product.image_url);
-  const ctaLabel = compact ? "Consultar" : "Consultar Disponibilidade";
   const selectProps = onSelect
     ? { onClick: onSelect, role: "button" as const, tabIndex: 0 }
     : {};
+
+  const actions = (
+    <div className="mt-5 flex items-center gap-2">
+      {waLink ? (
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          aria-label="Consultar disponibilidade no WhatsApp"
+          title="Consultar disponibilidade"
+          className="price-pill inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform hover:scale-[1.04]"
+        >
+          <WhatsAppIcon className="h-4 w-4" />
+        </a>
+      ) : (
+        <span
+          aria-label="WhatsApp não configurado"
+          title="Configure o número de WhatsApp no admin"
+          className="price-pill inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full opacity-60"
+        >
+          <WhatsAppIcon className="h-4 w-4" />
+        </span>
+      )}
+      {onSelect && (
+        <Button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+          }}
+          className="min-w-0 flex-1"
+        >
+          <ShoppingBag className="h-4 w-4" />
+          Adicionar
+        </Button>
+      )}
+    </div>
+  );
 
   if (layout === "list") {
     return (
@@ -70,32 +109,9 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", compact 
             </p>
           )}
           {Number(product.price) > 0 && (
-            <p className="mt-1 text-base font-bold text-primary">
-              {formatBRL(product.price)}
-            </p>
+            <p className="mt-1 text-base font-bold text-primary">{formatBRL(product.price)}</p>
           )}
-
-          <div className="mt-2">
-            {waLink ? (
-              <a
-                href={waLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="price-pill inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition-transform hover:scale-[1.02]"
-              >
-                <WhatsAppIcon className="h-3.5 w-3.5" />
-                <span className="tracking-tight font-semibold text-[0.675rem]">{ctaLabel}</span>
-              </a>
-            ) : (
-              <div
-                className="price-pill inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold opacity-80"
-                title="Configure o número de WhatsApp no admin"
-              >
-                <span className="shrink-0 tracking-tight font-semibold text-[0.675rem]">{ctaLabel}</span>
-              </div>
-            )}
-          </div>
+          {actions}
         </div>
       </article>
     );
@@ -129,9 +145,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", compact 
             {product.brand}
           </p>
         )}
-        <h3 className="text-sm font-bold leading-tight text-foreground">
-          {product.name}
-        </h3>
+        <h3 className="text-sm font-bold leading-tight text-foreground">{product.name}</h3>
         {product.category && (
           <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
         )}
@@ -141,31 +155,11 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", compact 
           </p>
         )}
         {Number(product.price) > 0 && (
-          <p className="mt-2 text-lg font-bold text-primary">
-            {formatBRL(product.price)}
-          </p>
+          <p className="mt-2 text-lg font-bold text-primary">{formatBRL(product.price)}</p>
         )}
       </div>
 
-      {waLink ? (
-        <a
-          href={waLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="price-pill mt-5 flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold transition-transform hover:scale-[1.02]"
-        >
-          <WhatsAppIcon className="h-3.5 w-3.5" />
-          <span className="tracking-tight font-semibold text-[0.675rem]">{ctaLabel}</span>
-        </a>
-      ) : (
-        <div
-          className="price-pill mt-5 flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold opacity-80"
-          title="Configure o número de WhatsApp no admin"
-        >
-          <span className="shrink-0 tracking-tight font-semibold text-[0.675rem]">{ctaLabel}</span>
-        </div>
-      )}
+      {actions}
     </article>
   );
 }
