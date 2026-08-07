@@ -4,7 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, ExternalLink, Eye, EyeOff, Loader2, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, ExternalLink, Eye, EyeOff, Loader2, Pencil, Plus, Search, Trash2, Upload, X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +44,8 @@ export default function CatalogDetail() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ProductRow | null>(null);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [brandFilter, setBrandFilter] = useState("all");
   const [importOpen, setImportOpen] = useState(false);
   const { number: whatsappNumber } = useWhatsAppNumber();
 
@@ -114,14 +123,40 @@ export default function CatalogDetail() {
     );
   }
 
+  const categories = Array.from(
+    new Set(
+      products
+        .map((p) => p.category?.trim())
+        .filter((category): category is string => Boolean(category)),
+    ),
+  ).sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  const brands = Array.from(
+    new Set(
+      products
+        .map((p) => p.brand?.trim())
+        .filter((brand): brand is string => Boolean(brand)),
+    ),
+  ).sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  const hasActiveFilters =
+    search.trim() !== "" || categoryFilter !== "all" || brandFilter !== "all";
+
+  const clearFilters = () => {
+    setSearch("");
+    setCategoryFilter("all");
+    setBrandFilter("all");
+  };
+
   const normalized = search.trim().toLowerCase();
-  const filteredProducts = normalized
-    ? products.filter((p) =>
-        [p.name, p.code, p.brand, p.category]
-          .filter(Boolean)
-          .some((v) => String(v).toLowerCase().includes(normalized)),
-      )
-    : products;
+  const filteredProducts = products.filter((p) => {
+    if (categoryFilter !== "all" && (p.category ?? "") !== categoryFilter) return false;
+    if (brandFilter !== "all" && (p.brand ?? "") !== brandFilter) return false;
+    if (!normalized) return true;
+    return [p.name, p.code, p.brand, p.category]
+      .filter(Boolean)
+      .some((v) => String(v).toLowerCase().includes(normalized));
+  });
 
   return (
     <section>
@@ -160,16 +195,52 @@ export default function CatalogDetail() {
 
       <div className="mt-8">
         {products.length > 0 && (
-          <div className="relative mb-6 max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Pesquisar por nome, código, marca ou categoria"
-              className="pl-9"
-              aria-label="Pesquisar produtos"
-            />
+          <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Pesquisar por nome, código, marca ou categoria"
+                className="pl-9"
+                aria-label="Pesquisar produtos"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:flex">
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-full sm:w-52" aria-label="Filtrar por categoria">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as categorias</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={brandFilter} onValueChange={setBrandFilter}>
+                <SelectTrigger className="w-full sm:w-52" aria-label="Filtrar por marca">
+                  <SelectValue placeholder="Marca" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as marcas</SelectItem>
+                  {brands.map((brand) => (
+                    <SelectItem key={brand} value={brand}>
+                      {brand}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {hasActiveFilters && (
+              <Button type="button" variant="ghost" onClick={clearFilters} className="w-full lg:w-auto">
+                <X className="mr-1.5 h-4 w-4" />
+                Limpar filtros
+              </Button>
+            )}
           </div>
         )}
         {products.length === 0 ? (
