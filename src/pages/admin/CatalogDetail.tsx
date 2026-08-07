@@ -123,14 +123,48 @@ export default function CatalogDetail() {
     );
   }
 
+  const categories = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          products
+            .map((p) => p.category?.trim())
+            .filter((category): category is string => Boolean(category)),
+        ),
+      ).sort((a, b) => a.localeCompare(b, "pt-BR")),
+    [products],
+  );
+
+  const brands = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          products
+            .map((p) => p.brand?.trim())
+            .filter((brand): brand is string => Boolean(brand)),
+        ),
+      ).sort((a, b) => a.localeCompare(b, "pt-BR")),
+    [products],
+  );
+
+  const hasActiveFilters =
+    search.trim() !== "" || categoryFilter !== "all" || brandFilter !== "all";
+
+  const clearFilters = () => {
+    setSearch("");
+    setCategoryFilter("all");
+    setBrandFilter("all");
+  };
+
   const normalized = search.trim().toLowerCase();
-  const filteredProducts = normalized
-    ? products.filter((p) =>
-        [p.name, p.code, p.brand, p.category]
-          .filter(Boolean)
-          .some((v) => String(v).toLowerCase().includes(normalized)),
-      )
-    : products;
+  const filteredProducts = products.filter((p) => {
+    if (categoryFilter !== "all" && (p.category ?? "") !== categoryFilter) return false;
+    if (brandFilter !== "all" && (p.brand ?? "") !== brandFilter) return false;
+    if (!normalized) return true;
+    return [p.name, p.code, p.brand, p.category]
+      .filter(Boolean)
+      .some((v) => String(v).toLowerCase().includes(normalized));
+  });
 
   return (
     <section>
