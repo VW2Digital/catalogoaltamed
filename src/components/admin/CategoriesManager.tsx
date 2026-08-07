@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Loader2, Pencil, Plus, Tag, Trash2, X, Check } from "lucide-react";
+import { ArrowDown, ArrowUp, Loader2, Pencil, Plus, Tag, Trash2, X, Check } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,6 +35,7 @@ export default function CategoriesManager({ catalogId, onChange }: Props) {
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [reordering, setReordering] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -117,6 +118,26 @@ export default function CategoriesManager({ catalogId, onChange }: Props) {
     onChange?.();
   }
 
+  async function move(index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target >= categories.length) return;
+    const next = [...categories];
+    [next[index], next[target]] = [next[target], next[index]];
+    setCategories(next);
+    setReordering(true);
+    const { error } = await supabase.from("categories").upsert(
+      next.map((c, i) => ({ ...c, sort_order: i })),
+      { onConflict: "id" },
+    );
+    setReordering(false);
+    if (error) {
+      toast.error(error.message);
+      await load();
+      return;
+    }
+    onChange?.();
+  }
+
   return (
     <div className="rounded-2xl border bg-card p-5 shadow-card">
       <div className="flex items-center gap-2">
@@ -124,7 +145,8 @@ export default function CategoriesManager({ catalogId, onChange }: Props) {
         <h2 className="text-lg font-semibold">Categorias</h2>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
-        Crie e organize as categorias deste catálogo. Os produtos poderão ser vinculados a elas.
+        Crie e organize as categorias deste catálogo. A ordem definida aqui é a ordem das seções no
+        catálogo público.
       </p>
 
       <form onSubmit={handleCreate} className="mt-4 flex gap-2">
@@ -149,12 +171,36 @@ export default function CategoriesManager({ catalogId, onChange }: Props) {
             Nenhuma categoria ainda.
           </p>
         ) : (
-          <ul className="flex flex-wrap gap-2">
-            {categories.map((cat) => (
+          <ul className="flex flex-col gap-2">
+            {categories.map((cat, index) => (
               <li
                 key={cat.id}
-                className="flex items-center gap-1 rounded-full border bg-background pl-3 pr-1 py-1 text-sm shadow-sm"
+                className="flex items-center gap-1 rounded-lg border bg-background pl-2 pr-1 py-1 text-sm shadow-sm"
               >
+                <div className="flex items-center">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7"
+                    disabled={index === 0 || reordering}
+                    onClick={() => move(index, -1)}
+                    aria-label="Mover para cima"
+                  >
+                    <ArrowUp className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7"
+                    disabled={index === categories.length - 1 || reordering}
+                    onClick={() => move(index, 1)}
+                    aria-label="Mover para baixo"
+                  >
+                    <ArrowDown className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
                 {editingId === cat.id ? (
                   <>
                     <Input
@@ -190,7 +236,7 @@ export default function CategoriesManager({ catalogId, onChange }: Props) {
                   </>
                 ) : (
                   <>
-                    <span className="font-medium">{cat.name}</span>
+                    <span className="flex-1 font-medium">{cat.name}</span>
                     <Button
                       type="button"
                       size="icon"
