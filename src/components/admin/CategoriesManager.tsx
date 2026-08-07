@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowDown, ArrowUp, Loader2, Pencil, Plus, Tag, Trash2, X, Check } from "lucide-react";
+import { GripVertical, Loader2, Pencil, Plus, Tag, Trash2, X, Check } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +36,8 @@ export default function CategoriesManager({ catalogId, onChange }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [reordering, setReordering] = useState(false);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -118,11 +120,7 @@ export default function CategoriesManager({ catalogId, onChange }: Props) {
     onChange?.();
   }
 
-  async function move(index: number, direction: -1 | 1) {
-    const target = index + direction;
-    if (target < 0 || target >= categories.length) return;
-    const next = [...categories];
-    [next[index], next[target]] = [next[target], next[index]];
+  async function persistOrder(next: Category[]) {
     setCategories(next);
     setReordering(true);
     const { error } = await supabase.from("categories").upsert(
@@ -138,6 +136,20 @@ export default function CategoriesManager({ catalogId, onChange }: Props) {
     onChange?.();
   }
 
+  function handleDrop(targetId: string) {
+    const fromId = dragId;
+    setDragId(null);
+    setOverId(null);
+    if (!fromId || fromId === targetId) return;
+    const from = categories.findIndex((c) => c.id === fromId);
+    const to = categories.findIndex((c) => c.id === targetId);
+    if (from < 0 || to < 0) return;
+    const next = [...categories];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    persistOrder(next);
+  }
+
   return (
     <div className="rounded-2xl border bg-card p-5 shadow-card">
       <div className="flex items-center gap-2">
@@ -145,8 +157,8 @@ export default function CategoriesManager({ catalogId, onChange }: Props) {
         <h2 className="text-lg font-semibold">Categorias</h2>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
-        Crie e organize as categorias deste catálogo. A ordem definida aqui é a ordem das seções no
-        catálogo público.
+        Crie e organize as categorias deste catálogo. Arraste pelo ícone para reordenar — a ordem
+        definida aqui é a ordem das seções no catálogo público.
       </p>
 
       <form onSubmit={handleCreate} className="mt-4 flex gap-2">
@@ -172,35 +184,33 @@ export default function CategoriesManager({ catalogId, onChange }: Props) {
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
-            {categories.map((cat, index) => (
+            {categories.map((cat) => (
               <li
                 key={cat.id}
-                className="flex items-center gap-1 rounded-lg border bg-background pl-2 pr-1 py-1 text-sm shadow-sm"
+                draggable={!reordering && editingId !== cat.id}
+                onDragStart={() => setDragId(cat.id)}
+                onDragEnd={() => {
+                  setDragId(null);
+                  setOverId(null);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  if (overId !== cat.id) setOverId(cat.id);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  handleDrop(cat.id);
+                }}
+                className={`flex items-center gap-1 rounded-lg border bg-background pl-1 pr-1 py-1 text-sm shadow-sm transition-colors ${
+                  dragId === cat.id ? "opacity-50" : ""
+                } ${overId === cat.id && dragId && dragId !== cat.id ? "border-primary bg-accent/40" : ""}`}
               >
-                <div className="flex items-center">
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    className="h-7 w-7"
-                    disabled={index === 0 || reordering}
-                    onClick={() => move(index, -1)}
-                    aria-label="Mover para cima"
-                  >
-                    <ArrowUp className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    className="h-7 w-7"
-                    disabled={index === categories.length - 1 || reordering}
-                    onClick={() => move(index, 1)}
-                    aria-label="Mover para baixo"
-                  >
-                    <ArrowDown className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+                <span
+                  className="flex h-7 w-7 cursor-grab items-center justify-center text-muted-foreground active:cursor-grabbing"
+                  aria-label="Arrastar para reordenar"
+                >
+                  <GripVertical className="h-4 w-4" />
+                </span>
                 {editingId === cat.id ? (
                   <>
                     <Input
