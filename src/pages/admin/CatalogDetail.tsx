@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -123,29 +123,21 @@ export default function CatalogDetail() {
     );
   }
 
-  const categories = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          products
-            .map((p) => p.category?.trim())
-            .filter((category): category is string => Boolean(category)),
-        ),
-      ).sort((a, b) => a.localeCompare(b, "pt-BR")),
-    [products],
-  );
+  const categories = Array.from(
+    new Set(
+      products
+        .map((p) => p.category?.trim())
+        .filter((category): category is string => Boolean(category)),
+    ),
+  ).sort((a, b) => a.localeCompare(b, "pt-BR"));
 
-  const brands = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          products
-            .map((p) => p.brand?.trim())
-            .filter((brand): brand is string => Boolean(brand)),
-        ),
-      ).sort((a, b) => a.localeCompare(b, "pt-BR")),
-    [products],
-  );
+  const brands = Array.from(
+    new Set(
+      products
+        .map((p) => p.brand?.trim())
+        .filter((brand): brand is string => Boolean(brand)),
+    ),
+  ).sort((a, b) => a.localeCompare(b, "pt-BR"));
 
   const hasActiveFilters =
     search.trim() !== "" || categoryFilter !== "all" || brandFilter !== "all";
