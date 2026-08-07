@@ -158,15 +158,8 @@ export default function PublicCatalog() {
 
   return (
     <div className="min-h-screen bg-gradient-page">
-      <PublicHeader />
+      <PublicHeader backTo="/" />
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" /> Todos os catálogos
-        </Link>
-
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -178,9 +171,6 @@ export default function PublicCatalog() {
         ) : (
           <>
             <header className="mt-4">
-              <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                {catalog.name}
-              </h1>
               {catalog.description && (
                 <p className="mt-3 max-w-2xl text-base text-muted-foreground">
                   {catalog.description}
