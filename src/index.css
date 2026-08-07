@@ -39,6 +39,8 @@ All colors MUST be HSL.
     --border: 36 20% 88%;
     --input: 36 20% 88%;
     --ring: 36 55% 50%;
+    --header-button: 35 56% 91%;
+    --header-button-foreground: 32 45% 28%;
 
     --radius: 0.875rem;
     --product-card-radius: 6px;
@@ -104,6 +106,8 @@ All colors MUST be HSL.
     --border: 220 15% 20%;
     --input: 220 15% 20%;
     --ring: 42 75% 60%;
+    --header-button: 34 30% 20%;
+    --header-button-foreground: 36 30% 95%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
