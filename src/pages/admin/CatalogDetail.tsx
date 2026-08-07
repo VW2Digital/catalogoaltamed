@@ -203,16 +203,52 @@ export default function CatalogDetail() {
 
       <div className="mt-8">
         {products.length > 0 && (
-          <div className="relative mb-6 max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Pesquisar por nome, código, marca ou categoria"
-              className="pl-9"
-              aria-label="Pesquisar produtos"
-            />
+          <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Pesquisar por nome, código, marca ou categoria"
+                className="pl-9"
+                aria-label="Pesquisar produtos"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:flex">
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-full sm:w-52" aria-label="Filtrar por categoria">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as categorias</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={brandFilter} onValueChange={setBrandFilter}>
+                <SelectTrigger className="w-full sm:w-52" aria-label="Filtrar por marca">
+                  <SelectValue placeholder="Marca" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as marcas</SelectItem>
+                  {brands.map((brand) => (
+                    <SelectItem key={brand} value={brand}>
+                      {brand}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {hasActiveFilters && (
+              <Button type="button" variant="ghost" onClick={clearFilters} className="w-full lg:w-auto">
+                <X className="mr-1.5 h-4 w-4" />
+                Limpar filtros
+              </Button>
+            )}
           </div>
         )}
         {products.length === 0 ? (
