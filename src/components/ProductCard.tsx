@@ -32,6 +32,19 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
 
   const actions = (
     <div className="mt-5 flex items-center gap-2">
+      {onSelect && (
+        <Button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+          }}
+          className="min-w-0 flex-1"
+        >
+          <ShoppingBag className="h-4 w-4" />
+          Adicionar
+        </Button>
+      )}
       {waLink ? (
         <a
           href={waLink}
@@ -52,19 +65,6 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
         >
           <WhatsAppIcon className="h-4 w-4" />
         </span>
-      )}
-      {onSelect && (
-        <Button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect();
-          }}
-          className="min-w-0 flex-1"
-        >
-          <ShoppingBag className="h-4 w-4" />
-          Adicionar
-        </Button>
       )}
     </div>
   );
