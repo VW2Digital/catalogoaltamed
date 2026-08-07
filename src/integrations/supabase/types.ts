@@ -250,7 +250,65 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      products_public: {
+        Row: {
+          brand: string | null
+          catalog_id: string | null
+          category: string | null
+          code: string | null
+          created_at: string | null
+          descricao_ativo: string | null
+          id: string | null
+          image_url: string | null
+          is_visible: boolean | null
+          name: string | null
+          price: number | null
+          sort_order: number | null
+          unit: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          brand?: string | null
+          catalog_id?: string | null
+          category?: string | null
+          code?: string | null
+          created_at?: string | null
+          descricao_ativo?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_visible?: boolean | null
+          name?: string | null
+          price?: number | null
+          sort_order?: number | null
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          brand?: string | null
+          catalog_id?: string | null
+          category?: string | null
+          code?: string | null
+          created_at?: string | null
+          descricao_ativo?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_visible?: boolean | null
+          name?: string | null
+          price?: number | null
+          sort_order?: number | null
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "catalogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {
