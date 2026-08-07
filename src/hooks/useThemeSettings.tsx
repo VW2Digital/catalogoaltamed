@@ -9,8 +9,8 @@ export type ThemeSettings = {
 
 const DEFAULTS: ThemeSettings = {
   primary_hsl: "36 55% 50%",
-  font_heading: "Poppins",
-  font_body: "Poppins",
+  font_heading: "Inter",
+  font_body: "Inter",
 };
 
 const KEYS = ["primary_hsl", "font_heading", "font_body"] as const;
@@ -46,9 +46,9 @@ function applyToDocument(s: ThemeSettings) {
   const root = document.documentElement;
   root.style.setProperty("--primary", s.primary_hsl);
   root.style.setProperty("--ring", s.primary_hsl);
-  root.style.setProperty("--font-heading", "'Poppins', ui-sans-serif, system-ui, sans-serif");
-  root.style.setProperty("--font-body", "'Poppins', ui-sans-serif, system-ui, sans-serif");
-  ensureGoogleFont("Poppins");
+  root.style.setProperty("--font-heading", "'Inter', ui-sans-serif, system-ui, sans-serif");
+  root.style.setProperty("--font-body", "'Inter', ui-sans-serif, system-ui, sans-serif");
+  ensureGoogleFont("Inter");
 }
 
 export function ThemeSettingsProvider({ children }: { children: React.ReactNode }) {
