@@ -40,7 +40,7 @@ All colors MUST be HSL.
     --input: 36 20% 88%;
     --ring: 36 55% 50%;
 
-    --radius: 0.875rem;
+    --radius: 6px;
 
     /* Gradients */
     --gradient-gold: linear-gradient(135deg, hsl(36 60% 55%), hsl(32 65% 42%));
@@ -122,11 +122,11 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "cv11";
-    font-family: var(--font-body, 'Inter', ui-sans-serif, system-ui, sans-serif);
+    font-family: var(--font-body, 'Poppins', ui-sans-serif, system-ui, sans-serif);
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading, var(--font-body, 'Inter', ui-sans-serif, system-ui, sans-serif));
+    font-family: var(--font-heading, var(--font-body, 'Poppins', ui-sans-serif, system-ui, sans-serif));
   }
 }
 
