@@ -20,15 +20,22 @@ type Props = {
   whatsappNumber?: string;
   layout?: "grid" | "list";
   compact?: boolean;
+  onSelect?: () => void;
 };
 
-export function ProductCard({ product, whatsappNumber, layout = "grid", compact = false }: Props) {
+export function ProductCard({ product, whatsappNumber, layout = "grid", compact = false, onSelect }: Props) {
   const waLink = buildWhatsAppLink(whatsappNumber ?? "", product.name, product.image_url);
   const ctaLabel = compact ? "Consultar" : "Consultar Disponibilidade";
+  const selectProps = onSelect
+    ? { onClick: onSelect, role: "button" as const, tabIndex: 0 }
+    : {};
 
   if (layout === "list") {
     return (
-      <article className="group relative flex gap-4 rounded-product-card bg-card p-4 shadow-card transition-all duration-300 ease-smooth hover:shadow-card-hover">
+      <article
+        {...selectProps}
+        className={`group relative flex gap-4 rounded-product-card bg-card p-4 shadow-card transition-all duration-300 ease-smooth hover:shadow-card-hover ${onSelect ? "cursor-pointer" : ""}`}
+      >
         <div className="flex aspect-square h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
           {product.image_url ? (
             <img
@@ -74,6 +81,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", compact 
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 className="price-pill inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition-transform hover:scale-[1.02]"
               >
                 <WhatsAppIcon className="h-3.5 w-3.5" />
@@ -94,7 +102,10 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", compact 
   }
 
   return (
-    <article className="group relative flex flex-col rounded-product-card bg-card p-5 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover">
+    <article
+      {...selectProps}
+      className={`group relative flex flex-col rounded-product-card bg-card p-5 shadow-card transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-card-hover ${onSelect ? "cursor-pointer" : ""}`}
+    >
       <p className="text-xs font-medium text-muted-foreground">
         Cód.: <span className="text-foreground/80">{product.code}</span>
       </p>
@@ -141,6 +152,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", compact 
           href={waLink}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
           className="price-pill mt-5 flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold transition-transform hover:scale-[1.02]"
         >
           <WhatsAppIcon className="h-3.5 w-3.5" />

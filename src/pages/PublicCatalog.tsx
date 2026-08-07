@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductTable } from "@/components/ProductTable";
+import { ProductDetailDialog, type ProductDetail } from "@/components/ProductDetailDialog";
 import { Loader2, Search, X } from "lucide-react";
 import { LayoutGrid, Rows3, Table2 } from "lucide-react";
 import { groupByCategory } from "@/lib/groupByCategory";
@@ -48,6 +49,12 @@ export default function PublicCatalog() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [brandFilter, setBrandFilter] = useState<string>("all");
+  const [selected, setSelected] = useState<ProductDetail | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const openDetail = (p: ProductDetail) => {
+    setSelected(p);
+    setDetailOpen(true);
+  };
    type ViewMode = "two" | "list" | "table";
    const [isMobileView, setIsMobileView] = useState<boolean>(() =>
      typeof window !== "undefined" ? window.innerWidth < 640 : false,
@@ -322,6 +329,10 @@ export default function PublicCatalog() {
                       key={group.category}
                       title={group.category}
                       whatsappNumber={whatsappNumber}
+                      onSelect={(item) => {
+                        const full = group.items.find((p) => p.id === item.id);
+                        if (full) openDetail(full);
+                      }}
                       items={group.items.map((p) => ({
                         id: p.id,
                         code: p.code,
@@ -349,6 +360,7 @@ export default function PublicCatalog() {
                           whatsappNumber={whatsappNumber}
                           layout={isMobileView && viewMode === "list" ? "list" : "grid"}
                           compact={isMobileView && viewMode === "two"}
+                          onSelect={() => openDetail(p)}
                           product={{
                             code: p.code,
                             name: p.name,
@@ -370,6 +382,11 @@ export default function PublicCatalog() {
           </>
         )}
       </main>
+      <ProductDetailDialog
+        product={selected}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+      />
     </div>
   );
 }
