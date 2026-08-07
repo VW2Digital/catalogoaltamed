@@ -142,3 +142,20 @@ All colors MUST be HSL.
     box-shadow: var(--shadow-gold);
   }
 }
+
+@layer base {
+  :root {
+    --whatsapp: 142 70% 39%;
+    --whatsapp-foreground: 0 0% 100%;
+  }
+}
+
+@layer components {
+  .whatsapp-btn {
+    background: hsl(var(--whatsapp));
+    color: hsl(var(--whatsapp-foreground));
+  }
+  .whatsapp-btn:hover {
+    background: hsl(var(--whatsapp) / 0.9);
+  }
+}
