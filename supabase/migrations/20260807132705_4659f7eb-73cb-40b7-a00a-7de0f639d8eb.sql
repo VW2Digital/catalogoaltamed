@@ -1,0 +1,19 @@
+DROP VIEW IF EXISTS public.products_public;
+
+CREATE VIEW public.products_public
+WITH (security_invoker = on) AS
+SELECT id, catalog_id, code, name, category, brand, unit, price,
+       image_url, sort_order, is_visible, descricao_ativo,
+       created_at, updated_at
+FROM public.products
+WHERE is_visible = true;
+
+GRANT SELECT ON public.products_public TO anon, authenticated;
+
+CREATE POLICY "Anyone can view visible products"
+  ON public.products FOR SELECT TO anon
+  USING (is_visible = true);
+
+GRANT SELECT (id, catalog_id, code, name, category, brand, unit, price,
+              image_url, sort_order, is_visible, descricao_ativo,
+              created_at, updated_at) ON public.products TO anon;
