@@ -3,8 +3,9 @@ import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductTable } from "@/components/ProductTable";
 import { Loader2, Search, X } from "lucide-react";
-import { LayoutGrid, Rows3, Square } from "lucide-react";
+import { LayoutGrid, Rows3, Square, Table2 } from "lucide-react";
 import { groupByCategory } from "@/lib/groupByCategory";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 import { Input } from "@/components/ui/input";
@@ -47,7 +48,7 @@ export default function PublicCatalog() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [brandFilter, setBrandFilter] = useState<string>("all");
-  type ViewMode = "one" | "two" | "list";
+  type ViewMode = "one" | "two" | "list" | "table";
   const [isMobileView, setIsMobileView] = useState<boolean>(() =>
     typeof window !== "undefined" ? window.innerWidth < 640 : false,
   );
@@ -62,7 +63,9 @@ export default function PublicCatalog() {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     if (typeof window === "undefined") return "two";
     const saved = window.localStorage.getItem("publicCatalog.viewMode");
-    return saved === "one" || saved === "two" || saved === "list" ? saved : "two";
+    return saved === "one" || saved === "two" || saved === "list" || saved === "table"
+      ? saved
+      : "two";
   });
 
   useEffect(() => {
@@ -208,14 +211,14 @@ export default function PublicCatalog() {
                   <div
                     role="group"
                     aria-label="Modo de visualização"
-                    className="inline-flex shrink-0 rounded-full border bg-card p-1 shadow-sm sm:hidden"
+                    className="inline-flex shrink-0 rounded-full border bg-card p-1 shadow-sm"
                   >
                     <button
                       type="button"
                       onClick={() => setViewMode("one")}
                       aria-pressed={viewMode === "one"}
                       aria-label="Uma coluna"
-                      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors sm:hidden ${
                         viewMode === "one"
                           ? "bg-primary text-primary-foreground"
                           : "text-muted-foreground hover:text-foreground"
@@ -227,7 +230,7 @@ export default function PublicCatalog() {
                       type="button"
                       onClick={() => setViewMode("two")}
                       aria-pressed={viewMode === "two"}
-                      aria-label="Duas colunas"
+                      aria-label="Grade"
                       className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
                         viewMode === "two"
                           ? "bg-primary text-primary-foreground"
@@ -241,13 +244,26 @@ export default function PublicCatalog() {
                       onClick={() => setViewMode("list")}
                       aria-pressed={viewMode === "list"}
                       aria-label="Lista"
-                      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors sm:hidden ${
                         viewMode === "list"
                           ? "bg-primary text-primary-foreground"
                           : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       <Rows3 className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("table")}
+                      aria-pressed={viewMode === "table"}
+                      aria-label="Tabela"
+                      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                        viewMode === "table"
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Table2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -317,6 +333,22 @@ export default function PublicCatalog() {
                       a.category.localeCompare(b.category, "pt-BR");
                   })
                   .map((group) => (
+                  viewMode === "table" ? (
+                    <ProductTable
+                      key={group.category}
+                      title={group.category}
+                      whatsappNumber={whatsappNumber}
+                      items={group.items.map((p) => ({
+                        id: p.id,
+                        code: p.code,
+                        name: p.name,
+                        brand: p.brand,
+                        unit: p.unit,
+                        price: p.price,
+                        image_url: p.image_url,
+                      }))}
+                    />
+                  ) : (
                   <section key={group.category} aria-labelledby={`cat-${group.category}`}>
                     <h2
                       id={`cat-${group.category}`}
@@ -347,6 +379,7 @@ export default function PublicCatalog() {
                       ))}
                     </div>
                   </section>
+                  )
                 ))}
               </div>
             )}
