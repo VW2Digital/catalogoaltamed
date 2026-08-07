@@ -306,7 +306,7 @@ export default function PublicCatalog() {
                 </p>
               </div>
             ) : (
-              <div className="mt-10 space-y-14">
+              <div className="mt-6 space-y-6">
                 {groupByCategory(filteredProducts)
                   .sort((a, b) => {
                     const rank = (n: string) => {
@@ -341,7 +341,7 @@ export default function PublicCatalog() {
                       {group.category}
                     </h2>
                     <div
-                      className={`mt-6 grid gap-[7px] ${mobileGridClass} sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`}
+                      className={`mt-3 grid gap-[7px] ${mobileGridClass} sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`}
                     >
                       {group.items.map((p) => (
                         <ProductCard
