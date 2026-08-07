@@ -215,19 +215,6 @@ export default function PublicCatalog() {
                   >
                     <button
                       type="button"
-                      onClick={() => setViewMode("one")}
-                      aria-pressed={viewMode === "one"}
-                      aria-label="Uma coluna"
-                      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors sm:hidden ${
-                        viewMode === "one"
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <Square className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
                       onClick={() => setViewMode("two")}
                       aria-pressed={viewMode === "two"}
                       aria-label="Grade"
