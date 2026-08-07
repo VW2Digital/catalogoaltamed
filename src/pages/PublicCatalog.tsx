@@ -5,7 +5,7 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductTable } from "@/components/ProductTable";
 import { Loader2, Search, X } from "lucide-react";
-import { LayoutGrid, Rows3, Square, Table2 } from "lucide-react";
+import { LayoutGrid, Rows3, Table2 } from "lucide-react";
 import { groupByCategory } from "@/lib/groupByCategory";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 import { Input } from "@/components/ui/input";
@@ -48,34 +48,31 @@ export default function PublicCatalog() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [brandFilter, setBrandFilter] = useState<string>("all");
-  type ViewMode = "one" | "two" | "list" | "table";
-  const [isMobileView, setIsMobileView] = useState<boolean>(() =>
-    typeof window !== "undefined" ? window.innerWidth < 640 : false,
-  );
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mql = window.matchMedia("(max-width: 639px)");
-    const onChange = () => setIsMobileView(mql.matches);
-    onChange();
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    if (typeof window === "undefined") return "two";
-    const saved = window.localStorage.getItem("publicCatalog.viewMode");
-    return saved === "one" || saved === "two" || saved === "list" || saved === "table"
-      ? saved
-      : "two";
-  });
+   type ViewMode = "two" | "list" | "table";
+   const [isMobileView, setIsMobileView] = useState<boolean>(() =>
+     typeof window !== "undefined" ? window.innerWidth < 640 : false,
+   );
+   useEffect(() => {
+     if (typeof window === "undefined") return;
+     const mql = window.matchMedia("(max-width: 639px)");
+     const onChange = () => setIsMobileView(mql.matches);
+     onChange();
+     mql.addEventListener("change", onChange);
+     return () => mql.removeEventListener("change", onChange);
+   }, []);
+   const [viewMode, setViewMode] = useState<ViewMode>(() => {
+     if (typeof window === "undefined") return "two";
+     const saved = window.localStorage.getItem("publicCatalog.viewMode");
+     return saved === "two" || saved === "list" || saved === "table" ? saved : "two";
+   });
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("publicCatalog.viewMode", viewMode);
-    }
-  }, [viewMode]);
+   useEffect(() => {
+     if (typeof window !== "undefined") {
+       window.localStorage.setItem("publicCatalog.viewMode", viewMode);
+     }
+   }, [viewMode]);
 
-  const mobileGridClass =
-    viewMode === "one" || viewMode === "list" ? "grid-cols-1" : "grid-cols-2";
+   const mobileGridClass = viewMode === "list" ? "grid-cols-1" : "grid-cols-2";
 
   const hasActiveFilters =
     search.trim() !== "" || categoryFilter !== "all" || brandFilter !== "all";
@@ -213,19 +210,6 @@ export default function PublicCatalog() {
                     aria-label="Modo de visualização"
                     className="inline-flex shrink-0 rounded-full border bg-card p-1 shadow-sm"
                   >
-                    <button
-                      type="button"
-                      onClick={() => setViewMode("one")}
-                      aria-pressed={viewMode === "one"}
-                      aria-label="Uma coluna"
-                      className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors sm:hidden ${
-                        viewMode === "one"
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <Square className="h-4 w-4" />
-                    </button>
                     <button
                       type="button"
                       onClick={() => setViewMode("two")}
