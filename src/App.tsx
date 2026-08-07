@@ -5,12 +5,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeSettingsProvider } from "@/hooks/useThemeSettings";
+import { CartProvider } from "@/hooks/useCart";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Auth from "./pages/Auth.tsx";
 import PublicCatalog from "./pages/PublicCatalog.tsx";
+import Bag from "./pages/Bag.tsx";
 import CatalogsList from "./pages/admin/CatalogsList.tsx";
 import CatalogDetail from "./pages/admin/CatalogDetail.tsx";
 import Reports from "./pages/admin/Reports.tsx";
@@ -36,6 +38,7 @@ const AppInner = () => {
       <Route path="/" element={<Index />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/c/:slug" element={<PublicCatalog />} />
+      <Route path="/sacola" element={<Bag />} />
       <Route
         path="/admin"
         element={
@@ -82,7 +85,9 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <ThemeSettingsProvider>
-            <AppInner />
+            <CartProvider>
+              <AppInner />
+            </CartProvider>
           </ThemeSettingsProvider>
         </AuthProvider>
       </BrowserRouter>
