@@ -4,7 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, ExternalLink, Eye, EyeOff, Loader2, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, ExternalLink, Eye, EyeOff, Loader2, Pencil, Plus, Search, Trash2, Upload, X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
