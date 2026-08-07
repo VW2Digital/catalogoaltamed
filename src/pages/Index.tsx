@@ -20,14 +20,24 @@ const Index = () => {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("catalogs")
-        .select("*, products(count)")
-        .order("created_at", { ascending: false });
+      const [{ data }, { data: prods }] = await Promise.all([
+        supabase
+          .from("catalogs")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("products_public")
+          .select("catalog_id")
+          .eq("is_visible", true),
+      ]);
+      const counts = new Map<string, number>();
+      (prods ?? []).forEach((p: any) => {
+        counts.set(p.catalog_id, (counts.get(p.catalog_id) ?? 0) + 1);
+      });
       setCatalogs(
         (data ?? []).map((c: any) => ({
           ...c,
-          product_count: c.products?.[0]?.count ?? 0,
+          product_count: counts.get(c.id) ?? 0,
         }))
       );
       setLoading(false);
