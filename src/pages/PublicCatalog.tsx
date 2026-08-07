@@ -48,34 +48,31 @@ export default function PublicCatalog() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [brandFilter, setBrandFilter] = useState<string>("all");
-  type ViewMode = "one" | "two" | "list" | "table";
-  const [isMobileView, setIsMobileView] = useState<boolean>(() =>
-    typeof window !== "undefined" ? window.innerWidth < 640 : false,
-  );
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mql = window.matchMedia("(max-width: 639px)");
-    const onChange = () => setIsMobileView(mql.matches);
-    onChange();
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    if (typeof window === "undefined") return "two";
-    const saved = window.localStorage.getItem("publicCatalog.viewMode");
-    return saved === "one" || saved === "two" || saved === "list" || saved === "table"
-      ? saved
-      : "two";
-  });
+   type ViewMode = "two" | "list" | "table";
+   const [isMobileView, setIsMobileView] = useState<boolean>(() =>
+     typeof window !== "undefined" ? window.innerWidth < 640 : false,
+   );
+   useEffect(() => {
+     if (typeof window === "undefined") return;
+     const mql = window.matchMedia("(max-width: 639px)");
+     const onChange = () => setIsMobileView(mql.matches);
+     onChange();
+     mql.addEventListener("change", onChange);
+     return () => mql.removeEventListener("change", onChange);
+   }, []);
+   const [viewMode, setViewMode] = useState<ViewMode>(() => {
+     if (typeof window === "undefined") return "two";
+     const saved = window.localStorage.getItem("publicCatalog.viewMode");
+     return saved === "two" || saved === "list" || saved === "table" ? saved : "two";
+   });
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("publicCatalog.viewMode", viewMode);
-    }
-  }, [viewMode]);
+   useEffect(() => {
+     if (typeof window !== "undefined") {
+       window.localStorage.setItem("publicCatalog.viewMode", viewMode);
+     }
+   }, [viewMode]);
 
-  const mobileGridClass =
-    viewMode === "one" || viewMode === "list" ? "grid-cols-1" : "grid-cols-2";
+   const mobileGridClass = viewMode === "list" ? "grid-cols-1" : "grid-cols-2";
 
   const hasActiveFilters =
     search.trim() !== "" || categoryFilter !== "all" || brandFilter !== "all";
