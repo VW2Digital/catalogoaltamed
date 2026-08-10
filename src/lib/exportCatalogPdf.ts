@@ -1,0 +1,209 @@
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { formatBRL } from "@/lib/format";
+
+export type ExportProduct = {
+  id: string;
+  code: string;
+  name: string;
+  category: string | null;
+  brand: string | null;
+  unit: string;
+  price: number | string;
+  image_url: string | null;
+};
+
+export type ExportGroup = { category: string; items: ExportProduct[] };
+
+async function loadImage(url: string): Promise<{ data: string; w: number; h: number } | null> {
+  try {
+    const res = await fetch(url, { mode: "cors" });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    const data = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+    const dims = await new Promise<{ w: number; h: number }>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+      img.onerror = reject;
+      img.src = data;
+    });
+    return { data, ...dims };
+  } catch {
+    return null;
+  }
+}
+
+function priceText(price: number | string) {
+  return Number(price) > 0 ? formatBRL(price) : "-";
+}
+
+function header(doc: jsPDF, title: string, subtitle?: string) {
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text(title, 40, 42);
+  if (subtitle) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(120);
+    doc.text(subtitle, 40, 58);
+    doc.setTextColor(0);
+  }
+}
+
+function footer(doc: jsPDF) {
+  const pages = doc.getNumberOfPages();
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(140);
+    doc.text(
+      `Página ${i} de ${pages}`,
+      doc.internal.pageSize.getWidth() - 40,
+      doc.internal.pageSize.getHeight() - 20,
+      { align: "right" },
+    );
+    doc.setTextColor(0);
+  }
+}
+
+export async function exportCatalogTablePdf(
+  groups: ExportGroup[],
+  opts: { catalogName: string; fileName: string },
+) {
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  header(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
+  let startY = 76;
+
+  groups.forEach((g) => {
+    autoTable(doc, {
+      startY,
+      head: [[g.category, "", "", "", ""]],
+      body: [],
+      theme: "plain",
+      headStyles: {
+        fillColor: [30, 30, 30],
+        textColor: 255,
+        fontStyle: "bold",
+        halign: "center",
+        fontSize: 10,
+      },
+    });
+    autoTable(doc, {
+      // @ts-expect-error autotable augments doc
+      startY: doc.lastAutoTable.finalY,
+      head: [["Cód.", "Produtos", "Marca", "Und", "Vlr. Caixa"]],
+      body: g.items.map((p) => [
+        p.code,
+        p.name,
+        p.brand ?? "-",
+        p.unit,
+        priceText(p.price),
+      ]),
+      styles: { fontSize: 8, cellPadding: 4 },
+      headStyles: { fillColor: [240, 240, 240], textColor: 40, fontStyle: "bold" },
+      columnStyles: {
+        0: { halign: "center", cellWidth: 50 },
+        2: { halign: "center", cellWidth: 80 },
+        3: { halign: "center", cellWidth: 45 },
+        4: { halign: "right", cellWidth: 75, fontStyle: "bold" },
+      },
+      margin: { left: 40, right: 40 },
+    });
+    // @ts-expect-error autotable augments doc
+    startY = doc.lastAutoTable.finalY + 16;
+  });
+
+  footer(doc);
+  doc.save(opts.fileName);
+}
+
+export async function exportCatalogGridPdf(
+  groups: ExportGroup[],
+  opts: { catalogName: string; fileName: string },
+) {
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 40;
+  const cols = 3;
+  const gap = 14;
+  const cardW = (pageW - margin * 2 - gap * (cols - 1)) / cols;
+  const imgH = cardW * 0.75;
+  const cardH = imgH + 62;
+
+  header(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
+  let y = 76;
+
+  const all = groups.flatMap((g) => g.items);
+  const images = new Map<string, { data: string; w: number; h: number } | null>();
+  await Promise.all(
+    all.map(async (p) => {
+      if (p.image_url && !images.has(p.image_url)) {
+        images.set(p.image_url, await loadImage(p.image_url));
+      }
+    }),
+  );
+
+  for (const g of groups) {
+    if (y + 30 + cardH > pageH - margin) {
+      doc.addPage();
+      y = margin;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text(g.category, margin, y + 12);
+    y += 24;
+
+    for (let i = 0; i < g.items.length; i += cols) {
+      if (y + cardH > pageH - margin) {
+        doc.addPage();
+        y = margin;
+      }
+      const row = g.items.slice(i, i + cols);
+      row.forEach((p, idx) => {
+        const x = margin + idx * (cardW + gap);
+        doc.setDrawColor(220);
+        doc.setFillColor(252, 252, 252);
+        doc.roundedRect(x, y, cardW, cardH, 6, 6, "FD");
+
+        const img = p.image_url ? images.get(p.image_url) : null;
+        if (img) {
+          const ratio = Math.min(cardW / img.w, imgH / img.h);
+          const w = img.w * ratio * 0.92;
+          const h = img.h * ratio * 0.92;
+          try {
+            doc.addImage(img.data, x + (cardW - w) / 2, y + (imgH - h) / 2 + 4, w, h);
+          } catch {
+            /* ignore */
+          }
+        }
+
+        let ty = y + imgH + 16;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        const nameLines = doc.splitTextToSize(p.name, cardW - 16).slice(0, 2);
+        doc.text(nameLines, x + 8, ty);
+        ty += nameLines.length * 10;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7);
+        doc.setTextColor(130);
+        doc.text(`${p.code}${p.brand ? " · " + p.brand : ""} · ${p.unit}`, x + 8, ty);
+        doc.setTextColor(0);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.text(priceText(p.price), x + 8, ty + 14);
+      });
+      y += cardH + gap;
+    }
+    y += 4;
+  }
+
+  footer(doc);
+  doc.save(opts.fileName);
+}
