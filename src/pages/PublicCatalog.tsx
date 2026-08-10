@@ -181,6 +181,54 @@ export default function PublicCatalog() {
     });
   }, [products, search, categoryFilter, brandFilter]);
 
+  const sortedGroups = useMemo(() => {
+    const rank = (n: string) => {
+      const i = categoryOrder.indexOf(n);
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+    };
+    return groupByCategory(filteredProducts).sort(
+      (a, b) =>
+        rank(a.category) - rank(b.category) ||
+        a.category.localeCompare(b.category, "pt-BR"),
+    );
+  }, [filteredProducts, categoryOrder]);
+
+  const handleExportPdf = async () => {
+    if (!catalog || exporting) return;
+    setExporting(true);
+    try {
+      const groups = sortedGroups.map((g) => ({
+        category: g.category,
+        items: g.items.map((p) => ({
+          id: p.id,
+          code: p.code,
+          name: p.name,
+          category: p.category,
+          brand: p.brand,
+          unit: p.unit,
+          price: p.price,
+          image_url: p.image_url,
+        })),
+      }));
+      const fileName = `${slugify(catalog.name) || "catalogo"}-${
+        viewMode === "table" ? "tabela" : "grade"
+      }.pdf`;
+      if (viewMode === "table") {
+        await exportCatalogTablePdf(groups, { catalogName: catalog.name, fileName });
+      } else {
+        await exportCatalogGridPdf(groups, { catalogName: catalog.name, fileName });
+      }
+    } catch (e) {
+      toast({
+        title: "Erro ao exportar",
+        description: "Não foi possível gerar o PDF. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-page">
       <PublicHeader backTo="/" />
