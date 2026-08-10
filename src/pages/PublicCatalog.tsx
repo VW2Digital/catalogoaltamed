@@ -5,12 +5,15 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductTable } from "@/components/ProductTable";
 import { ProductDetailDialog, type ProductDetail } from "@/components/ProductDetailDialog";
-import { Loader2, Search, X } from "lucide-react";
+import { Loader2, Search, X, FileDown } from "lucide-react";
 import { LayoutGrid, Rows3, Table2 } from "lucide-react";
 import { groupByCategory } from "@/lib/groupByCategory";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { slugify } from "@/lib/format";
+import { exportCatalogGridPdf, exportCatalogTablePdf } from "@/lib/exportCatalogPdf";
+import { toast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -51,6 +54,7 @@ export default function PublicCatalog() {
   const [brandFilter, setBrandFilter] = useState<string>("all");
   const [selected, setSelected] = useState<ProductDetail | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const openDetail = (p: ProductDetail) => {
     setSelected(p);
     setDetailOpen(true);
