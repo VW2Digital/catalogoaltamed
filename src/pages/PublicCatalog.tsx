@@ -5,12 +5,15 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductTable } from "@/components/ProductTable";
 import { ProductDetailDialog, type ProductDetail } from "@/components/ProductDetailDialog";
-import { Loader2, Search, X } from "lucide-react";
+import { Loader2, Search, X, FileDown } from "lucide-react";
 import { LayoutGrid, Rows3, Table2 } from "lucide-react";
 import { groupByCategory } from "@/lib/groupByCategory";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { slugify } from "@/lib/format";
+import { exportCatalogGridPdf, exportCatalogTablePdf } from "@/lib/exportCatalogPdf";
+import { toast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -51,6 +54,7 @@ export default function PublicCatalog() {
   const [brandFilter, setBrandFilter] = useState<string>("all");
   const [selected, setSelected] = useState<ProductDetail | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const openDetail = (p: ProductDetail) => {
     setSelected(p);
     setDetailOpen(true);
@@ -177,6 +181,54 @@ export default function PublicCatalog() {
     });
   }, [products, search, categoryFilter, brandFilter]);
 
+  const sortedGroups = useMemo(() => {
+    const rank = (n: string) => {
+      const i = categoryOrder.indexOf(n);
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+    };
+    return groupByCategory(filteredProducts).sort(
+      (a, b) =>
+        rank(a.category) - rank(b.category) ||
+        a.category.localeCompare(b.category, "pt-BR"),
+    );
+  }, [filteredProducts, categoryOrder]);
+
+  const handleExportPdf = async () => {
+    if (!catalog || exporting) return;
+    setExporting(true);
+    try {
+      const groups = sortedGroups.map((g) => ({
+        category: g.category,
+        items: g.items.map((p) => ({
+          id: p.id,
+          code: p.code,
+          name: p.name,
+          category: p.category,
+          brand: p.brand,
+          unit: p.unit,
+          price: p.price,
+          image_url: p.image_url,
+        })),
+      }));
+      const fileName = `${slugify(catalog.name) || "catalogo"}-${
+        viewMode === "table" ? "tabela" : "grade"
+      }.pdf`;
+      if (viewMode === "table") {
+        await exportCatalogTablePdf(groups, { catalogName: catalog.name, fileName });
+      } else {
+        await exportCatalogGridPdf(groups, { catalogName: catalog.name, fileName });
+      }
+    } catch (e) {
+      toast({
+        title: "Erro ao exportar",
+        description: "Não foi possível gerar o PDF. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-page">
       <PublicHeader backTo="/" />
@@ -297,6 +349,20 @@ export default function PublicCatalog() {
                     Limpar filtros
                   </Button>
                 )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleExportPdf}
+                  disabled={exporting || filteredProducts.length === 0}
+                  className="w-full shrink-0 sm:w-auto"
+                >
+                  {exporting ? (
+                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileDown className="mr-1.5 h-4 w-4" />
+                  )}
+                  Exportar PDF
+                </Button>
               </div>
             )}
 
@@ -314,16 +380,7 @@ export default function PublicCatalog() {
               </div>
             ) : (
               <div className="mt-6 space-y-6">
-                {groupByCategory(filteredProducts)
-                  .sort((a, b) => {
-                    const rank = (n: string) => {
-                      const i = categoryOrder.indexOf(n);
-                      return i === -1 ? Number.MAX_SAFE_INTEGER : i;
-                    };
-                    return rank(a.category) - rank(b.category) ||
-                      a.category.localeCompare(b.category, "pt-BR");
-                  })
-                  .map((group) => (
+                {sortedGroups.map((group) => (
                   viewMode === "table" ? (
                     <ProductTable
                       key={group.category}
