@@ -349,6 +349,20 @@ export default function PublicCatalog() {
                     Limpar filtros
                   </Button>
                 )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleExportPdf}
+                  disabled={exporting || filteredProducts.length === 0}
+                  className="w-full shrink-0 sm:w-auto"
+                >
+                  {exporting ? (
+                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileDown className="mr-1.5 h-4 w-4" />
+                  )}
+                  Exportar PDF
+                </Button>
               </div>
             )}
 
@@ -366,16 +380,7 @@ export default function PublicCatalog() {
               </div>
             ) : (
               <div className="mt-6 space-y-6">
-                {groupByCategory(filteredProducts)
-                  .sort((a, b) => {
-                    const rank = (n: string) => {
-                      const i = categoryOrder.indexOf(n);
-                      return i === -1 ? Number.MAX_SAFE_INTEGER : i;
-                    };
-                    return rank(a.category) - rank(b.category) ||
-                      a.category.localeCompare(b.category, "pt-BR");
-                  })
-                  .map((group) => (
+                {sortedGroups.map((group) => (
                   viewMode === "table" ? (
                     <ProductTable
                       key={group.category}
