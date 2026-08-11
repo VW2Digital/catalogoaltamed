@@ -124,8 +124,7 @@ export async function exportCatalogTablePdf(
   opts: { catalogName: string; fileName: string },
 ) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
-  header(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
-  let startY = 92;
+  let startY = await coverHeader(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
 
   groups.forEach((g) => {
     const pageH = doc.internal.pageSize.getHeight();
@@ -195,8 +194,7 @@ export async function exportCatalogGridPdf(
   const imgH = cardW * 0.75;
   const cardH = imgH + 62;
 
-  header(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
-  let y = 92;
+  let y = await coverHeader(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
 
   const all = groups.flatMap((g) => g.items);
   const images = new Map<string, { data: string; w: number; h: number } | null>();
