@@ -177,7 +177,7 @@ export async function exportCatalogGridPdf(
   const cardH = imgH + 62;
 
   header(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
-  let y = 76;
+  let y = 92;
 
   const all = groups.flatMap((g) => g.items);
   const images = new Map<string, { data: string; w: number; h: number } | null>();
@@ -194,10 +194,7 @@ export async function exportCatalogGridPdf(
       doc.addPage();
       y = margin;
     }
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text(g.category, margin, y + 12);
-    y += 24;
+    y = categoryPill(doc, g.category, y) + 12;
 
     for (let i = 0; i < g.items.length; i += cols) {
       if (y + cardH > pageH - margin) {
@@ -207,8 +204,8 @@ export async function exportCatalogGridPdf(
       const row = g.items.slice(i, i + cols);
       row.forEach((p, idx) => {
         const x = margin + idx * (cardW + gap);
-        doc.setDrawColor(220);
-        doc.setFillColor(252, 252, 252);
+        doc.setDrawColor(...BORDER);
+        doc.setFillColor(255, 253, 250);
         doc.roundedRect(x, y, cardW, cardH, 6, 6, "FD");
 
         const img = p.image_url ? images.get(p.image_url) : null;
@@ -231,12 +228,13 @@ export async function exportCatalogGridPdf(
         ty += nameLines.length * 10;
         doc.setFont("helvetica", "normal");
         doc.setFontSize(7);
-        doc.setTextColor(130);
+        doc.setTextColor(150, 120, 90);
         doc.text(`${p.code}${p.brand ? " · " + p.brand : ""} · ${p.unit}`, x + 8, ty);
-        doc.setTextColor(0);
+        doc.setTextColor(...BRAND_DARK);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9);
         doc.text(priceText(p.price), x + 8, ty + 14);
+        doc.setTextColor(0);
       });
       y += cardH + gap;
     }
