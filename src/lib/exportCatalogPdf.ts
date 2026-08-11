@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { formatBRL } from "@/lib/format";
+import pdfHeaderAsset from "@/assets/pdf-header.png.asset.json";
 
 export type ExportProduct = {
   id: string;
@@ -47,38 +48,56 @@ const BRAND_DARK: [number, number, number] = [92, 56, 22];
 const BRAND_LIGHT: [number, number, number] = [250, 243, 233];
 const BORDER: [number, number, number] = [223, 186, 145];
 
-function header(doc: jsPDF, title: string, subtitle?: string) {
+/**
+ * Draws the AltaMed banner (logo + commercial info) on the FIRST page only.
+ * Returns the Y position right below the header.
+ */
+async function coverHeader(doc: jsPDF, title: string, subtitle?: string) {
   const pageW = doc.internal.pageSize.getWidth();
-  doc.setFillColor(...BRAND_LIGHT);
-  doc.rect(0, 0, pageW, 70, "F");
-  doc.setDrawColor(...BRAND);
-  doc.setLineWidth(2);
-  doc.line(0, 70, pageW, 70);
-  doc.setLineWidth(1);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.setTextColor(...BRAND_DARK);
-  doc.text(title.toUpperCase(), 40, 40);
+  const img = await loadImage(pdfHeaderAsset.url);
+  let y = 0;
+  if (img) {
+    const h = (pageW * img.h) / img.w;
+    try {
+      doc.addImage(img.data, 0, 0, pageW, h);
+      y = h;
+    } catch {
+      y = 0;
+    }
+  }
+  if (!y) {
+    doc.setFillColor(...BRAND_LIGHT);
+    doc.rect(0, 0, pageW, 70, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(...BRAND_DARK);
+    doc.text(title.toUpperCase(), 40, 42);
+    doc.setTextColor(0);
+    y = 70;
+  }
   if (subtitle) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(150, 120, 90);
-    doc.text(subtitle, 40, 56);
+    doc.text(subtitle, pageW - 40, y + 14, { align: "right" });
+    doc.setTextColor(0);
+    y += 18;
   }
-  doc.setTextColor(0);
+  return y + 10;
 }
 
 function categoryPill(doc: jsPDF, label: string, y: number) {
   const pageW = doc.internal.pageSize.getWidth();
-  const w = Math.max(180, doc.getTextWidth(label.toUpperCase()) * 1.6 + 60);
+  const text = label.toUpperCase();
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  const w = Math.max(180, doc.getTextWidth(text) + 60);
   const h = 26;
   const x = (pageW - w) / 2;
   doc.setFillColor(...BRAND);
   doc.roundedRect(x, y, w, h, 8, 8, "F");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
   doc.setTextColor(255, 255, 255);
-  doc.text(label.toUpperCase(), pageW / 2, y + 18, { align: "center" });
+  doc.text(text, pageW / 2, y + h / 2, { align: "center", baseline: "middle" });
   doc.setTextColor(0);
   return y + h;
 }
@@ -105,8 +124,7 @@ export async function exportCatalogTablePdf(
   opts: { catalogName: string; fileName: string },
 ) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
-  header(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
-  let startY = 92;
+  let startY = await coverHeader(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
 
   groups.forEach((g) => {
     const pageH = doc.internal.pageSize.getHeight();
@@ -176,8 +194,7 @@ export async function exportCatalogGridPdf(
   const imgH = cardW * 0.75;
   const cardH = imgH + 62;
 
-  header(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
-  let y = 92;
+  let y = await coverHeader(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
 
   const all = groups.flatMap((g) => g.items);
   const images = new Map<string, { data: string; w: number; h: number } | null>();
