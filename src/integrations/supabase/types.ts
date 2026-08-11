@@ -263,6 +263,7 @@ export type Database = {
           is_visible: boolean | null
           name: string | null
           price: number | null
+          qtd: number | null
           sort_order: number | null
           unit: string | null
           updated_at: string | null
@@ -279,6 +280,7 @@ export type Database = {
           is_visible?: boolean | null
           name?: string | null
           price?: number | null
+          qtd?: number | null
           sort_order?: number | null
           unit?: string | null
           updated_at?: string | null
@@ -295,6 +297,7 @@ export type Database = {
           is_visible?: boolean | null
           name?: string | null
           price?: number | null
+          qtd?: number | null
           sort_order?: number | null
           unit?: string | null
           updated_at?: string | null
