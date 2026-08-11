@@ -42,17 +42,45 @@ function priceText(price: number | string) {
   return Number(price) > 0 ? formatBRL(price) : "-";
 }
 
+const BRAND: [number, number, number] = [166, 106, 46];
+const BRAND_DARK: [number, number, number] = [92, 56, 22];
+const BRAND_LIGHT: [number, number, number] = [250, 243, 233];
+const BORDER: [number, number, number] = [223, 186, 145];
+
 function header(doc: jsPDF, title: string, subtitle?: string) {
+  const pageW = doc.internal.pageSize.getWidth();
+  doc.setFillColor(...BRAND_LIGHT);
+  doc.rect(0, 0, pageW, 70, "F");
+  doc.setDrawColor(...BRAND);
+  doc.setLineWidth(2);
+  doc.line(0, 70, pageW, 70);
+  doc.setLineWidth(1);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
-  doc.text(title, 40, 42);
+  doc.setTextColor(...BRAND_DARK);
+  doc.text(title.toUpperCase(), 40, 40);
   if (subtitle) {
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(120);
-    doc.text(subtitle, 40, 58);
-    doc.setTextColor(0);
+    doc.setFontSize(9);
+    doc.setTextColor(150, 120, 90);
+    doc.text(subtitle, 40, 56);
   }
+  doc.setTextColor(0);
+}
+
+function categoryPill(doc: jsPDF, label: string, y: number) {
+  const pageW = doc.internal.pageSize.getWidth();
+  const w = Math.max(180, doc.getTextWidth(label.toUpperCase()) * 1.6 + 60);
+  const h = 26;
+  const x = (pageW - w) / 2;
+  doc.setFillColor(...BRAND);
+  doc.roundedRect(x, y, w, h, 8, 8, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(255, 255, 255);
+  doc.text(label.toUpperCase(), pageW / 2, y + 18, { align: "center" });
+  doc.setTextColor(0);
+  return y + h;
 }
 
 function footer(doc: jsPDF) {
@@ -78,45 +106,56 @@ export async function exportCatalogTablePdf(
 ) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   header(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
-  let startY = 76;
+  let startY = 92;
 
   groups.forEach((g) => {
+    const pageH = doc.internal.pageSize.getHeight();
+    if (startY + 90 > pageH - 50) {
+      doc.addPage();
+      startY = 60;
+    }
+    const afterPill = categoryPill(doc, g.category, startY);
+
     autoTable(doc, {
-      startY,
-      head: [[g.category, "", "", "", ""]],
-      body: [],
-      theme: "plain",
-      headStyles: {
-        fillColor: [30, 30, 30],
-        textColor: 255,
-        fontStyle: "bold",
-        halign: "center",
-        fontSize: 10,
-      },
-    });
-    autoTable(doc, {
-      // @ts-expect-error autotable augments doc
-      startY: doc.lastAutoTable.finalY,
-      head: [["Cód.", "Produtos", "Marca", "Und", "Vlr. Caixa"]],
+      startY: afterPill - 6,
+      head: [["CÓD.", "PRODUTOS", "MARCA", "UND", "VLR. CAIXA"]],
       body: g.items.map((p) => [
         p.code,
-        p.name,
-        p.brand ?? "-",
-        p.unit,
+        p.name.toUpperCase(),
+        (p.brand ?? "-").toUpperCase(),
+        p.unit.toUpperCase(),
         priceText(p.price),
       ]),
-      styles: { fontSize: 8, cellPadding: 4 },
-      headStyles: { fillColor: [240, 240, 240], textColor: 40, fontStyle: "bold" },
-      columnStyles: {
-        0: { halign: "center", cellWidth: 50 },
-        2: { halign: "center", cellWidth: 80 },
-        3: { halign: "center", cellWidth: 45 },
-        4: { halign: "right", cellWidth: 75, fontStyle: "bold" },
+      theme: "grid",
+      styles: {
+        fontSize: 8,
+        cellPadding: 5,
+        lineColor: BORDER,
+        lineWidth: 0.6,
+        textColor: [40, 30, 20],
+        valign: "middle",
       },
-      margin: { left: 40, right: 40 },
+      headStyles: {
+        fillColor: BRAND_LIGHT,
+        textColor: BRAND_DARK,
+        fontStyle: "bold",
+        fontSize: 10,
+        halign: "center",
+        lineColor: BORDER,
+        lineWidth: 0.6,
+      },
+      alternateRowStyles: { fillColor: [253, 250, 246] },
+      columnStyles: {
+        0: { halign: "center", cellWidth: 50, fontSize: 7 },
+        1: { fontStyle: "bold" },
+        2: { halign: "center", cellWidth: 85, fontStyle: "bold" },
+        3: { halign: "center", cellWidth: 55, fontStyle: "bold" },
+        4: { halign: "center", cellWidth: 80, fontStyle: "bold" },
+      },
+      margin: { left: 40, right: 40, top: 60 },
     });
     // @ts-expect-error autotable augments doc
-    startY = doc.lastAutoTable.finalY + 16;
+    startY = doc.lastAutoTable.finalY + 26;
   });
 
   footer(doc);
@@ -138,7 +177,7 @@ export async function exportCatalogGridPdf(
   const cardH = imgH + 62;
 
   header(doc, opts.catalogName, new Date().toLocaleDateString("pt-BR"));
-  let y = 76;
+  let y = 92;
 
   const all = groups.flatMap((g) => g.items);
   const images = new Map<string, { data: string; w: number; h: number } | null>();
@@ -155,10 +194,7 @@ export async function exportCatalogGridPdf(
       doc.addPage();
       y = margin;
     }
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text(g.category, margin, y + 12);
-    y += 24;
+    y = categoryPill(doc, g.category, y) + 12;
 
     for (let i = 0; i < g.items.length; i += cols) {
       if (y + cardH > pageH - margin) {
@@ -168,8 +204,8 @@ export async function exportCatalogGridPdf(
       const row = g.items.slice(i, i + cols);
       row.forEach((p, idx) => {
         const x = margin + idx * (cardW + gap);
-        doc.setDrawColor(220);
-        doc.setFillColor(252, 252, 252);
+        doc.setDrawColor(...BORDER);
+        doc.setFillColor(255, 253, 250);
         doc.roundedRect(x, y, cardW, cardH, 6, 6, "FD");
 
         const img = p.image_url ? images.get(p.image_url) : null;
@@ -192,12 +228,13 @@ export async function exportCatalogGridPdf(
         ty += nameLines.length * 10;
         doc.setFont("helvetica", "normal");
         doc.setFontSize(7);
-        doc.setTextColor(130);
+        doc.setTextColor(150, 120, 90);
         doc.text(`${p.code}${p.brand ? " · " + p.brand : ""} · ${p.unit}`, x + 8, ty);
-        doc.setTextColor(0);
+        doc.setTextColor(...BRAND_DARK);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9);
         doc.text(priceText(p.price), x + 8, ty + 14);
+        doc.setTextColor(0);
       });
       y += cardH + gap;
     }
