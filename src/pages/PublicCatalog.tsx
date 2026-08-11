@@ -207,6 +207,7 @@ export default function PublicCatalog() {
           brand: p.brand,
           unit: p.unit,
           price: p.price,
+          qtd: (p as { qtd?: number | null }).qtd,
           image_url: p.image_url,
         })),
       }));
