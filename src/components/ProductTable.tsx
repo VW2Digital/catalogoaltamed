@@ -9,8 +9,16 @@ export type ProductTableItem = {
   brand?: string | null;
   unit: string;
   price: number | string;
+  qtd?: number | null;
   image_url?: string | null;
 };
+
+function unitPrice(price: number | string, qtd?: number | null) {
+  const total = Number(price);
+  const q = Number(qtd);
+  if (!(total > 0) || !(q > 0)) return "-";
+  return formatBRL(total / q);
+}
 
 type Props = {
   title: string;
@@ -28,7 +36,7 @@ export function ProductTable({ title, items, whatsappNumber, onSelect }: Props) 
         </h3>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] border-collapse text-left">
+        <table className="w-full min-w-[720px] border-collapse text-left">
           <thead>
             <tr className="border-b border-border bg-muted/40 text-[0.7rem] uppercase tracking-wide text-muted-foreground sm:text-xs">
               <th className="px-3 py-2 text-center font-bold">Cód.</th>
@@ -36,6 +44,7 @@ export function ProductTable({ title, items, whatsappNumber, onSelect }: Props) 
               <th className="px-3 py-2 text-center font-bold">Marca</th>
               <th className="px-3 py-2 text-center font-bold">Und</th>
               <th className="px-3 py-2 text-center font-bold">Vlr. Caixa</th>
+              <th className="px-3 py-2 text-center font-bold">Vlr. Unit.</th>
               <th className="px-3 py-2 text-center font-bold">Consultar</th>
             </tr>
           </thead>
@@ -56,6 +65,9 @@ export function ProductTable({ title, items, whatsappNumber, onSelect }: Props) 
                   <td className="px-3 py-2 text-center text-foreground/80">{p.unit}</td>
                   <td className="whitespace-nowrap px-3 py-2 text-center font-bold text-primary">
                     {Number(p.price) > 0 ? formatBRL(p.price) : "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-2 text-center font-semibold text-foreground/80">
+                    {unitPrice(p.price, p.qtd)}
                   </td>
                   <td className="px-3 py-2 text-center">
                     {waLink ? (

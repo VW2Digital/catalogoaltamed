@@ -11,6 +11,7 @@ export type ExportProduct = {
   brand: string | null;
   unit: string;
   price: number | string;
+  qtd?: number | null;
   image_url: string | null;
 };
 
@@ -41,6 +42,13 @@ async function loadImage(url: string): Promise<{ data: string; w: number; h: num
 
 function priceText(price: number | string) {
   return Number(price) > 0 ? formatBRL(price) : "-";
+}
+
+function unitPriceText(price: number | string, qtd?: number | null) {
+  const total = Number(price);
+  const q = Number(qtd);
+  if (!(total > 0) || !(q > 0)) return "-";
+  return formatBRL(total / q);
 }
 
 const BRAND: [number, number, number] = [166, 106, 46];
@@ -136,13 +144,14 @@ export async function exportCatalogTablePdf(
 
     autoTable(doc, {
       startY: afterPill - 6,
-      head: [["CÓD.", "PRODUTOS", "MARCA", "UND", "VLR. CAIXA"]],
+      head: [["CÓD.", "PRODUTOS", "MARCA", "UND", "VLR. CAIXA", "VLR. UNIT."]],
       body: g.items.map((p) => [
         p.code,
         p.name.toUpperCase(),
         (p.brand ?? "-").toUpperCase(),
         p.unit.toUpperCase(),
         priceText(p.price),
+        unitPriceText(p.price, p.qtd),
       ]),
       theme: "grid",
       styles: {
@@ -164,11 +173,12 @@ export async function exportCatalogTablePdf(
       },
       alternateRowStyles: { fillColor: [253, 250, 246] },
       columnStyles: {
-        0: { halign: "center", cellWidth: 50, fontSize: 7 },
+        0: { halign: "center", cellWidth: 46, fontSize: 7 },
         1: { fontStyle: "bold" },
-        2: { halign: "center", cellWidth: 85, fontStyle: "bold" },
-        3: { halign: "center", cellWidth: 55, fontStyle: "bold" },
-        4: { halign: "center", cellWidth: 80, fontStyle: "bold" },
+        2: { halign: "center", cellWidth: 75, fontStyle: "bold" },
+        3: { halign: "center", cellWidth: 45, fontStyle: "bold" },
+        4: { halign: "center", cellWidth: 72, fontStyle: "bold" },
+        5: { halign: "center", cellWidth: 72, fontStyle: "bold" },
       },
       margin: { left: 40, right: 40, top: 60 },
     });
