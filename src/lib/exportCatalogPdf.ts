@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { formatBRL } from "@/lib/format";
+import pdfHeaderAsset from "@/assets/pdf-header.png.asset.json";
 
 export type ExportProduct = {
   id: string;
