@@ -169,7 +169,7 @@ export default function CatalogDetail() {
 
       <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             {catalog.name}
           </h1>
           {catalog.description && (
@@ -245,7 +245,7 @@ export default function CatalogDetail() {
         )}
         {products.length === 0 ? (
           <div className="rounded-2xl border border-dashed bg-card/50 p-12 text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            <h2 className="text-lg font-bold tracking-tight text-foreground">
               Nenhum produto ainda
             </h2>
             <p className="mt-2 text-base text-muted-foreground">
@@ -267,11 +267,11 @@ export default function CatalogDetail() {
               <section key={group.category} aria-labelledby={`admin-cat-${group.category}`}>
                 <h2
                   id={`admin-cat-${group.category}`}
-                  className="text-3xl font-bold tracking-tight text-foreground"
+                  className="text-lg font-bold tracking-tight text-foreground"
                 >
                   {group.category}
                 </h2>
-                <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
                   {group.items.map((p) => (
                     <div key={p.id} className="relative">
                       <div className={(p.is_visible ?? true) ? "" : "opacity-50"}>
