@@ -160,23 +160,17 @@ export default function CatalogDetail() {
 
   return (
     <section>
-      <Link
-        to="/admin"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" /> Catálogos
-      </Link>
-
-      <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex min-w-0 flex-wrap items-center gap-4">
+          <Link
+            to="/admin"
+            className="inline-flex shrink-0 items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" /> Catálogos
+          </Link>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             {catalog.name}
           </h1>
-          {catalog.description && (
-            <p className="mt-3 max-w-2xl text-base text-muted-foreground">
-              {catalog.description}
-            </p>
-          )}
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline">
@@ -192,6 +186,11 @@ export default function CatalogDetail() {
           </Button>
         </div>
       </div>
+      {catalog.description && (
+        <p className="mt-2 max-w-2xl text-base text-muted-foreground">
+          {catalog.description}
+        </p>
+      )}
 
       <div className="mt-8">
         {products.length > 0 && (
