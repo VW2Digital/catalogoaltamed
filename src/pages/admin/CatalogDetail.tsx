@@ -191,26 +191,6 @@ export default function CatalogDetail() {
           {catalog.description}
         </p>
       )}
-      {false && (
-        <div>
-          <div>
-            {null}
-        </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link to={`/c/${catalog.slug}`} target="_blank" rel="noreferrer">
-              <ExternalLink className="mr-2 h-4 w-4" /> Ver público
-            </Link>
-          </Button>
-          <Button variant="outline" onClick={() => setImportOpen(true)}>
-            <Upload className="mr-2 h-4 w-4" /> Importar CSV
-          </Button>
-          <Button onClick={handleNew} size="lg">
-            <Plus className="mr-2 h-4 w-4" /> Novo produto
-          </Button>
-        </div>
-        </div>
-      )}
 
       <div className="mt-8">
         {products.length > 0 && (
