@@ -31,7 +31,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
     : {};
 
   const actions = (
-    <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-stretch">
       {onSelect && (
         <Button
           type="button"
@@ -39,10 +39,10 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
             e.stopPropagation();
             onSelect();
           }}
-          className="h-10 w-full sm:flex-1"
+          className="h-10 min-w-0 flex-1"
         >
-          <ShoppingBag className="h-4 w-4" />
-          Adicionar
+          <ShoppingBag className="h-4 w-4 shrink-0" />
+          <span className="truncate">Adicionar</span>
         </Button>
       )}
       {waLink ? (
@@ -53,19 +53,19 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
           onClick={(e) => e.stopPropagation()}
           aria-label="Consultar disponibilidade no WhatsApp"
           title="Consultar disponibilidade"
-          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-primary/40 text-sm font-semibold text-primary transition-colors hover:bg-primary/5 sm:flex-none sm:px-4"
+          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-md border border-primary/40 text-sm font-semibold text-primary transition-colors hover:bg-primary/5"
         >
-          <WhatsAppIcon className="h-4 w-4" />
-          Consultar
+          <WhatsAppIcon className="h-4 w-4 shrink-0" />
+          <span className="truncate">Consultar</span>
         </a>
       ) : (
         <span
           aria-label="WhatsApp não configurado"
           title="Configure o número de WhatsApp no admin"
-          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-muted text-sm font-semibold text-muted-foreground opacity-60 sm:flex-none sm:px-4"
+          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-md border border-muted text-sm font-semibold text-muted-foreground opacity-60"
         >
-          <WhatsAppIcon className="h-4 w-4" />
-          Consultar
+          <WhatsAppIcon className="h-4 w-4 shrink-0" />
+          <span className="truncate">Consultar</span>
         </span>
       )}
     </div>
