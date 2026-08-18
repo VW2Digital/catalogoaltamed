@@ -39,7 +39,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
             e.stopPropagation();
             onSelect();
           }}
-          className="min-w-0 flex-1"
+          className="h-10 w-full sm:flex-1"
         >
           <ShoppingBag className="h-4 w-4" />
           Adicionar
@@ -53,7 +53,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
           onClick={(e) => e.stopPropagation()}
           aria-label="Consultar disponibilidade no WhatsApp"
           title="Consultar disponibilidade"
-          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-md border border-primary/40 text-sm font-semibold text-primary transition-colors hover:bg-primary/5 sm:flex-none sm:px-4"
+          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-primary/40 text-sm font-semibold text-primary transition-colors hover:bg-primary/5 sm:flex-none sm:px-4"
         >
           <WhatsAppIcon className="h-4 w-4" />
           Consultar
@@ -62,7 +62,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
         <span
           aria-label="WhatsApp não configurado"
           title="Configure o número de WhatsApp no admin"
-          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-md border border-muted text-sm font-semibold text-muted-foreground opacity-60 sm:flex-none sm:px-4"
+          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-muted text-sm font-semibold text-muted-foreground opacity-60 sm:flex-none sm:px-4"
         >
           <WhatsAppIcon className="h-4 w-4" />
           Consultar
