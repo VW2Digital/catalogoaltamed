@@ -146,11 +146,6 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
         {product.category && (
           <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
         )}
-        {product.descricao_ativo && (
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-3">
-            {product.descricao_ativo}
-          </p>
-        )}
         {Number(product.price) > 0 && (
           <p className="mt-2 text-lg font-bold text-primary">{formatBRL(product.price)}</p>
         )}
