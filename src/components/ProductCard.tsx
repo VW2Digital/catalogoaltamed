@@ -31,7 +31,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
     : {};
 
   const actions = (
-    <div className="mt-5 flex items-center gap-2">
+    <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
       {onSelect && (
         <Button
           type="button"
@@ -53,17 +53,19 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
           onClick={(e) => e.stopPropagation()}
           aria-label="Consultar disponibilidade no WhatsApp"
           title="Consultar disponibilidade"
-          className="price-pill inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform hover:scale-[1.04]"
+          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-md border border-primary/40 text-sm font-semibold text-primary transition-colors hover:bg-primary/5 sm:flex-none sm:px-4"
         >
           <WhatsAppIcon className="h-4 w-4" />
+          Consultar
         </a>
       ) : (
         <span
           aria-label="WhatsApp não configurado"
           title="Configure o número de WhatsApp no admin"
-          className="price-pill inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full opacity-60"
+          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-md border border-muted text-sm font-semibold text-muted-foreground opacity-60 sm:flex-none sm:px-4"
         >
           <WhatsAppIcon className="h-4 w-4" />
+          Consultar
         </span>
       )}
     </div>
@@ -102,11 +104,6 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
           </h3>
           {product.category && (
             <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
-          )}
-          {product.descricao_ativo && (
-            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-              {product.descricao_ativo}
-            </p>
           )}
           {Number(product.price) > 0 && (
             <p className="mt-1 text-base font-bold text-primary">{formatBRL(product.price)}</p>
@@ -148,11 +145,6 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
         <h3 className="text-sm font-bold leading-tight text-foreground">{product.name}</h3>
         {product.category && (
           <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
-        )}
-        {product.descricao_ativo && (
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-3">
-            {product.descricao_ativo}
-          </p>
         )}
         {Number(product.price) > 0 && (
           <p className="mt-2 text-lg font-bold text-primary">{formatBRL(product.price)}</p>
