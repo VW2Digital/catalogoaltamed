@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { formatBRL } from "@/lib/format";
+import { formatBRL, resolveUnitPrice } from "@/lib/format";
 import { useCart, type CartItem } from "@/hooks/useCart";
 import { toast } from "sonner";
 
@@ -20,6 +20,8 @@ export type ProductDetail = {
   brand?: string | null;
   unit?: string | null;
   price: number | string;
+  qtd?: number | string | null;
+  preco_unitario?: number | string | null;
   image_url?: string | null;
   descricao_ativo?: string | null;
 };
@@ -96,8 +98,16 @@ export function ProductDetailDialog({ product, open, onOpenChange }: Props) {
           )}
           {Number(product.price) > 0 && (
             <div>
-              <dt className="text-xs text-muted-foreground">Valor</dt>
+              <dt className="text-xs text-muted-foreground">Vlr. Caixa</dt>
               <dd className="font-bold text-primary">{formatBRL(product.price)}</dd>
+            </div>
+          )}
+          {resolveUnitPrice(product.price, product.qtd, product.preco_unitario) != null && (
+            <div>
+              <dt className="text-xs text-muted-foreground">Vlr. Unit.</dt>
+              <dd className="font-semibold text-foreground">
+                {formatBRL(resolveUnitPrice(product.price, product.qtd, product.preco_unitario)!)}
+              </dd>
             </div>
           )}
         </dl>

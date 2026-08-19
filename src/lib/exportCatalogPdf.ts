@@ -12,6 +12,7 @@ export type ExportProduct = {
   unit: string;
   price: number | string;
   qtd?: number | null;
+  preco_unitario?: number | string | null;
   image_url: string | null;
 };
 
@@ -151,7 +152,7 @@ export async function exportCatalogTablePdf(
         (p.brand ?? "-").toUpperCase(),
         p.unit.toUpperCase(),
         priceText(p.price),
-        unitPriceText(p.price, p.qtd),
+        unitPriceText(p.price, p.qtd, p.preco_unitario),
       ]),
       theme: "grid",
       styles: {
