@@ -1,6 +1,6 @@
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
-import { formatBRL } from "@/lib/format";
+import { formatBRL, resolveUnitPrice } from "@/lib/format";
 
 export type ProductTableItem = {
   id?: string;
@@ -10,14 +10,17 @@ export type ProductTableItem = {
   unit: string;
   price: number | string;
   qtd?: number | null;
+  preco_unitario?: number | string | null;
   image_url?: string | null;
 };
 
-function unitPrice(price: number | string, qtd?: number | null) {
-  const total = Number(price);
-  const q = Number(qtd);
-  if (!(total > 0) || !(q > 0)) return "-";
-  return formatBRL(total / q);
+function unitPrice(
+  price: number | string,
+  qtd?: number | null,
+  precoUnitario?: number | string | null,
+) {
+  const value = resolveUnitPrice(price, qtd, precoUnitario);
+  return value == null ? "-" : formatBRL(value);
 }
 
 type Props = {
@@ -67,7 +70,7 @@ export function ProductTable({ title, items, whatsappNumber, onSelect }: Props) 
                     {Number(p.price) > 0 ? formatBRL(p.price) : "-"}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 text-center font-semibold text-foreground/80">
-                    {unitPrice(p.price, p.qtd)}
+                    {unitPrice(p.price, p.qtd, p.preco_unitario)}
                   </td>
                   <td className="px-3 py-2 text-center">
                     {waLink ? (

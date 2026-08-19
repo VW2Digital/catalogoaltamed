@@ -16,3 +16,15 @@ export function slugify(input: string): string {
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
 }
+export function resolveUnitPrice(
+  price: number | string,
+  qtd?: number | string | null,
+  precoUnitario?: number | string | null,
+): number | null {
+  const explicit = Number(precoUnitario);
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+  const total = Number(price);
+  const q = Number(qtd);
+  if (total > 0 && q > 0) return total / q;
+  return null;
+}
