@@ -137,6 +137,7 @@ export type Database = {
           nota_fiscal: string | null
           preco_unitario: number | null
           price: number
+          price_visible: boolean
           qtd: number | null
           sort_order: number
           sugestao_cadastro: string | null
@@ -164,6 +165,7 @@ export type Database = {
           nota_fiscal?: string | null
           preco_unitario?: number | null
           price?: number
+          price_visible?: boolean
           qtd?: number | null
           sort_order?: number
           sugestao_cadastro?: string | null
@@ -191,6 +193,7 @@ export type Database = {
           nota_fiscal?: string | null
           preco_unitario?: number | null
           price?: number
+          price_visible?: boolean
           qtd?: number | null
           sort_order?: number
           sugestao_cadastro?: string | null
@@ -267,6 +270,7 @@ export type Database = {
           name: string | null
           preco_unitario: number | null
           price: number | null
+          price_visible: boolean | null
           qtd: number | null
           sort_order: number | null
           unit: string | null
@@ -285,6 +289,7 @@ export type Database = {
           name?: string | null
           preco_unitario?: number | null
           price?: number | null
+          price_visible?: boolean | null
           qtd?: number | null
           sort_order?: number | null
           unit?: string | null
@@ -303,6 +308,7 @@ export type Database = {
           name?: string | null
           preco_unitario?: number | null
           price?: number | null
+          price_visible?: boolean | null
           qtd?: number | null
           sort_order?: number | null
           unit?: string | null
