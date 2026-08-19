@@ -45,11 +45,13 @@ function priceText(price: number | string) {
   return Number(price) > 0 ? formatBRL(price) : "-";
 }
 
-function unitPriceText(price: number | string, qtd?: number | null) {
-  const total = Number(price);
-  const q = Number(qtd);
-  if (!(total > 0) || !(q > 0)) return "-";
-  return formatBRL(total / q);
+function unitPriceText(
+  price: number | string,
+  qtd?: number | null,
+  precoUnitario?: number | string | null,
+) {
+  const value = resolveUnitPrice(price, qtd, precoUnitario);
+  return value == null ? "-" : formatBRL(value);
 }
 
 const BRAND: [number, number, number] = [166, 106, 46];
