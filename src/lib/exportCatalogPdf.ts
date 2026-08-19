@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { formatBRL } from "@/lib/format";
+import { formatBRL, resolveUnitPrice } from "@/lib/format";
 import pdfHeaderAsset from "@/assets/pdf-header.png.asset.json";
 
 export type ExportProduct = {
@@ -12,6 +12,7 @@ export type ExportProduct = {
   unit: string;
   price: number | string;
   qtd?: number | null;
+  preco_unitario?: number | string | null;
   image_url: string | null;
 };
 
@@ -44,11 +45,13 @@ function priceText(price: number | string) {
   return Number(price) > 0 ? formatBRL(price) : "-";
 }
 
-function unitPriceText(price: number | string, qtd?: number | null) {
-  const total = Number(price);
-  const q = Number(qtd);
-  if (!(total > 0) || !(q > 0)) return "-";
-  return formatBRL(total / q);
+function unitPriceText(
+  price: number | string,
+  qtd?: number | null,
+  precoUnitario?: number | string | null,
+) {
+  const value = resolveUnitPrice(price, qtd, precoUnitario);
+  return value == null ? "-" : formatBRL(value);
 }
 
 const BRAND: [number, number, number] = [166, 106, 46];
@@ -151,7 +154,7 @@ export async function exportCatalogTablePdf(
         (p.brand ?? "-").toUpperCase(),
         p.unit.toUpperCase(),
         priceText(p.price),
-        unitPriceText(p.price, p.qtd),
+        unitPriceText(p.price, p.qtd, p.preco_unitario),
       ]),
       theme: "grid",
       styles: {

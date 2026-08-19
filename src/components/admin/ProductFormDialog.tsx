@@ -38,6 +38,7 @@ export type ProductRow = {
   descricao_ativo?: string | null;
   lista?: string | null;
   qtd?: number | string | null;
+  preco_unitario?: number | string | null;
   vlr_compra?: number | string | null;
   custo_sem_antecip?: number | string | null;
   custo_com_antecip?: number | string | null;
@@ -91,6 +92,7 @@ export default function ProductFormDialog({
   const [custoSem, setCustoSem] = useState("");
   const [custoCom, setCustoCom] = useState("");
   const [price, setPrice] = useState("");
+  const [precoUnitario, setPrecoUnitario] = useState("");
   const [fornecedor, setFornecedor] = useState("");
   const [notaFiscal, setNotaFiscal] = useState("");
   const [sugestaoCadastro, setSugestaoCadastro] = useState("");
@@ -118,6 +120,7 @@ export default function ProductFormDialog({
       setCustoSem(product?.custo_sem_antecip != null ? String(product.custo_sem_antecip) : "");
       setCustoCom(product?.custo_com_antecip != null ? String(product.custo_com_antecip) : "");
       setPrice(product ? String(product.price) : "");
+      setPrecoUnitario(product?.preco_unitario != null ? String(product.preco_unitario) : "");
       setFornecedor(product?.fornecedor ?? "");
       setNotaFiscal(product?.nota_fiscal ?? "");
       setSugestaoCadastro(product?.sugestao_cadastro ?? "");
@@ -196,6 +199,7 @@ export default function ProductFormDialog({
         custo_sem_antecip: numOrNull(custoSem),
         custo_com_antecip: numOrNull(custoCom),
         price: parsed.data.price,
+        preco_unitario: numOrNull(precoUnitario),
         fornecedor: fornecedor.trim() || null,
         nota_fiscal: notaFiscal.trim() || null,
         sugestao_cadastro: sugestaoCadastro.trim() || null,
@@ -355,6 +359,10 @@ export default function ProductFormDialog({
                 <div className="space-y-2">
                   <Label htmlFor="price">VLR. VENDA (preço público)</Label>
                   <Input id="price" type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} required />
+                </div>
+                <div>
+                  <Label htmlFor="preco_unitario">VLR. UNIT. (preço público)</Label>
+                  <Input id="preco_unitario" type="number" step="0.01" min="0" value={precoUnitario} onChange={(e) => setPrecoUnitario(e.target.value)} placeholder="Deixe vazio para calcular pela QTD" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="vm">VLR. MERCADO</Label>

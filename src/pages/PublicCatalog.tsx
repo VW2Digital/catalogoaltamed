@@ -37,6 +37,8 @@ type Product = {
   brand: string | null;
   unit: string;
   price: number | string;
+  qtd?: number | string | null;
+  preco_unitario?: number | string | null;
   image_url: string | null;
   descricao_ativo: string | null;
 };
@@ -207,7 +209,8 @@ export default function PublicCatalog() {
           brand: p.brand,
           unit: p.unit,
           price: p.price,
-          qtd: (p as { qtd?: number | null }).qtd,
+          qtd: p.qtd as number | null | undefined,
+          preco_unitario: p.preco_unitario,
           image_url: p.image_url,
         })),
       }));
@@ -398,7 +401,8 @@ export default function PublicCatalog() {
                         brand: p.brand,
                         unit: p.unit,
                         price: p.price,
-                        qtd: (p as { qtd?: number | null }).qtd,
+                        qtd: p.qtd as number | null | undefined,
+                        preco_unitario: p.preco_unitario,
                         image_url: p.image_url,
                       }))}
                     />
@@ -427,6 +431,8 @@ export default function PublicCatalog() {
                             brand: p.brand,
                             unit: p.unit,
                             price: p.price,
+                            qtd: p.qtd,
+                            preco_unitario: p.preco_unitario,
                             image_url: p.image_url,
                             descricao_ativo: p.descricao_ativo,
                           }}

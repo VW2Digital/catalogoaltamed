@@ -283,6 +283,8 @@ export default function CatalogDetail() {
                           brand: p.brand,
                           unit: p.unit,
                           price: p.price,
+                          qtd: p.qtd,
+                          preco_unitario: p.preco_unitario,
                           image_url: p.image_url,
                           descricao_ativo: p.descricao_ativo,
                         }}
