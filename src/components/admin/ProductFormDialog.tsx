@@ -357,12 +357,12 @@ export default function ProductFormDialog({
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="price">VLR. VENDA (preço público)</Label>
+                  <Label htmlFor="price">VLR. CAIXA (preço público)</Label>
                   <Input id="price" type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} required />
                 </div>
                 <div>
                   <Label htmlFor="preco_unitario">VLR. UNIT. (preço público)</Label>
-                  <Input id="preco_unitario" type="number" step="0.01" min="0" value={precoUnitario} onChange={(e) => setPrecoUnitario(e.target.value)} placeholder="Deixe vazio para calcular pela QTD" />
+                  <Input id="preco_unitario" type="number" step="0.01" min="0" value={precoUnitario} onChange={(e) => setPrecoUnitario(e.target.value)} placeholder="Opcional" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="vm">VLR. MERCADO</Label>

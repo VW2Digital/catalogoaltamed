@@ -23,8 +23,5 @@ export function resolveUnitPrice(
 ): number | null {
   const explicit = Number(precoUnitario);
   if (Number.isFinite(explicit) && explicit > 0) return explicit;
-  const total = Number(price);
-  const q = Number(qtd);
-  if (total > 0 && q > 0) return total / q;
   return null;
 }
