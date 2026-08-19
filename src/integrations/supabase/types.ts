@@ -135,6 +135,7 @@ export type Database = {
           lista: string | null
           name: string
           nota_fiscal: string | null
+          preco_unitario: number | null
           price: number
           qtd: number | null
           sort_order: number
@@ -161,6 +162,7 @@ export type Database = {
           lista?: string | null
           name: string
           nota_fiscal?: string | null
+          preco_unitario?: number | null
           price?: number
           qtd?: number | null
           sort_order?: number
@@ -187,6 +189,7 @@ export type Database = {
           lista?: string | null
           name?: string
           nota_fiscal?: string | null
+          preco_unitario?: number | null
           price?: number
           qtd?: number | null
           sort_order?: number
@@ -262,6 +265,7 @@ export type Database = {
           image_url: string | null
           is_visible: boolean | null
           name: string | null
+          preco_unitario: number | null
           price: number | null
           qtd: number | null
           sort_order: number | null
@@ -279,6 +283,7 @@ export type Database = {
           image_url?: string | null
           is_visible?: boolean | null
           name?: string | null
+          preco_unitario?: number | null
           price?: number | null
           qtd?: number | null
           sort_order?: number | null
@@ -296,6 +301,7 @@ export type Database = {
           image_url?: string | null
           is_visible?: boolean | null
           name?: string | null
+          preco_unitario?: number | null
           price?: number | null
           qtd?: number | null
           sort_order?: number | null
