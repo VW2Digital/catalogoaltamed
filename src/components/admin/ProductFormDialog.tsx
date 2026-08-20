@@ -117,8 +117,6 @@ export default function ProductFormDialog({
       setUnit(product?.unit ?? "UND");
       setQtd(product?.qtd != null ? String(product.qtd) : "");
       setVlrCompra(product?.vlr_compra != null ? String(product.vlr_compra) : "");
-      setCustoSem(product?.custo_sem_antecip != null ? String(product.custo_sem_antecip) : "");
-      setCustoCom(product?.custo_com_antecip != null ? String(product.custo_com_antecip) : "");
       setPrice(product ? String(product.price) : "");
       setPrecoUnitario(product?.preco_unitario != null ? String(product.preco_unitario) : "");
       setFornecedor(product?.fornecedor ?? "");
