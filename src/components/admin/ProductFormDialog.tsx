@@ -341,7 +341,7 @@ export default function ProductFormDialog({
 
             <fieldset className="space-y-4 rounded-lg border p-4">
               <legend className="px-1 text-sm font-semibold">Estoque e custos</legend>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="qtd">QTD</Label>
                   <Input id="qtd" type="number" step="any" value={qtd} onChange={(e) => setQtd(e.target.value)} />
@@ -351,12 +351,8 @@ export default function ProductFormDialog({
                   <Input id="vc" type="number" step="0.01" value={vlrCompra} onChange={(e) => setVlrCompra(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="cs">CUSTO S/ ANTECIP</Label>
-                  <Input id="cs" type="number" step="0.01" value={custoSem} onChange={(e) => setCustoSem(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cc">CUSTO C/ ANTECIP</Label>
-                  <Input id="cc" type="number" step="0.01" value={custoCom} onChange={(e) => setCustoCom(e.target.value)} />
+                  <Label htmlFor="vm">VLR. MERCADO</Label>
+                  <Input id="vm" type="number" step="0.01" value={vlrMercado} onChange={(e) => setVlrMercado(e.target.value)} />
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -364,13 +360,9 @@ export default function ProductFormDialog({
                   <Label htmlFor="price">VLR. CAIXA (preço público)</Label>
                   <Input id="price" type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} required />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="preco_unitario">VLR. UNIT. (preço público)</Label>
                   <Input id="preco_unitario" type="number" step="0.01" min="0" value={precoUnitario} onChange={(e) => setPrecoUnitario(e.target.value)} placeholder="Opcional" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="vm">VLR. MERCADO</Label>
-                  <Input id="vm" type="number" step="0.01" value={vlrMercado} onChange={(e) => setVlrMercado(e.target.value)} />
                 </div>
               </div>
             </fieldset>
