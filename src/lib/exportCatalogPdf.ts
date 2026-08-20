@@ -14,6 +14,7 @@ export type ExportProduct = {
   qtd?: number | null;
   preco_unitario?: number | string | null;
   image_url: string | null;
+  price_visible?: boolean | null;
 };
 
 export type ExportGroup = { category: string; items: ExportProduct[] };
@@ -153,8 +154,8 @@ export async function exportCatalogTablePdf(
         p.name.toUpperCase(),
         (p.brand ?? "-").toUpperCase(),
         p.unit.toUpperCase(),
-        priceText(p.price),
-        unitPriceText(p.price, p.qtd, p.preco_unitario),
+        p.price_visible === false ? "Sob consulta" : priceText(p.price),
+        p.price_visible === false ? "-" : unitPriceText(p.price, p.qtd, p.preco_unitario),
       ]),
       theme: "grid",
       styles: {
@@ -263,7 +264,7 @@ export async function exportCatalogGridPdf(
         doc.setTextColor(...BRAND_DARK);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9);
-        doc.text(priceText(p.price), x + 8, ty + 14);
+        doc.text(p.price_visible === false ? "Sob consulta" : priceText(p.price), x + 8, ty + 14);
         doc.setTextColor(0);
       });
       y += cardH + gap;
