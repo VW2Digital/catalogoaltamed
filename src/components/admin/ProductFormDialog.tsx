@@ -35,6 +35,7 @@ export type ProductRow = {
   price: number | string;
   image_url: string | null;
   is_visible?: boolean;
+  price_visible?: boolean;
   descricao_ativo?: string | null;
   lista?: string | null;
   qtd?: number | string | null;
@@ -103,6 +104,7 @@ export default function ProductFormDialog({
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [priceVisible, setPriceVisible] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
   const [categories, setCategories] = useState<Option[]>([]);
   const [brands, setBrands] = useState<Option[]>([]);
@@ -129,6 +131,7 @@ export default function ProductFormDialog({
       setFornecedor01(product?.fornecedor_01 ?? "");
       setImageUrl(product?.image_url ?? null);
       setIsVisible(product?.is_visible ?? true);
+      setPriceVisible(product?.price_visible ?? true);
     }
   }, [open, product]);
 
@@ -208,6 +211,7 @@ export default function ProductFormDialog({
         fornecedor_01: fornecedor01.trim() || null,
         image_url: imageUrl,
         is_visible: isVisible,
+        price_visible: priceVisible,
       };
       if (product) {
         const { error } = await supabase
@@ -418,6 +422,18 @@ export default function ProductFormDialog({
                 </p>
               </div>
               <Switch id="visible" checked={isVisible} onCheckedChange={setIsVisible} />
+            </div>
+
+            <div className="flex items-start justify-between gap-4 rounded-lg border bg-muted/30 p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="price-visible" className="text-sm font-semibold">
+                  Mostrar preços no catálogo público
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Desative para exibir o produto sem os valores (o cliente consulta por WhatsApp).
+                </p>
+              </div>
+              <Switch id="price-visible" checked={priceVisible} onCheckedChange={setPriceVisible} />
             </div>
           </div>
 
