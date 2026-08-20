@@ -138,6 +138,8 @@ export type Database = {
           preco_unitario: number | null
           price: number
           price_visible: boolean
+          public_preco_unitario: number | null
+          public_price: number | null
           qtd: number | null
           sort_order: number
           sugestao_cadastro: string | null
@@ -166,6 +168,8 @@ export type Database = {
           preco_unitario?: number | null
           price?: number
           price_visible?: boolean
+          public_preco_unitario?: number | null
+          public_price?: number | null
           qtd?: number | null
           sort_order?: number
           sugestao_cadastro?: string | null
@@ -194,6 +198,8 @@ export type Database = {
           preco_unitario?: number | null
           price?: number
           price_visible?: boolean
+          public_preco_unitario?: number | null
+          public_price?: number | null
           qtd?: number | null
           sort_order?: number
           sugestao_cadastro?: string | null
@@ -287,8 +293,8 @@ export type Database = {
           image_url?: string | null
           is_visible?: boolean | null
           name?: string | null
-          preco_unitario?: never
-          price?: never
+          preco_unitario?: number | null
+          price?: number | null
           price_visible?: boolean | null
           qtd?: number | null
           sort_order?: number | null
@@ -306,8 +312,8 @@ export type Database = {
           image_url?: string | null
           is_visible?: boolean | null
           name?: string | null
-          preco_unitario?: never
-          price?: never
+          preco_unitario?: number | null
+          price?: number | null
           price_visible?: boolean | null
           qtd?: number | null
           sort_order?: number | null
