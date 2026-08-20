@@ -195,8 +195,6 @@ export default function ProductFormDialog({
         unit: parsed.data.unit,
         qtd: numOrNull(qtd),
         vlr_compra: numOrNull(vlrCompra),
-        custo_sem_antecip: numOrNull(custoSem),
-        custo_com_antecip: numOrNull(custoCom),
         price: parsed.data.price,
         preco_unitario: numOrNull(precoUnitario),
         fornecedor: fornecedor.trim() || null,
