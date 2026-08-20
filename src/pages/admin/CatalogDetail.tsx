@@ -287,6 +287,7 @@ export default function CatalogDetail() {
                           preco_unitario: p.preco_unitario,
                           image_url: p.image_url,
                           descricao_ativo: p.descricao_ativo,
+                          price_visible: p.price_visible,
                         }}
                         />
                       </div>

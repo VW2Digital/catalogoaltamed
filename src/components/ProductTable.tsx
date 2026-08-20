@@ -12,6 +12,7 @@ export type ProductTableItem = {
   qtd?: number | null;
   preco_unitario?: number | string | null;
   image_url?: string | null;
+  price_visible?: boolean | null;
 };
 
 function unitPrice(
@@ -54,6 +55,7 @@ export function ProductTable({ title, items, whatsappNumber, onSelect }: Props) 
           <tbody>
             {items.map((p) => {
               const waLink = buildWhatsAppLink(whatsappNumber ?? "", p.name, p.image_url);
+              const showPrices = p.price_visible !== false;
               return (
                 <tr
                   key={p.id ?? p.code}
@@ -67,10 +69,10 @@ export function ProductTable({ title, items, whatsappNumber, onSelect }: Props) 
                   </td>
                   <td className="px-3 py-2 text-center text-foreground/80">{p.unit}</td>
                   <td className="whitespace-nowrap px-3 py-2 text-center font-bold text-primary">
-                    {Number(p.price) > 0 ? formatBRL(p.price) : "-"}
+                    {!showPrices ? "Sob consulta" : Number(p.price) > 0 ? formatBRL(p.price) : "-"}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 text-center font-semibold text-foreground/80">
-                    {unitPrice(p.price, p.qtd, p.preco_unitario)}
+                    {showPrices ? unitPrice(p.price, p.qtd, p.preco_unitario) : "-"}
                   </td>
                   <td className="px-3 py-2 text-center">
                     {waLink ? (

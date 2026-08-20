@@ -41,6 +41,7 @@ type Product = {
   preco_unitario?: number | string | null;
   image_url: string | null;
   descricao_ativo: string | null;
+  price_visible?: boolean | null;
 };
 
 export default function PublicCatalog() {
@@ -212,6 +213,7 @@ export default function PublicCatalog() {
           qtd: p.qtd as number | null | undefined,
           preco_unitario: p.preco_unitario,
           image_url: p.image_url,
+          price_visible: p.price_visible,
         })),
       }));
       const fileName = `${slugify(catalog.name) || "catalogo"}-${
@@ -404,6 +406,7 @@ export default function PublicCatalog() {
                         qtd: p.qtd as number | null | undefined,
                         preco_unitario: p.preco_unitario,
                         image_url: p.image_url,
+                        price_visible: p.price_visible,
                       }))}
                     />
                   ) : (
@@ -435,6 +438,7 @@ export default function PublicCatalog() {
                             preco_unitario: p.preco_unitario,
                             image_url: p.image_url,
                             descricao_ativo: p.descricao_ativo,
+                            price_visible: p.price_visible,
                           }}
                         />
                       ))}
