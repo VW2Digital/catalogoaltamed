@@ -15,6 +15,7 @@ export type ProductCardData = {
   preco_unitario?: number | string | null;
   image_url?: string | null;
   descricao_ativo?: string | null;
+  price_visible?: boolean | null;
 };
 
 type Props = {
@@ -28,6 +29,7 @@ type Props = {
 
 export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect }: Props) {
   const unitValue = resolveUnitPrice(product.price, product.qtd, product.preco_unitario);
+  const showPrices = product.price_visible !== false;
   const waLink = buildWhatsAppLink(whatsappNumber ?? "", product.name, product.image_url);
   const selectProps = onSelect
     ? { onClick: onSelect, role: "button" as const, tabIndex: 0 }
@@ -108,13 +110,16 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
           {product.category && (
             <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
           )}
-          {Number(product.price) > 0 && (
+          {showPrices && Number(product.price) > 0 && (
             <p className="mt-1 text-base font-bold text-primary">{formatBRL(product.price)}</p>
           )}
-          {unitValue != null && (
+          {showPrices && unitValue != null && (
             <p className="text-xs text-muted-foreground">
               Unit.: <span className="font-semibold text-foreground/80">{formatBRL(unitValue)}</span>
             </p>
+          )}
+          {!showPrices && (
+            <p className="mt-1 text-sm font-semibold text-primary">Preço sob consulta</p>
           )}
           {actions}
         </div>
@@ -154,13 +159,16 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
         {product.category && (
           <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
         )}
-        {Number(product.price) > 0 && (
+        {showPrices && Number(product.price) > 0 && (
           <p className="mt-2 text-lg font-bold text-primary">{formatBRL(product.price)}</p>
         )}
-        {unitValue != null && (
+        {showPrices && unitValue != null && (
           <p className="mt-0.5 text-xs text-muted-foreground">
             Unit.: <span className="font-semibold text-foreground/80">{formatBRL(unitValue)}</span>
           </p>
+        )}
+        {!showPrices && (
+          <p className="mt-2 text-sm font-semibold text-primary">Preço sob consulta</p>
         )}
       </div>
 
