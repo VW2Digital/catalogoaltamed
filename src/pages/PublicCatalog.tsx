@@ -213,6 +213,7 @@ export default function PublicCatalog() {
           qtd: p.qtd as number | null | undefined,
           preco_unitario: p.preco_unitario,
           image_url: p.image_url,
+          price_visible: p.price_visible,
         })),
       }));
       const fileName = `${slugify(catalog.name) || "catalogo"}-${
