@@ -287,8 +287,8 @@ export type Database = {
           image_url?: string | null
           is_visible?: boolean | null
           name?: string | null
-          preco_unitario?: number | null
-          price?: number | null
+          preco_unitario?: never
+          price?: never
           price_visible?: boolean | null
           qtd?: number | null
           sort_order?: number | null
@@ -306,8 +306,8 @@ export type Database = {
           image_url?: string | null
           is_visible?: boolean | null
           name?: string | null
-          preco_unitario?: number | null
-          price?: number | null
+          preco_unitario?: never
+          price?: never
           price_visible?: boolean | null
           qtd?: number | null
           sort_order?: number | null
