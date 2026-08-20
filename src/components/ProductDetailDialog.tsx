@@ -24,6 +24,7 @@ export type ProductDetail = {
   preco_unitario?: number | string | null;
   image_url?: string | null;
   descricao_ativo?: string | null;
+  price_visible?: boolean | null;
 };
 
 type Props = {
@@ -41,6 +42,7 @@ export function ProductDetailDialog({ product, open, onOpenChange }: Props) {
   }, [open, product?.id]);
 
   if (!product) return null;
+  const showPrices = product.price_visible !== false;
 
   const handleAdd = () => {
     const item: Omit<CartItem, "quantity"> = {
@@ -96,18 +98,24 @@ export function ProductDetailDialog({ product, open, onOpenChange }: Props) {
               <dd className="font-semibold text-foreground">{product.unit}</dd>
             </div>
           )}
-          {Number(product.price) > 0 && (
+          {showPrices && Number(product.price) > 0 && (
             <div>
               <dt className="text-xs text-muted-foreground">Vlr. Caixa</dt>
               <dd className="font-bold text-primary">{formatBRL(product.price)}</dd>
             </div>
           )}
-          {resolveUnitPrice(product.price, product.qtd, product.preco_unitario) != null && (
+          {showPrices && resolveUnitPrice(product.price, product.qtd, product.preco_unitario) != null && (
             <div>
               <dt className="text-xs text-muted-foreground">Vlr. Unit.</dt>
               <dd className="font-semibold text-foreground">
                 {formatBRL(resolveUnitPrice(product.price, product.qtd, product.preco_unitario)!)}
               </dd>
+            </div>
+          )}
+          {!showPrices && (
+            <div>
+              <dt className="text-xs text-muted-foreground">Preço</dt>
+              <dd className="font-semibold text-primary">Sob consulta</dd>
             </div>
           )}
         </dl>
