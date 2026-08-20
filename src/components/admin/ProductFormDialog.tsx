@@ -90,8 +90,6 @@ export default function ProductFormDialog({
   const [unit, setUnit] = useState("UND");
   const [qtd, setQtd] = useState("");
   const [vlrCompra, setVlrCompra] = useState("");
-  const [custoSem, setCustoSem] = useState("");
-  const [custoCom, setCustoCom] = useState("");
   const [price, setPrice] = useState("");
   const [precoUnitario, setPrecoUnitario] = useState("");
   const [fornecedor, setFornecedor] = useState("");
