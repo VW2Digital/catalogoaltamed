@@ -47,7 +47,57 @@ export default function CatalogDetail() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [brandFilter, setBrandFilter] = useState("all");
   const [importOpen, setImportOpen] = useState(false);
+  const [reorderMode, setReorderMode] = useState(false);
+  const [savingOrder, setSavingOrder] = useState(false);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
   const { number: whatsappNumber } = useWhatsAppNumber();
+
+  async function persistOrder(next: ProductRow[], groupIds: string[]) {
+    setProducts(next);
+    setSavingOrder(true);
+    const orderMap = new Map(groupIds.map((pid, i) => [pid, i]));
+    const results = await Promise.all(
+      groupIds.map((pid) =>
+        supabase.from("products").update({ sort_order: orderMap.get(pid)! }).eq("id", pid),
+      ),
+    );
+    setSavingOrder(false);
+    const err = results.find((r) => r.error)?.error;
+    if (err) {
+      toast.error(err.message);
+      load({ showLoader: false });
+    }
+  }
+
+  function handleDropOnProduct(targetId: string, groupItems: ProductRow[]) {
+    const fromId = dragId;
+    setDragId(null);
+    setOverId(null);
+    if (!fromId || fromId === targetId) return;
+    const ids = groupItems.map((p) => p.id);
+    const from = ids.indexOf(fromId);
+    const to = ids.indexOf(targetId);
+    if (from < 0 || to < 0) return;
+    const [moved] = ids.splice(from, 1);
+    ids.splice(to, 0, moved);
+    const byId = new Map(products.map((p) => [p.id, p]));
+    const reordered = ids.map((pid, i) => ({ ...byId.get(pid)!, sort_order: i }));
+    const next = products.map((p) => {
+      const idx = ids.indexOf(p.id);
+      return idx >= 0 ? reordered[idx] : p;
+    });
+    // mantém a ordem visual dentro do grupo
+    const groupSet = new Set(ids);
+    const others = next.filter((p) => !groupSet.has(p.id));
+    const ordered = [...others, ...reordered].sort((a, b) => {
+      const ca = (a.category ?? "").localeCompare(b.category ?? "", "pt-BR");
+      if (ca !== 0) return ca;
+      return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+    });
+    persistOrder(ordered, ids);
+  }
+
 
   async function load(opts: { showLoader?: boolean } = { showLoader: true }) {
     if (!id) return;
