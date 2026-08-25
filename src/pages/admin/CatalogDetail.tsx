@@ -399,12 +399,12 @@ export default function CatalogDetail() {
                         }}
                         />
                       </div>
-                      {!(p.is_visible ?? true) && (
+                      {!(p.is_visible ?? true) && !reorderMode && (
                         <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-background/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground shadow-card backdrop-blur">
                           <EyeOff className="h-3 w-3" /> Oculto
                         </span>
                       )}
-                      <div className="absolute right-3 top-3 flex gap-1 rounded-full bg-background/90 p-1 shadow-card backdrop-blur">
+                      <div className={`absolute right-3 top-3 flex gap-1 rounded-full bg-background/90 p-1 shadow-card backdrop-blur ${reorderMode ? "hidden" : ""}`}>
                         <Button
                           variant="ghost"
                           size="icon"
