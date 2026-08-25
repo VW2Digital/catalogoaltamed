@@ -28,11 +28,14 @@ import FontsSettings from "./pages/admin/settings/FontsSettings.tsx";
 import ComingSoon from "./pages/admin/settings/ComingSoon.tsx";
 import CustomCodeSettings from "./pages/admin/settings/CustomCodeSettings.tsx";
 import { useCustomCodeInjector } from "@/hooks/useCustomCode";
+import { useProductTitleCaseInjector } from "@/hooks/useProductTitleCase";
+import ProductTitlesSettings from "./pages/admin/settings/ProductTitlesSettings.tsx";
 
 const queryClient = new QueryClient();
 
 const AppInner = () => {
   useCustomCodeInjector();
+  useProductTitleCaseInjector();
   return (
     <Routes>
       <Route path="/" element={<Index />} />
@@ -59,6 +62,7 @@ const AppInner = () => {
           <Route path="branding" element={<BrandingSettings />} />
           <Route path="theme" element={<ThemeSettings />} />
           <Route path="fonts" element={<FontsSettings />} />
+          <Route path="product-titles" element={<ProductTitlesSettings />} />
           <Route path="custom-code" element={<CustomCodeSettings />} />
           <Route
             path="css"

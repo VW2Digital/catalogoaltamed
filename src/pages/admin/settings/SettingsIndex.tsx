@@ -12,6 +12,7 @@ import {
   Paintbrush,
   FolderOpen,
   ScrollText,
+  CaseSensitive,
 } from "lucide-react";
 
 type Item = {
@@ -49,6 +50,12 @@ const sections: Section[] = [
         title: "Categorias",
         description: "Organize as categorias de cada catálogo",
         icon: Tag,
+      },
+      {
+        to: "product-titles",
+        title: "Títulos dos Produtos",
+        description: "Caixa alta, caixa baixa ou original nos nomes",
+        icon: CaseSensitive,
       },
       {
         to: "brands",

@@ -104,7 +104,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
               {product.brand}
             </p>
           )}
-          <h3 className="mt-1 text-base font-bold leading-tight text-foreground line-clamp-2">
+          <h3 className="product-title mt-1 text-base font-bold leading-tight text-foreground line-clamp-2">
             {product.name}
           </h3>
           {product.category && (
