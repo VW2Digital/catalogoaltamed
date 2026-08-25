@@ -344,8 +344,44 @@ export default function CatalogDetail() {
                 </h2>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
                   {group.items.map((p) => (
-                    <div key={p.id} className="relative">
-                      <div className={(p.is_visible ?? true) ? "" : "opacity-50"}>
+                    <div
+                      key={p.id}
+                      draggable={reorderMode && !savingOrder}
+                      onDragStart={() => setDragId(p.id)}
+                      onDragEnd={() => {
+                        setDragId(null);
+                        setOverId(null);
+                      }}
+                      onDragOver={(e) => {
+                        if (!reorderMode) return;
+                        e.preventDefault();
+                        if (overId !== p.id) setOverId(p.id);
+                      }}
+                      onDrop={(e) => {
+                        if (!reorderMode) return;
+                        e.preventDefault();
+                        handleDropOnProduct(p.id, group.items);
+                      }}
+                      className={`relative rounded-xl transition-all ${
+                        reorderMode ? "cursor-grab active:cursor-grabbing" : ""
+                      } ${dragId === p.id ? "opacity-50" : ""} ${
+                        overId === p.id && dragId && dragId !== p.id
+                          ? "ring-2 ring-primary ring-offset-2"
+                          : ""
+                      }`}
+                    >
+                      {reorderMode && (
+                        <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-1 text-[11px] font-semibold text-muted-foreground shadow-card backdrop-blur">
+                          <GripVertical className="h-3.5 w-3.5" />
+                          {group.items.indexOf(p) + 1}
+                        </span>
+                      )}
+                      <div
+                        className={`${(p.is_visible ?? true) ? "" : "opacity-50"} ${
+                          reorderMode ? "pointer-events-none select-none" : ""
+                        }`}
+                      >
+
                         <ProductCard
                         whatsappNumber={whatsappNumber}
                         product={{
