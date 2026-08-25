@@ -209,6 +209,7 @@ export default function ProductFormDialog({
         is_visible: isVisible,
         price_visible: priceVisible,
       };
+      console.log("DBG payload", JSON.stringify({c: category, b: brand, pc: parsed.data.category, pb: parsed.data.brand}));
       if (product) {
         const { error } = await supabase
           .from("products")
