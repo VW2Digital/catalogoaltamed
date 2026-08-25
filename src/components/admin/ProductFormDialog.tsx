@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -107,6 +107,7 @@ export default function ProductFormDialog({
   const fileRef = useRef<HTMLInputElement>(null);
   const [categories, setCategories] = useState<Option[]>([]);
   const [brands, setBrands] = useState<Option[]>([]);
+  const [optionsLoaded, setOptionsLoaded] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -133,7 +134,10 @@ export default function ProductFormDialog({
   }, [open, product]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setOptionsLoaded(false);
+      return;
+    }
     (async () => {
       const [{ data: cats }, { data: brs }] = await Promise.all([
         supabase
@@ -151,8 +155,19 @@ export default function ProductFormDialog({
       ]);
       setCategories((cats as Option[]) ?? []);
       setBrands((brs as Option[]) ?? []);
+      setOptionsLoaded(true);
     })();
   }, [open, catalogId]);
+
+  const categoryOptions = useMemo(() => {
+    const names = categories.map((c) => c.name);
+    return category && !names.includes(category) ? [...names, category] : names;
+  }, [categories, category]);
+
+  const brandOptions = useMemo(() => {
+    const names = brands.map((b) => b.name);
+    return brand && !names.includes(brand) ? [...names, brand] : names;
+  }, [brands, brand]);
 
   async function handleUpload(file: File) {
     if (file.size > 5 * 1024 * 1024) {
@@ -314,18 +329,21 @@ export default function ProductFormDialog({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="cat">CLASSIFICAÇÃO</Label>
-                  <Select value={category || "__none__"} onValueChange={(v) => setCategory(v === "__none__" ? "" : v)}>
-                    <SelectTrigger id="cat"><SelectValue placeholder="Sem categoria" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__">Sem categoria</SelectItem>
-                      {categories.map((c) => (
-                        <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                      ))}
-                      {category && !categories.some((c) => c.name === category) && (
-                        <SelectItem value={category}>{category}</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+                  {optionsLoaded ? (
+                    <Select value={category || "__none__"} onValueChange={(v) => setCategory(v === "__none__" ? "" : v)}>
+                      <SelectTrigger id="cat">
+                        <SelectValue placeholder="Sem categoria">{category || "Sem categoria"}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">Sem categoria</SelectItem>
+                        {categoryOptions.map((name) => (
+                          <SelectItem key={name} value={name}>{name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input id="cat" value={category || "Sem categoria"} readOnly disabled />
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="unit">UND</Label>
@@ -379,18 +397,21 @@ export default function ProductFormDialog({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="brand">MARCA</Label>
-                  <Select value={brand || "__none__"} onValueChange={(v) => setBrand(v === "__none__" ? "" : v)}>
-                    <SelectTrigger id="brand"><SelectValue placeholder="Sem marca" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__">Sem marca</SelectItem>
-                      {brands.map((b) => (
-                        <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>
-                      ))}
-                      {brand && !brands.some((b) => b.name === brand) && (
-                        <SelectItem value={brand}>{brand}</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+                  {optionsLoaded ? (
+                    <Select value={brand || "__none__"} onValueChange={(v) => setBrand(v === "__none__" ? "" : v)}>
+                      <SelectTrigger id="brand">
+                        <SelectValue placeholder="Sem marca">{brand || "Sem marca"}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">Sem marca</SelectItem>
+                        {brandOptions.map((name) => (
+                          <SelectItem key={name} value={name}>{name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input id="brand" value={brand || "Sem marca"} readOnly disabled />
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="f01">FORNECEDOR 01</Label>
