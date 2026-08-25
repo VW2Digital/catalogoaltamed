@@ -114,6 +114,7 @@ export default function ProductFormDialog({
       setName(product?.name ?? "");
       setDescricaoAtivo(product?.descricao_ativo ?? "");
       setLista(product?.lista ?? "");
+      console.log("DBG init category", product?.category, "brand", product?.brand);
       setCategory(product?.category ?? "");
       setUnit(product?.unit ?? "UND");
       setQtd(product?.qtd != null ? String(product.qtd) : "");
