@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, ExternalLink, Eye, EyeOff, Loader2, Pencil, Plus, Search, Trash2, Upload, X } from "lucide-react";
+import { ArrowLeft, ArrowUpDown, Check, ExternalLink, Eye, EyeOff, GripVertical, Loader2, Pencil, Plus, Search, Trash2, Upload, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -47,7 +47,57 @@ export default function CatalogDetail() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [brandFilter, setBrandFilter] = useState("all");
   const [importOpen, setImportOpen] = useState(false);
+  const [reorderMode, setReorderMode] = useState(false);
+  const [savingOrder, setSavingOrder] = useState(false);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
   const { number: whatsappNumber } = useWhatsAppNumber();
+
+  async function persistOrder(next: ProductRow[], groupIds: string[]) {
+    setProducts(next);
+    setSavingOrder(true);
+    const orderMap = new Map(groupIds.map((pid, i) => [pid, i]));
+    const results = await Promise.all(
+      groupIds.map((pid) =>
+        supabase.from("products").update({ sort_order: orderMap.get(pid)! }).eq("id", pid),
+      ),
+    );
+    setSavingOrder(false);
+    const err = results.find((r) => r.error)?.error;
+    if (err) {
+      toast.error(err.message);
+      load({ showLoader: false });
+    }
+  }
+
+  function handleDropOnProduct(targetId: string, groupItems: ProductRow[]) {
+    const fromId = dragId;
+    setDragId(null);
+    setOverId(null);
+    if (!fromId || fromId === targetId) return;
+    const ids = groupItems.map((p) => p.id);
+    const from = ids.indexOf(fromId);
+    const to = ids.indexOf(targetId);
+    if (from < 0 || to < 0) return;
+    const [moved] = ids.splice(from, 1);
+    ids.splice(to, 0, moved);
+    const byId = new Map(products.map((p) => [p.id, p]));
+    const reordered = ids.map((pid, i) => ({ ...byId.get(pid)!, sort_order: i }));
+    const next = products.map((p) => {
+      const idx = ids.indexOf(p.id);
+      return idx >= 0 ? reordered[idx] : p;
+    });
+    // mantém a ordem visual dentro do grupo
+    const groupSet = new Set(ids);
+    const others = next.filter((p) => !groupSet.has(p.id));
+    const ordered = [...others, ...reordered].sort((a, b) => {
+      const ca = (a.category ?? "").localeCompare(b.category ?? "", "pt-BR");
+      if (ca !== 0) return ca;
+      return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+    });
+    persistOrder(ordered, ids);
+  }
+
 
   async function load(opts: { showLoader?: boolean } = { showLoader: true }) {
     if (!id) return;
@@ -173,11 +223,33 @@ export default function CatalogDetail() {
           </h1>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant={reorderMode ? "default" : "outline"}
+            onClick={() => {
+              if (reorderMode) {
+                setReorderMode(false);
+              } else {
+                clearFilters();
+                setReorderMode(true);
+              }
+            }}
+            disabled={savingOrder}
+          >
+            {savingOrder ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : reorderMode ? (
+              <Check className="mr-2 h-4 w-4" />
+            ) : (
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+            )}
+            {reorderMode ? "Concluir ordenação" : "Ordenar produtos"}
+          </Button>
           <Button asChild variant="outline">
             <Link to={`/c/${catalog.slug}`} target="_blank" rel="noreferrer">
               <ExternalLink className="mr-2 h-4 w-4" /> Ver público
             </Link>
           </Button>
+
           <Button variant="outline" onClick={() => setImportOpen(true)}>
             <Upload className="mr-2 h-4 w-4" /> Importar CSV
           </Button>
@@ -272,8 +344,44 @@ export default function CatalogDetail() {
                 </h2>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
                   {group.items.map((p) => (
-                    <div key={p.id} className="relative">
-                      <div className={(p.is_visible ?? true) ? "" : "opacity-50"}>
+                    <div
+                      key={p.id}
+                      draggable={reorderMode && !savingOrder}
+                      onDragStart={() => setDragId(p.id)}
+                      onDragEnd={() => {
+                        setDragId(null);
+                        setOverId(null);
+                      }}
+                      onDragOver={(e) => {
+                        if (!reorderMode) return;
+                        e.preventDefault();
+                        if (overId !== p.id) setOverId(p.id);
+                      }}
+                      onDrop={(e) => {
+                        if (!reorderMode) return;
+                        e.preventDefault();
+                        handleDropOnProduct(p.id, group.items);
+                      }}
+                      className={`relative rounded-xl transition-all ${
+                        reorderMode ? "cursor-grab active:cursor-grabbing" : ""
+                      } ${dragId === p.id ? "opacity-50" : ""} ${
+                        overId === p.id && dragId && dragId !== p.id
+                          ? "ring-2 ring-primary ring-offset-2"
+                          : ""
+                      }`}
+                    >
+                      {reorderMode && (
+                        <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-1 text-[11px] font-semibold text-muted-foreground shadow-card backdrop-blur">
+                          <GripVertical className="h-3.5 w-3.5" />
+                          {group.items.indexOf(p) + 1}
+                        </span>
+                      )}
+                      <div
+                        className={`${(p.is_visible ?? true) ? "" : "opacity-50"} ${
+                          reorderMode ? "pointer-events-none select-none" : ""
+                        }`}
+                      >
+
                         <ProductCard
                         whatsappNumber={whatsappNumber}
                         product={{
@@ -291,12 +399,12 @@ export default function CatalogDetail() {
                         }}
                         />
                       </div>
-                      {!(p.is_visible ?? true) && (
+                      {!(p.is_visible ?? true) && !reorderMode && (
                         <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-background/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground shadow-card backdrop-blur">
                           <EyeOff className="h-3 w-3" /> Oculto
                         </span>
                       )}
-                      <div className="absolute right-3 top-3 flex gap-1 rounded-full bg-background/90 p-1 shadow-card backdrop-blur">
+                      <div className={`absolute right-3 top-3 flex gap-1 rounded-full bg-background/90 p-1 shadow-card backdrop-blur ${reorderMode ? "hidden" : ""}`}>
                         <Button
                           variant="ghost"
                           size="icon"

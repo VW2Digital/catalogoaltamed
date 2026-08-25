@@ -27,6 +27,7 @@ import { Switch } from "@/components/ui/switch";
 export type ProductRow = {
   id: string;
   catalog_id: string;
+  sort_order?: number | null;
   code: string;
   name: string;
   category: string | null;
