@@ -163,3 +163,17 @@ All colors MUST be HSL.
     background: hsl(var(--whatsapp) / 0.9);
   }
 }
+
+/* Padronização dos títulos dos produtos (configurável no admin) */
+[data-product-title-case="uppercase"] .product-title {
+  text-transform: uppercase;
+}
+[data-product-title-case="lowercase"] .product-title {
+  text-transform: lowercase;
+}
+[data-product-title-case="capitalize"] .product-title {
+  text-transform: lowercase;
+}
+[data-product-title-case="capitalize"] .product-title::first-letter {
+  text-transform: uppercase;
+}

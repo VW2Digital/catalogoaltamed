@@ -104,7 +104,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
               {product.brand}
             </p>
           )}
-          <h3 className="mt-1 text-base font-bold leading-tight text-foreground line-clamp-2">
+          <h3 className="product-title mt-1 text-base font-bold leading-tight text-foreground line-clamp-2">
             {product.name}
           </h3>
           {product.category && (
@@ -155,7 +155,7 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
             {product.brand}
           </p>
         )}
-        <h3 className="text-sm font-bold leading-tight text-foreground">{product.name}</h3>
+        <h3 className="product-title text-sm font-bold leading-tight text-foreground">{product.name}</h3>
         {product.category && (
           <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
         )}
