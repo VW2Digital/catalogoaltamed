@@ -63,7 +63,7 @@ export function ProductTable({ title, items, whatsappNumber, onSelect }: Props) 
                   className="cursor-pointer border-b border-border/60 text-xs transition-colors last:border-0 hover:bg-muted/40 sm:text-sm"
                 >
                   <td className="px-3 py-2 text-center text-muted-foreground">{p.code}</td>
-                  <td className="px-3 py-2 font-semibold text-foreground">{p.name}</td>
+                  <td className="product-title px-3 py-2 font-semibold text-foreground">{p.name}</td>
                   <td className="px-3 py-2 text-center font-medium text-foreground/80">
                     {p.brand ?? "-"}
                   </td>

@@ -63,7 +63,7 @@ export function ProductDetailDialog({ product, open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader className="text-left">
-          <DialogTitle className="pr-6 text-base leading-snug">{product.name}</DialogTitle>
+          <DialogTitle className="product-title pr-6 text-base leading-snug">{product.name}</DialogTitle>
           <DialogDescription>Cód.: {product.code}</DialogDescription>
         </DialogHeader>
 
