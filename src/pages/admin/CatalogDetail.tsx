@@ -223,11 +223,33 @@ export default function CatalogDetail() {
           </h1>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant={reorderMode ? "default" : "outline"}
+            onClick={() => {
+              if (reorderMode) {
+                setReorderMode(false);
+              } else {
+                clearFilters();
+                setReorderMode(true);
+              }
+            }}
+            disabled={savingOrder}
+          >
+            {savingOrder ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : reorderMode ? (
+              <Check className="mr-2 h-4 w-4" />
+            ) : (
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+            )}
+            {reorderMode ? "Concluir ordenação" : "Ordenar produtos"}
+          </Button>
           <Button asChild variant="outline">
             <Link to={`/c/${catalog.slug}`} target="_blank" rel="noreferrer">
               <ExternalLink className="mr-2 h-4 w-4" /> Ver público
             </Link>
           </Button>
+
           <Button variant="outline" onClick={() => setImportOpen(true)}>
             <Upload className="mr-2 h-4 w-4" /> Importar CSV
           </Button>
