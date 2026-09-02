@@ -1,7 +1,8 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { formatBRL, resolveUnitPrice } from "@/lib/format";
-import pdfHeaderUrl from "@/assets/pdf-header.jpg";
+import pdfBgPage1Url from "@/assets/FUNDO-PAG-01.png";
+import pdfBgPage2Url from "@/assets/FUNDO-PAG-02.png";
 
 export type ExportProduct = {
   id: string;
@@ -58,9 +59,10 @@ function unitPriceText(
 const BRAND_DARK: [number, number, number] = [142, 86, 20];
 const BRAND_LIGHT: [number, number, number] = [250, 243, 233];
 const BORDER: [number, number, number] = [212, 186, 123];
-const TABLE_MARGIN_X = 28;
-const SECTION_RADIUS = 6;
-const TITLE_H = 18;
+const TABLE_MARGIN_X = 16;
+const SECTION_GAP = 4;
+const SECTION_RADIUS = 4;
+const TITLE_H = 11;
 
 const GOLD_STOPS: { t: number; rgb: [number, number, number] }[] = [
   { t: 0, rgb: [0xc6, 0x8c, 0x39] },
@@ -104,9 +106,13 @@ function tableWidth(doc: jsPDF) {
   return doc.internal.pageSize.getWidth() - TABLE_MARGIN_X * 2;
 }
 
-function drawSectionTitleBar(doc: jsPDF, label: string, y: number) {
-  const x = TABLE_MARGIN_X;
-  const w = tableWidth(doc);
+function drawSectionTitleBar(
+  doc: jsPDF,
+  label: string,
+  y: number,
+  x = TABLE_MARGIN_X,
+  w = tableWidth(doc),
+) {
   const r = SECTION_RADIUS;
   doc.saveGraphicsState();
   doc.roundedRect(x, y, w, TITLE_H + r, r, r, null);
@@ -115,7 +121,7 @@ function drawSectionTitleBar(doc: jsPDF, label: string, y: number) {
   fillGoldGradient(doc, x, y, w, TITLE_H + 0.5);
   doc.restoreGraphicsState();
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
+  doc.setFontSize(6);
   doc.setTextColor(255, 255, 255);
   doc.text(label.toUpperCase(), x + w / 2, y + TITLE_H / 2, {
     align: "center",
@@ -131,9 +137,9 @@ function strokeSectionOutline(
   h: number,
   roundTop: boolean,
   roundBottom: boolean,
+  x = TABLE_MARGIN_X,
+  w = tableWidth(doc),
 ) {
-  const x = TABLE_MARGIN_X;
-  const w = tableWidth(doc);
   const r = SECTION_RADIUS;
   const k = 0.5522847498;
   const rt = roundTop ? Math.min(r, w / 2, h / 2) : 0;
@@ -170,35 +176,36 @@ function strokeSectionOutline(
   doc.stroke();
 }
 
-/**
- * Draws the AltaMed banner (logo + commercial info) on the FIRST page only.
- * Returns the Y position right below the header.
- */
-async function coverHeader(doc: jsPDF) {
+const PAGE1_CONTENT_TOP = 132;
+const PAGE2_CONTENT_TOP = 36;
+const PAGE1_CONTENT_BOTTOM = 48;
+const PAGE2_CONTENT_BOTTOM = 112;
+
+function imageFormat(data: string) {
+  return data.startsWith("data:image/jpeg") ? "JPEG" : "PNG";
+}
+
+function drawFullPageBackground(
+  doc: jsPDF,
+  img: { data: string; w: number; h: number } | null,
+  alias: string,
+) {
+  if (!img) return;
   const pageW = doc.internal.pageSize.getWidth();
-  const img = await loadImage(pdfHeaderUrl);
-  let y = 0;
-  if (img) {
-    const h = (pageW * img.h) / img.w;
-    const format = img.data.startsWith("data:image/jpeg") ? "JPEG" : "PNG";
-    try {
-      doc.addImage(img.data, format, 0, 0, pageW, h);
-      y = h;
-    } catch {
-      y = 0;
-    }
+  const pageH = doc.internal.pageSize.getHeight();
+  try {
+    doc.addImage(img.data, imageFormat(img.data), 0, 0, pageW, pageH, alias, "NONE");
+  } catch {
+    /* ignore */
   }
-  if (!y) {
-    doc.setFillColor(...BRAND_LIGHT);
-    doc.rect(0, 0, pageW, 70, "F");
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(...BRAND_DARK);
-    doc.text("TABELA DE PREÇOS", 40, 42);
-    doc.setTextColor(0);
-    y = 70;
-  }
-  return y + 6;
+}
+
+function contentTop(page: number) {
+  return page <= 1 ? PAGE1_CONTENT_TOP : PAGE2_CONTENT_TOP;
+}
+
+function contentBottomPad(page: number) {
+  return page <= 1 ? PAGE1_CONTENT_BOTTOM : PAGE2_CONTENT_BOTTOM;
 }
 
 function categoryPill(doc: jsPDF, label: string, y: number) {
@@ -216,109 +223,134 @@ function categoryPill(doc: jsPDF, label: string, y: number) {
   return y + h;
 }
 
-function footer(doc: jsPDF) {
-  const pages = doc.getNumberOfPages();
-  for (let i = 1; i <= pages; i++) {
-    doc.setPage(i);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setTextColor(140);
-    doc.text(
-      `Página ${i} de ${pages}`,
-      doc.internal.pageSize.getWidth() - 28,
-      doc.internal.pageSize.getHeight() - 14,
-      { align: "right" },
-    );
-    doc.setTextColor(0);
-  }
-}
-
 export async function exportCatalogTablePdf(
   groups: ExportGroup[],
   opts: { catalogName: string; fileName: string },
 ) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
-  let startY = await coverHeader(doc);
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const colW = (pageW - TABLE_MARGIN_X * 2 - SECTION_GAP) / 2;
+  const colX = [TABLE_MARGIN_X, TABLE_MARGIN_X + colW + SECTION_GAP];
+  const colCode = 24;
+  const colBrand = 38;
+  const colUnit = 28;
+  const colPrice = 36;
+  const fixedCols = colCode + colBrand + colUnit + colPrice + colPrice;
+  const estimateHeight = (count: number) => TITLE_H + 10 + count * 12.2 + 4;
 
-  groups.forEach((g) => {
-    const pageH = doc.internal.pageSize.getHeight();
-    if (startY + 56 > pageH - 36) {
-      doc.addPage();
-      startY = 28;
-    }
-    const titleY = startY;
-    drawSectionTitleBar(doc, g.category, titleY);
+  const [bg1, bg2] = await Promise.all([
+    loadImage(pdfBgPage1Url),
+    loadImage(pdfBgPage2Url),
+  ]);
+  drawFullPageBackground(doc, bg1, "pdf-bg-1");
 
-    type Frag = { page: number; top: number; bottom: number; first: boolean };
-    const fragments: Frag[] = [];
+  const pageNo = () => doc.getNumberOfPages();
+  let colY = [contentTop(1), contentTop(1)];
+
+  const pageBottom = () => pageH - contentBottomPad(pageNo());
+  const remaining = (col: number) => pageBottom() - colY[col];
+
+  const newPage = () => {
+    doc.addPage();
+    const p = pageNo();
+    drawFullPageBackground(doc, p === 1 ? bg1 : bg2, p === 1 ? "pdf-bg-1" : "pdf-bg-2");
+    const top = contentTop(p);
+    colY = [top, top];
+  };
+
+  const pickColumn = (estH: number) => {
+    const shorter = colY[0] <= colY[1] ? 0 : 1;
+    const other = 1 - shorter;
+    if (remaining(shorter) >= estH) return shorter;
+    if (remaining(other) >= estH) return other;
+    return -1;
+  };
+
+  const drawGroup = (g: ExportGroup, col: number) => {
+    const x = colX[col];
+    const y = colY[col];
+    const prodW = Math.max(48, colW - fixedCols);
+    drawSectionTitleBar(doc, g.category, y, x, colW);
 
     autoTable(doc, {
-      startY: titleY + TITLE_H,
-      head: [["CÓD.", "PRODUTOS", "MARCA", "UND", "VLR. CAIXA", "VLR. UNIT."]],
+      startY: y + TITLE_H,
+      tableWidth: colW,
+      pageBreak: "avoid",
+      showHead: "everyPage",
+      head: [["CÓD.", "PRODUTOS", "MARCA", "UND", "VLR. CX", "VLR. UN"]],
       body: g.items.map((p) => [
         p.code,
         p.name.toUpperCase(),
         (p.brand ?? "-").toUpperCase(),
-        p.unit.toUpperCase(),
-        p.price_visible === false ? "Sob consulta" : priceText(p.price),
+        (p.unit || "-").toUpperCase(),
+        p.price_visible === false ? "Consulta" : priceText(p.price),
         p.price_visible === false ? "-" : unitPriceText(p.price, p.qtd, p.preco_unitario),
       ]),
       theme: "grid",
       styles: {
-        fontSize: 6.5,
-        cellPadding: { top: 1.5, bottom: 1.5, left: 2, right: 2 },
+        fontSize: 5,
+        cellPadding: { top: 1.8, bottom: 1.8, left: 1.2, right: 1.2 },
         lineColor: BORDER,
-        lineWidth: 0.4,
+        lineWidth: 0.3,
         textColor: [40, 30, 20],
         valign: "middle",
-        minCellHeight: 10,
+        minCellHeight: 12,
+        overflow: "ellipsize",
       },
       headStyles: {
         fillColor: BRAND_LIGHT,
         textColor: BRAND_DARK,
         fontStyle: "bold",
-        fontSize: 7,
-        cellPadding: { top: 2, bottom: 2, left: 2, right: 2 },
+        fontSize: 5,
+        cellPadding: { top: 1.8, bottom: 1.8, left: 1.2, right: 1.2 },
         halign: "center",
         lineColor: BORDER,
-        lineWidth: 0.4,
+        lineWidth: 0.3,
+        minCellHeight: 10,
       },
       alternateRowStyles: { fillColor: [253, 250, 246] },
       columnStyles: {
-        0: { halign: "center", cellWidth: 42, fontSize: 6 },
-        1: { fontStyle: "bold" },
-        2: { halign: "center", cellWidth: 68, fontStyle: "bold" },
-        3: { halign: "center", cellWidth: 32, fontStyle: "bold" },
-        4: { halign: "center", cellWidth: 62, fontStyle: "bold" },
-        5: { halign: "center", cellWidth: 62, fontStyle: "bold" },
+        0: { halign: "center", cellWidth: colCode, fontSize: 4.5 },
+        1: { fontStyle: "bold", cellWidth: prodW, overflow: "ellipsize" },
+        2: { halign: "center", cellWidth: colBrand, fontStyle: "bold", fontSize: 4.5 },
+        3: {
+          halign: "center",
+          valign: "middle",
+          cellWidth: colUnit,
+          fontStyle: "bold",
+          fontSize: 4.5,
+          overflow: "ellipsize",
+        },
+        4: { halign: "center", cellWidth: colPrice, fontStyle: "bold", fontSize: 4.5 },
+        5: { halign: "center", cellWidth: colPrice, fontStyle: "bold", fontSize: 4.5 },
       },
-      margin: { left: TABLE_MARGIN_X, right: TABLE_MARGIN_X, top: 28, bottom: 22 },
-      didDrawPage: (data) => {
-        const first = data.pageNumber === 1;
-        fragments.push({
-          page: doc.getCurrentPageInfo().pageNumber,
-          top: first ? titleY : data.settings.margin.top,
-          bottom: data.cursor?.y ?? 0,
-          first,
-        });
+      margin: {
+        left: x,
+        right: pageW - x - colW,
+        top: contentTop(pageNo()),
+        bottom: contentBottomPad(pageNo()),
       },
     });
 
-    fragments.forEach((frag, i) => {
-      doc.setPage(frag.page);
-      const roundTop = i === 0;
-      const roundBottom = i === fragments.length - 1;
-      const h = Math.max(frag.bottom - frag.top, TITLE_H);
-      strokeSectionOutline(doc, frag.top, h, roundTop, roundBottom);
-      if (roundTop) drawSectionTitleBar(doc, g.category, frag.top);
-    });
-
-    doc.setPage(fragments[fragments.length - 1]?.page ?? doc.getNumberOfPages());
     // @ts-expect-error autotable augments doc
-    startY = doc.lastAutoTable.finalY + 8;
+    const finalY = doc.lastAutoTable.finalY as number;
+    const h = Math.max(finalY - y, TITLE_H);
+    strokeSectionOutline(doc, y, h, true, true, x, colW);
+    drawSectionTitleBar(doc, g.category, y, x, colW);
+    colY[col] = finalY + SECTION_GAP;
+  };
+
+  groups.forEach((g) => {
+    const estH = estimateHeight(g.items.length);
+    let col = pickColumn(estH);
+    if (col < 0) {
+      newPage();
+      col = 0;
+    }
+    drawGroup(g, col);
   });
 
-  footer(doc);
   doc.save(opts.fileName);
 }
 
@@ -336,7 +368,12 @@ export async function exportCatalogGridPdf(
   const imgH = cardW * 0.62;
   const cardH = imgH + 42;
 
-  let y = await coverHeader(doc);
+  const [bg1, bg2] = await Promise.all([
+    loadImage(pdfBgPage1Url),
+    loadImage(pdfBgPage2Url),
+  ]);
+  drawFullPageBackground(doc, bg1, "pdf-bg-1");
+  let y = contentTop(1);
 
   const all = groups.flatMap((g) => g.items);
   const images = new Map<string, { data: string; w: number; h: number } | null>();
@@ -348,17 +385,24 @@ export async function exportCatalogGridPdf(
     }),
   );
 
+  const goToNextPage = () => {
+    doc.addPage();
+    const p = doc.getNumberOfPages();
+    drawFullPageBackground(doc, p === 1 ? bg1 : bg2, p === 1 ? "pdf-bg-1" : "pdf-bg-2");
+    y = contentTop(p);
+  };
+
   for (const g of groups) {
-    if (y + 30 + cardH > pageH - margin) {
-      doc.addPage();
-      y = margin;
+    const bottom = pageH - contentBottomPad(doc.getNumberOfPages());
+    if (y + 30 + cardH > bottom) {
+      goToNextPage();
     }
     y = categoryPill(doc, g.category, y) + 5;
 
     for (let i = 0; i < g.items.length; i += cols) {
-      if (y + cardH > pageH - margin) {
-        doc.addPage();
-        y = margin;
+      const pageBottom = pageH - contentBottomPad(doc.getNumberOfPages());
+      if (y + cardH > pageBottom) {
+        goToNextPage();
       }
       const row = g.items.slice(i, i + cols);
       row.forEach((p, idx) => {
@@ -400,6 +444,5 @@ export async function exportCatalogGridPdf(
     y += 2;
   }
 
-  footer(doc);
   doc.save(opts.fileName);
 }
