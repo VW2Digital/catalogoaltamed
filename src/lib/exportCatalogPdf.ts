@@ -59,47 +59,15 @@ function unitPriceText(
 const BRAND_DARK: [number, number, number] = [142, 86, 20];
 const BRAND_LIGHT: [number, number, number] = [250, 243, 233];
 const BORDER: [number, number, number] = [212, 186, 123];
+const HEADER_FILL: [number, number, number] = [0xc7, 0x8c, 0x3c];
 const TABLE_MARGIN_X = 16;
 const SECTION_GAP = 4;
 const SECTION_RADIUS = 4;
 const TITLE_H = 11;
 
-const GOLD_STOPS: { t: number; rgb: [number, number, number] }[] = [
-  { t: 0, rgb: [0xc6, 0x8c, 0x39] },
-  { t: 0.5, rgb: [0xd4, 0xba, 0x7b] },
-  { t: 1, rgb: [0x8e, 0x56, 0x14] },
-];
-
-function goldAt(t: number): [number, number, number] {
-  const x = Math.min(1, Math.max(0, t));
-  let i = 0;
-  while (i < GOLD_STOPS.length - 2 && x > GOLD_STOPS[i + 1].t) i++;
-  const a = GOLD_STOPS[i];
-  const b = GOLD_STOPS[i + 1];
-  const u = (x - a.t) / (b.t - a.t || 1);
-  return [
-    Math.round(a.rgb[0] + (b.rgb[0] - a.rgb[0]) * u),
-    Math.round(a.rgb[1] + (b.rgb[1] - a.rgb[1]) * u),
-    Math.round(a.rgb[2] + (b.rgb[2] - a.rgb[2]) * u),
-  ];
-}
-
-function fillGoldGradient(doc: jsPDF, x: number, y: number, w: number, h: number) {
-  const steps = Math.max(48, Math.ceil(w));
-  const slice = w / steps;
-  for (let i = 0; i < steps; i++) {
-    doc.setFillColor(...goldAt(i / (steps - 1)));
-    doc.rect(x + i * slice, y, slice + 0.4, h, "F");
-  }
-}
-
-function fillGoldRounded(doc: jsPDF, x: number, y: number, w: number, h: number, r: number) {
-  doc.saveGraphicsState();
-  doc.roundedRect(x, y, w, h, r, r, null);
-  doc.clip();
-  doc.discardPath();
-  fillGoldGradient(doc, x - 0.5, y - 0.5, w + 1, h + 1);
-  doc.restoreGraphicsState();
+function fillHeaderRounded(doc: jsPDF, x: number, y: number, w: number, h: number, r: number) {
+  doc.setFillColor(...HEADER_FILL);
+  doc.roundedRect(x, y, w, h, r, r, "F");
 }
 
 function tableWidth(doc: jsPDF) {
@@ -118,7 +86,8 @@ function drawSectionTitleBar(
   doc.roundedRect(x, y, w, TITLE_H + r, r, r, null);
   doc.clip();
   doc.discardPath();
-  fillGoldGradient(doc, x, y, w, TITLE_H + 0.5);
+  doc.setFillColor(...HEADER_FILL);
+  doc.rect(x, y, w, TITLE_H + 0.5, "F");
   doc.restoreGraphicsState();
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6);
@@ -216,7 +185,7 @@ function categoryPill(doc: jsPDF, label: string, y: number) {
   const w = Math.max(140, doc.getTextWidth(text) + 36);
   const h = 16;
   const x = (pageW - w) / 2;
-  fillGoldRounded(doc, x, y, w, h, 5);
+  fillHeaderRounded(doc, x, y, w, h, 5);
   doc.setTextColor(255, 255, 255);
   doc.text(text, pageW / 2, y + h / 2, { align: "center", baseline: "middle" });
   doc.setTextColor(0);
