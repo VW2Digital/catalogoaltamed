@@ -177,3 +177,20 @@ All colors MUST be HSL.
 [data-product-title-case="capitalize"] .product-title::first-letter {
   text-transform: uppercase;
 }
+
+/* Widget de chat (injetado) — canto inferior direito, estilo WhatsApp */
+#wc-widget {
+  left: auto !important;
+  right: 24px !important;
+}
+#wc-panel {
+  left: auto !important;
+  right: 0 !important;
+}
+#wc-btn {
+  background: hsl(var(--whatsapp)) !important;
+  box-shadow: 0 6px 20px hsl(var(--whatsapp) / 0.35) !important;
+}
+#wc-btn:hover {
+  box-shadow: 0 10px 26px hsl(var(--whatsapp) / 0.45) !important;
+}
