@@ -17,8 +17,9 @@ export default function Bag() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const waLink = buildCartWhatsAppLink(whatsappNumber, items);
 
-  function handleVendorSelected(vendor: Vendor) {
-    const link = buildCartWhatsAppLink(vendor.phone, items) ?? waLink;
+  async function handleVendorSelected(vendor: Vendor) {
+    const phone = vendor.phone ?? (await fetchVendorPhone(vendor.id));
+    const link = buildCartWhatsAppLink(phone ?? undefined, items) ?? waLink;
     setPickerOpen(false);
     if (link) window.open(link, "_blank", "noopener,noreferrer");
   }
