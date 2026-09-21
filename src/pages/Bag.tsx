@@ -7,12 +7,21 @@ import { formatBRL } from "@/lib/format";
 import { useCart } from "@/hooks/useCart";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 import { buildCartWhatsAppLink } from "@/lib/whatsapp";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { VendorPickerDialog } from "@/components/VendorPickerDialog";
+import type { Vendor } from "@/hooks/useVendors";
 
 export default function Bag() {
   const { items, total, count, setQuantity, removeItem, clear } = useCart();
   const { number: whatsappNumber } = useWhatsAppNumber();
+  const [pickerOpen, setPickerOpen] = useState(false);
   const waLink = buildCartWhatsAppLink(whatsappNumber, items);
+
+  function handleVendorSelected(vendor: Vendor) {
+    const link = buildCartWhatsAppLink(vendor.phone, items) ?? waLink;
+    setPickerOpen(false);
+    if (link) window.open(link, "_blank", "noopener,noreferrer");
+  }
 
   useEffect(() => {
     document.title = "Sacola — Pedido via WhatsApp";
