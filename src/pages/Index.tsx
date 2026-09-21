@@ -61,7 +61,7 @@ const Index = () => {
         counts.set(p.catalog_id, (counts.get(p.catalog_id) ?? 0) + 1);
       });
       setCatalogs(
-        (data ?? []).map((c: CatalogSummary) => ({
+        (data ?? []).map((c: Omit<CatalogSummary, "product_count">) => ({
           ...c,
           product_count: counts.get(c.id) ?? 0,
         })),
