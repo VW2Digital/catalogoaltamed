@@ -20,7 +20,7 @@ export type CartLineItem = {
 };
 
 export function buildCartWhatsAppLink(
-  phone: string,
+  phone: string | null | undefined,
   items: CartLineItem[],
 ): string | null {
   const digits = (phone || "").replace(/\D/g, "");

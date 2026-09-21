@@ -9,7 +9,7 @@ import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 import { buildCartWhatsAppLink } from "@/lib/whatsapp";
 import { useEffect, useState } from "react";
 import { VendorPickerDialog } from "@/components/VendorPickerDialog";
-import type { Vendor } from "@/hooks/useVendors";
+import { fetchVendorPhone, type Vendor } from "@/hooks/useVendors";
 
 export default function Bag() {
   const { items, total, count, setQuantity, removeItem, clear } = useCart();
@@ -17,10 +17,17 @@ export default function Bag() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const waLink = buildCartWhatsAppLink(whatsappNumber, items);
 
-  function handleVendorSelected(vendor: Vendor) {
-    const link = buildCartWhatsAppLink(vendor.phone, items) ?? waLink;
+  async function handleVendorSelected(vendor: Vendor) {
+    const tab = window.open("", "_blank", "noopener,noreferrer");
+    const phone = vendor.phone ?? (await fetchVendorPhone(vendor.id));
+    const link = buildCartWhatsAppLink(phone, items) ?? waLink;
     setPickerOpen(false);
-    if (link) window.open(link, "_blank", "noopener,noreferrer");
+    if (!link) {
+      tab?.close();
+      return;
+    }
+    if (tab) tab.location.href = link;
+    else window.open(link, "_blank", "noopener,noreferrer");
   }
 
   useEffect(() => {

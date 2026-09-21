@@ -366,9 +366,36 @@ export type Database = {
           },
         ]
       }
+      vendors_public: {
+        Row: {
+          avatar_url: string | null
+          id: string | null
+          is_active: boolean | null
+          name: string | null
+          role_title: string | null
+          sort_order: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          role_title?: string | null
+          sort_order?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          role_title?: string | null
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_vendor_phone: { Args: { _vendor_id: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user"
