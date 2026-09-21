@@ -30,6 +30,7 @@ import CustomCodeSettings from "./pages/admin/settings/CustomCodeSettings.tsx";
 import { useCustomCodeInjector } from "@/hooks/useCustomCode";
 import { useProductTitleCaseInjector } from "@/hooks/useProductTitleCase";
 import ProductTitlesSettings from "./pages/admin/settings/ProductTitlesSettings.tsx";
+import VendorsSettings from "./pages/admin/settings/VendorsSettings.tsx";
 
 const queryClient = new QueryClient();
 
