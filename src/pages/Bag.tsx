@@ -9,7 +9,7 @@ import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 import { buildCartWhatsAppLink } from "@/lib/whatsapp";
 import { useEffect, useState } from "react";
 import { VendorPickerDialog } from "@/components/VendorPickerDialog";
-import type { Vendor } from "@/hooks/useVendors";
+import { fetchVendorPhone, type Vendor } from "@/hooks/useVendors";
 
 export default function Bag() {
   const { items, total, count, setQuantity, removeItem, clear } = useCart();
