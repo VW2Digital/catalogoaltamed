@@ -18,10 +18,16 @@ export default function Bag() {
   const waLink = buildCartWhatsAppLink(whatsappNumber, items);
 
   async function handleVendorSelected(vendor: Vendor) {
+    const tab = window.open("", "_blank", "noopener,noreferrer");
     const phone = vendor.phone ?? (await fetchVendorPhone(vendor.id));
-    const link = buildCartWhatsAppLink(phone ?? undefined, items) ?? waLink;
+    const link = buildCartWhatsAppLink(phone, items) ?? waLink;
     setPickerOpen(false);
-    if (link) window.open(link, "_blank", "noopener,noreferrer");
+    if (!link) {
+      tab?.close();
+      return;
+    }
+    if (tab) tab.location.href = link;
+    else window.open(link, "_blank", "noopener,noreferrer");
   }
 
   useEffect(() => {
