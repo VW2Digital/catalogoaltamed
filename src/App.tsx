@@ -30,6 +30,7 @@ import CustomCodeSettings from "./pages/admin/settings/CustomCodeSettings.tsx";
 import { useCustomCodeInjector } from "@/hooks/useCustomCode";
 import { useProductTitleCaseInjector } from "@/hooks/useProductTitleCase";
 import ProductTitlesSettings from "./pages/admin/settings/ProductTitlesSettings.tsx";
+import VendorsSettings from "./pages/admin/settings/VendorsSettings.tsx";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const AppInner = () => {
         <Route path="settings" element={<SettingsLayout />}>
           <Route index element={<SettingsIndex />} />
           <Route path="whatsapp" element={<WhatsAppSettings />} />
+          <Route path="vendors" element={<VendorsSettings />} />
           <Route path="categories" element={<CategoriesSettings />} />
           <Route path="brands" element={<BrandsSettings />} />
           <Route path="branding" element={<BrandingSettings />} />

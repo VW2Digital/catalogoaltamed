@@ -7,12 +7,21 @@ import { formatBRL } from "@/lib/format";
 import { useCart } from "@/hooks/useCart";
 import { useWhatsAppNumber } from "@/hooks/useWhatsAppNumber";
 import { buildCartWhatsAppLink } from "@/lib/whatsapp";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { VendorPickerDialog } from "@/components/VendorPickerDialog";
+import type { Vendor } from "@/hooks/useVendors";
 
 export default function Bag() {
   const { items, total, count, setQuantity, removeItem, clear } = useCart();
   const { number: whatsappNumber } = useWhatsAppNumber();
+  const [pickerOpen, setPickerOpen] = useState(false);
   const waLink = buildCartWhatsAppLink(whatsappNumber, items);
+
+  function handleVendorSelected(vendor: Vendor) {
+    const link = buildCartWhatsAppLink(vendor.phone, items) ?? waLink;
+    setPickerOpen(false);
+    if (link) window.open(link, "_blank", "noopener,noreferrer");
+  }
 
   useEffect(() => {
     document.title = "Sacola — Pedido via WhatsApp";
@@ -138,25 +147,23 @@ export default function Bag() {
             <Button asChild variant="outline" className="flex-1">
               <Link to="/">Editar pedido</Link>
             </Button>
-            {waLink ? (
-              <a
-                href={waLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="whatsapp-btn inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.01]"
-              >
-                <WhatsAppIcon className="h-4 w-4" />
-                Enviar pedido no WhatsApp
-              </a>
-            ) : (
-              <div className="whatsapp-btn inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold opacity-60">
-                <WhatsAppIcon className="h-4 w-4" />
-                WhatsApp indisponível
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={() => setPickerOpen(true)}
+              className="whatsapp-btn inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.01]"
+            >
+              <WhatsAppIcon className="h-4 w-4" />
+              Enviar pedido no WhatsApp
+            </button>
           </div>
         </div>
       )}
+
+      <VendorPickerDialog
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        onSelect={handleVendorSelected}
+      />
     </div>
   );
 }
