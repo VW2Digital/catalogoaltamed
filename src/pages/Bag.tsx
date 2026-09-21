@@ -26,8 +26,10 @@ export default function Bag() {
       tab?.close();
       return;
     }
-    if (tab) tab.location.href = link;
-    else window.open(link, "_blank", "noopener,noreferrer");
+    if (tab && !tab.closed) tab.location.href = link;
+    else if (!window.open(link, "_blank", "noopener,noreferrer")) {
+      window.location.href = link;
+    }
   }
 
   useEffect(() => {
