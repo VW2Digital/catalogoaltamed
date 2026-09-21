@@ -13,6 +13,7 @@ import {
   FolderOpen,
   ScrollText,
   CaseSensitive,
+  Users,
 } from "lucide-react";
 
 type Item = {
@@ -38,6 +39,12 @@ const sections: Section[] = [
         title: "WhatsApp",
         description: "Número que receberá as consultas de preço",
         icon: MessageCircle,
+      },
+      {
+        to: "vendors",
+        title: "Vendedores",
+        description: "Foto e WhatsApp de cada vendedor da equipe",
+        icon: Users,
       },
     ],
   },

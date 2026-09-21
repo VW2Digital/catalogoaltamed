@@ -58,6 +58,7 @@ const AppInner = () => {
         <Route path="settings" element={<SettingsLayout />}>
           <Route index element={<SettingsIndex />} />
           <Route path="whatsapp" element={<WhatsAppSettings />} />
+          <Route path="vendors" element={<VendorsSettings />} />
           <Route path="categories" element={<CategoriesSettings />} />
           <Route path="brands" element={<BrandsSettings />} />
           <Route path="branding" element={<BrandingSettings />} />
