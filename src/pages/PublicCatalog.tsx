@@ -5,6 +5,9 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductTable } from "@/components/ProductTable";
 import { ProductDetailDialog, type ProductDetail } from "@/components/ProductDetailDialog";
+import { VendorPickerDialog } from "@/components/VendorPickerDialog";
+import { fetchVendorPhone, type Vendor } from "@/hooks/useVendors";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Loader2, Search, X, FileDown } from "lucide-react";
 import { LayoutGrid, Rows3, Table2 } from "lucide-react";
 import { groupByCategory } from "@/lib/groupByCategory";
@@ -58,10 +61,27 @@ export default function PublicCatalog() {
   const [selected, setSelected] = useState<ProductDetail | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [consultProduct, setConsultProduct] = useState<Product | null>(null);
+  const [vendorPickerOpen, setVendorPickerOpen] = useState(false);
   const openDetail = (p: ProductDetail) => {
     setSelected(p);
     setDetailOpen(true);
   };
+
+  const handleConsult = (p: Product) => {
+    setConsultProduct(p);
+    setVendorPickerOpen(true);
+  };
+
+  async function handleConsultVendorSelected(vendor: Vendor) {
+    const product = consultProduct;
+    setVendorPickerOpen(false);
+    if (!product) return;
+    const phone = vendor.phone ?? (await fetchVendorPhone(vendor.id));
+    const link = buildWhatsAppLink(phone ?? "", product.name, product.image_url);
+    if (!link) return;
+    window.location.href = link;
+  }
    type ViewMode = "two" | "list" | "table";
    const [isMobileView, setIsMobileView] = useState<boolean>(() =>
      typeof window !== "undefined" ? window.innerWidth < 640 : false,
