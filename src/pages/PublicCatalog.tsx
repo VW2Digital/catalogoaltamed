@@ -412,6 +412,10 @@ export default function PublicCatalog() {
                       key={group.category}
                       title={group.category}
                       whatsappNumber={whatsappNumber}
+                      onConsult={(item) => {
+                        const full = group.items.find((p) => p.id === item.id);
+                        if (full) handleConsult(full);
+                      }}
                       onSelect={(item) => {
                         const full = group.items.find((p) => p.id === item.id);
                         if (full) openDetail(full);
@@ -447,6 +451,7 @@ export default function PublicCatalog() {
                           layout={isMobileView && viewMode === "list" ? "list" : "grid"}
                           compact={isMobileView && viewMode === "two"}
                           onSelect={() => openDetail(p)}
+                          onConsult={() => handleConsult(p)}
                           product={{
                             code: p.code,
                             name: p.name,
@@ -475,6 +480,11 @@ export default function PublicCatalog() {
         product={selected}
         open={detailOpen}
         onOpenChange={setDetailOpen}
+      />
+      <VendorPickerDialog
+        open={vendorPickerOpen}
+        onOpenChange={setVendorPickerOpen}
+        onSelect={handleConsultVendorSelected}
       />
     </div>
   );
