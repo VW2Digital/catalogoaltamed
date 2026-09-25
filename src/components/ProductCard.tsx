@@ -25,9 +25,10 @@ type Props = {
   layout?: "grid" | "list";
   compact?: boolean;
   onSelect?: () => void;
+  onConsult?: () => void;
 };
 
-export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect }: Props) {
+export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect, onConsult }: Props) {
   const unitValue = resolveUnitPrice(product.price, product.qtd, product.preco_unitario);
   const showPrices = product.price_visible !== false;
   const waLink = buildWhatsAppLink(whatsappNumber ?? "", product.name, product.image_url);
@@ -50,7 +51,21 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
           <span className="truncate">Adicionar</span>
         </Button>
       )}
-      {waLink ? (
+      {onConsult ? (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onConsult();
+          }}
+          aria-label="Consultar disponibilidade no WhatsApp"
+          title="Consultar disponibilidade"
+          className="inline-flex h-10 min-w-0 w-full items-center justify-center gap-2 rounded-md border border-primary/40 text-sm font-semibold text-primary transition-colors hover:bg-primary/5 sm:w-auto sm:flex-1"
+        >
+          <WhatsAppIcon className="h-4 w-4 shrink-0" />
+          <span className="truncate">Consultar</span>
+        </button>
+      ) : waLink ? (
         <a
           href={waLink}
           target="_blank"
