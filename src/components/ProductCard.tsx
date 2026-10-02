@@ -28,8 +28,16 @@ type Props = {
   onConsult?: () => void;
 };
 
+function categoryWithUnit(product: ProductCardData): string | null {
+  const category = product.category?.trim() ?? "";
+  const unit = product.unit?.trim() ?? "";
+  if (category && unit) return `${category} - ${unit}`;
+  return category || unit || null;
+}
+
 export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect, onConsult }: Props) {
   const unitValue = resolveUnitPrice(product.price, product.qtd, product.preco_unitario);
+  const categoryLine = categoryWithUnit(product);
   const showPrices = product.price_visible !== false;
   const waLink = buildWhatsAppLink(whatsappNumber ?? "", product.name, product.image_url);
   const selectProps = onSelect
@@ -122,8 +130,8 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
           <h3 className="product-title mt-1 text-base font-bold leading-tight text-foreground line-clamp-2">
             {product.name}
           </h3>
-          {product.category && (
-            <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
+          {categoryLine && (
+            <p className="mt-1 text-sm text-muted-foreground">{categoryLine}</p>
           )}
           {showPrices && Number(product.price) > 0 && (
             <p className="mt-1 text-base font-bold text-primary">{formatBRL(product.price)}</p>
@@ -171,8 +179,8 @@ export function ProductCard({ product, whatsappNumber, layout = "grid", onSelect
           </p>
         )}
         <h3 className="product-title text-sm font-bold leading-tight text-foreground">{product.name}</h3>
-        {product.category && (
-          <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
+        {categoryLine && (
+          <p className="mt-1 text-sm text-muted-foreground">{categoryLine}</p>
         )}
         {showPrices && Number(product.price) > 0 && (
           <p className="mt-2 text-lg font-bold text-primary">{formatBRL(product.price)}</p>
