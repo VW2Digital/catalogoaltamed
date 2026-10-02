@@ -206,7 +206,7 @@ export async function exportCatalogTablePdf(
   const colUnit = 28;
   const colPrice = 36;
   const fixedCols = colCode + colBrand + colUnit + colPrice + colPrice;
-  const estimateHeight = (count: number) => TITLE_H + 10 + count * 12.2 + 4;
+  const estimateHeight = (count: number) => TITLE_H + 10 + count * 11.5 + 4;
 
   const [bg1, bg2] = await Promise.all([
     loadImage(pdfBgPage1Url),
@@ -264,7 +264,7 @@ export async function exportCatalogTablePdf(
         lineWidth: 0.3,
         textColor: [40, 30, 20],
         valign: "middle",
-        minCellHeight: 12,
+        minCellHeight: 11.5,
         overflow: "ellipsize",
       },
       headStyles: {
